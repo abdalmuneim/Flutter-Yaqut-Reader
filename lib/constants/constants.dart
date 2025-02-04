@@ -29,5 +29,6 @@ const String constStartTime = 'start_time';
 const String constEndTime = 'end_time';
 const String constMd5 = 'md5';
 const String constUuid = 'uuid';
+const String constText = 'text';
 
 const String constYaqutReaderPluginTag = "YaqutReaderPlugin";

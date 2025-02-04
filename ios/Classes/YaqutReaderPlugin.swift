@@ -175,6 +175,10 @@ extension YaqutReaderPlugin: ReaderDelegate {
         channel?.invokeMethod("onShareBook", arguments: [:])
     }
 
+    public func onShareQuotes(text: String) {
+        channel?.invokeMethod("onShareQuotes", arguments: ["text": text])
+    }
+
     public func onDownloadBook() {
         channel?.invokeMethod("onDownloadBook", arguments: [:])
     }

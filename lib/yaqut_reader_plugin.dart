@@ -23,6 +23,8 @@ class YaqutReaderPlugin {
       StreamController<String>.broadcast();
   final StreamController<String> onShareBookStreamController =
       StreamController<String>.broadcast();
+  final StreamController<String> onShareQuotesStreamController =
+  StreamController<String>.broadcast();
   final StreamController<int> onReaderClosedStreamController =
       StreamController<int>.broadcast();
   final StreamController<String> onSampleEndedStreamController =
@@ -42,6 +44,7 @@ class YaqutReaderPlugin {
   Stream<String> get onSaveBookClicked =>
       onSaveBookClickedStreamController.stream;
   Stream<String> get onShareBook => onShareBookStreamController.stream;
+  Stream<String> get onShareQuotes => onShareQuotesStreamController.stream;
   Stream<String> get onDownloadBook => onDownloadBookStreamController.stream;
   Stream<int> get onReaderClosed => onReaderClosedStreamController.stream;
   Stream<String> get onSampleEnded => onSampleEndedStreamController.stream;
@@ -72,6 +75,10 @@ class YaqutReaderPlugin {
 
   void onShareBookCallback() {
     onShareBookStreamController.add('onShareBook');
+  }
+
+  void onShareQuotesCallback(String text) {
+    onShareQuotesStreamController.add(text);
   }
 
   void onDownloadBookCallback() {
@@ -150,6 +157,10 @@ class YaqutReaderPlugin {
         onSaveBookClickedCallback();
       case 'onShareBook':
         onShareBookCallback();
+      case 'onShareQuotes':
+        var data = call.arguments as Map;
+        String text = data[constText];
+        onShareQuotesCallback(text);
       case 'onDownloadBook':
         onDownloadBookCallback();
       case 'onSyncNotes':
