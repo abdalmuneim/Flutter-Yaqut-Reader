@@ -580,6 +580,7 @@ public protocol RRReaderViewDelegate {
   func onBookDetailsCLicked()
   func onSaveBookClicked(position: Swift.Int)
   func onShareBook()
+  func onShareQuotes(text: Swift.String)
   func onDownloadBook()
   func onSyncNotesAndMarks(list: [YaqutReader.NotesAndMarks])
   func onSyncReadingSession(session: YaqutReader.RRReadingSession)
@@ -2043,6 +2044,7 @@ extension YaqutReader.ImageCoderManager : YaqutReader.ImageProgressiveCodeable {
   @_Concurrency.MainActor @preconcurrency public func setReaderStyle(readerStyle style: YaqutReader.ReaderStyle)
   @_Concurrency.MainActor @preconcurrency public func setSaveState(saveState state: YaqutReader.SaveState)
   @_Concurrency.MainActor @preconcurrency public func setDownloadOptionEnabled(optionEnabled enabled: Swift.Bool)
+  @_Concurrency.MainActor @preconcurrency public func setOrientationEnabled(enabled: Swift.Bool)
   @objc deinit
 }
 extension YaqutReader.RRReaderView : YaqutReader.RRBookMakerDelegate {
@@ -2760,6 +2762,7 @@ public class ReaderBuilder {
   public func setCurrentJumpTime(jumpTime time: Swift.Int)
   public func setCurrentRate(rateIndex index: Swift.Int)
   public func setAudioStartChapter(audioStartChapter index: Swift.Int)
+  public func enableOrientation(enabled: Swift.Bool)
   public func closeBook()
   public func onStartDownloadLoading()
   public func onStopDownloadLoading()
@@ -2773,6 +2776,7 @@ public class ReaderBuilder {
   @objc deinit
 }
 extension YaqutReader.ReaderBuilder : YaqutReader.RRReaderViewDelegate {
+  public func onShareQuotes(text: Swift.String)
   public func onOrientationChanged()
   public func onSyncReadingSession(session: YaqutReader.RRReadingSession)
   public func onStyleChanged(style: YaqutReader.ReaderStyle)
@@ -4318,6 +4322,7 @@ public protocol ReaderDelegate {
   func onBookDetailsCLicked()
   func onSaveBookClicked(position: Swift.Int)
   func onShareBook()
+  func onShareQuotes(text: Swift.String)
   func onDownloadBook()
   func onSyncNotesAndMarks(list: [YaqutReader.NotesAndMarks])
   func onReaderClosed(position: Swift.Int)
