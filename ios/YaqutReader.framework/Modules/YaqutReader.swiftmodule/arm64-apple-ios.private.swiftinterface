@@ -4087,7 +4087,7 @@ public class BookStorage {
   public func getLocalBooks() -> [Swift.Int]
   public func removeAllBooks()
   public func isBookLocal(bookId: Swift.Int) -> Swift.Bool
-  public func deleteBook(bookId: Swift.Int)
+  public func deleteBook(bookId: Swift.Int) -> Swift.Bool
   public func checkDeviceFreeSpace() -> [YaqutReader.FileSizeInfo]
   public func insertOldKeys(keys: [YaqutReader.KeyModel])
   @objc deinit

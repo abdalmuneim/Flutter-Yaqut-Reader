@@ -216,9 +216,10 @@ class YaqutReaderPlugin {
     return isSample!;
   }
 
-  void deleteSampleBook(int bookId) async {
+  Future<bool> deleteSampleBook(int bookId) async {
+    bool? success = false;
     try {
-      await methodChannel.invokeMethod<bool>('deleteSampleBook', {
+      success = await methodChannel.invokeMethod<bool>('deleteSampleBook', {
         'book_id': bookId,
       });
     } on PlatformException catch (e) {
@@ -226,6 +227,7 @@ class YaqutReaderPlugin {
         debugPrint("Failed to call native method: '${e.message}'.");
       }
     }
+    return success!;
   }
 
   getPlatformVersion() {}

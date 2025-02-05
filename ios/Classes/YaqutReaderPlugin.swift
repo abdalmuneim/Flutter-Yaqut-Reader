@@ -57,7 +57,9 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
             if let arguments = call.arguments as? [String: Any] {
                 if let bookId = arguments["book_id"] as? Int {
                     let bookStorage = BookStorage()
-                    let bookInfo = bookStorage.deleteBook(bookId: bookId)
+                    let success = bookStorage.deleteBook(bookId: bookId)
+                    result(success)
+                    return
                 }
                 result("AppDelegate Falied response")
             }
