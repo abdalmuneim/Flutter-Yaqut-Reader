@@ -53,6 +53,14 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
                }
                 result("AppDelegate Falied response")
            }
+        case "deleteSampleBook":
+            if let arguments = call.arguments as? [String: Any] {
+                if let bookId = arguments["book_id"] as? Int {
+                    let bookStorage = BookStorage()
+                    let bookInfo = bookStorage.deleteBook(bookId: bookId)
+                }
+                result("AppDelegate Falied response")
+            }
         default:
             result(FlutterMethodNotImplemented)
         }
