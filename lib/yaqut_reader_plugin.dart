@@ -202,5 +202,19 @@ class YaqutReaderPlugin {
     return isLocal!;
   }
 
+  Future<bool> checkIfSample(int bookId) async {
+    bool? isSample = true;
+    try {
+      isSample = await methodChannel.invokeMethod<bool>('checkIfSample', {
+        'book_id': bookId,
+      });
+    } on PlatformException catch (e) {
+      if (kDebugMode) {
+        debugPrint("Failed to call native method: '${e.message}'.");
+      }
+    }
+    return isSample!;
+  }
+
   getPlatformVersion() {}
 }

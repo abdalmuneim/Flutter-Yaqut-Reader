@@ -33,16 +33,26 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
                 if let bookId = arguments["book_id"] as? Int, let bookFileId = arguments["book_file_id"] as? Int {
                     let bookStorage = BookStorage()
                     let isLocal = bookStorage.isBookLocal(bookId: bookId)
-                    let data: [String: Any] = [
-                        "is_local": isLocal,
-                        "book_id": bookId,
-                        "book_file_id": bookFileId,
-                    ]
+//                     let data: [String: Any] = [
+//                         "is_local": isLocal,
+//                         "book_id": bookId,
+//                         "book_file_id": bookFileId,
+//                     ]
                     result(isLocal)
                     return
                 }
                 result("AppDelegate Falied response")
             }
+        case "checkIfSample":
+            if let arguments = call.arguments as? [String: Any] {
+                if let bookId = arguments["book_id"] as? Int {
+                    let bookStorage = BookStorage()
+                    let bookInfo = bookStorage.getBookInfo(bookId: bookId)
+                    result(bookInfo.isSample)
+                    return
+               }
+                result("AppDelegate Falied response")
+           }
         default:
             result(FlutterMethodNotImplemented)
         }
