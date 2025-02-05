@@ -216,5 +216,17 @@ class YaqutReaderPlugin {
     return isSample!;
   }
 
+  void deleteSampleBook(int bookId) async {
+    try {
+      await methodChannel.invokeMethod<bool>('deleteSampleBook', {
+        'book_id': bookId,
+      });
+    } on PlatformException catch (e) {
+      if (kDebugMode) {
+        debugPrint("Failed to call native method: '${e.message}'.");
+      }
+    }
+  }
+
   getPlatformVersion() {}
 }
