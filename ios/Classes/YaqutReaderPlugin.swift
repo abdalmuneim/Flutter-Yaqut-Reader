@@ -68,6 +68,21 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
             let localBooks = bookStorage.getLocalBooks()
             result(localBooks)
             return
+        case "removeAllBooks":
+            let bookStorage = BookStorage()
+            bookStorage.removeAllBooks()
+            return
+        case "getLocalBooksInfo":
+            let bookStorage = BookStorage()
+            let filesInfo = bookStorage.checkDeviceFreeSpace()
+            let serializedFilesInfo = filesInfo.map { fileInfo in
+                return [
+                    "id": fileInfo.id,
+                    "size": fileInfo.size
+                ] as [String: Any]
+            }
+            result(serializedFilesInfo) // Returning a JSON-serializable array
+            return
         default:
             result(FlutterMethodNotImplemented)
         }

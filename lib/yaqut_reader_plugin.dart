@@ -254,5 +254,22 @@ class YaqutReaderPlugin {
     }
   }
 
+  Future<bool> removeAllBooks() async {
+    await methodChannel.invokeMethod('removeAllBooks');
+    return true;
+  }
+
+  Future<List<Map<String, dynamic>>?> getLocalBooksInfo() async {
+    try {
+      final List<dynamic>? rawFilesInfo = await methodChannel.invokeMethod<List<dynamic>>('getLocalBooksInfo');
+      return rawFilesInfo?.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+    } on PlatformException catch (e) {
+      if (kDebugMode) {
+        debugPrint("Failed to call native method: '${e.message}'.");
+      }
+      return null;
+    }
+  }
+
   getPlatformVersion() {}
 }
