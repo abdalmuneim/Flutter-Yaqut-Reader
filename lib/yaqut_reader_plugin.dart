@@ -10,46 +10,57 @@ class YaqutReaderPlugin {
   final methodChannel = const MethodChannel('yaqut_reader_plugin');
 
   final StreamController<YaqutReaderStyle> onStyleChangedStreamController =
-      StreamController<YaqutReaderStyle>.broadcast();
+  StreamController<YaqutReaderStyle>.broadcast();
   final StreamController<int> onPositionChangedStreamController =
-      StreamController<int>.broadcast();
+  StreamController<int>.broadcast();
   final StreamController<List<dynamic>> onSyncNotesStreamController =
-      StreamController<List<dynamic>>.broadcast();
+  StreamController<List<dynamic>>.broadcast();
   final StreamController<String> onBookDetailsCLickedStreamController =
-      StreamController<String>.broadcast();
+  StreamController<String>.broadcast();
   final StreamController<String> onSaveBookClickedStreamController =
-      StreamController<String>.broadcast();
+  StreamController<String>.broadcast();
   final StreamController<String> onDownloadBookStreamController =
-      StreamController<String>.broadcast();
+  StreamController<String>.broadcast();
   final StreamController<String> onShareBookStreamController =
-      StreamController<String>.broadcast();
+  StreamController<String>.broadcast();
   final StreamController<String> onShareQuotesStreamController =
   StreamController<String>.broadcast();
   final StreamController<int> onReaderClosedStreamController =
-      StreamController<int>.broadcast();
+  StreamController<int>.broadcast();
   final StreamController<String> onSampleEndedStreamController =
-      StreamController<String>.broadcast();
+  StreamController<String>.broadcast();
   final StreamController<YaqutReaderReadingSession>
-      onSyncReadingSessionStreamController =
-      StreamController<YaqutReaderReadingSession>.broadcast();
+  onSyncReadingSessionStreamController =
+  StreamController<YaqutReaderReadingSession>.broadcast();
   final StreamController<String> onOrientationChangedStreamController =
-      StreamController<String>.broadcast();
+  StreamController<String>.broadcast();
 
   Stream<YaqutReaderStyle> get onStyleChanged =>
       onStyleChangedStreamController.stream;
+
   Stream<int> get onPositionChanged => onPositionChangedStreamController.stream;
+
   Stream<List<dynamic>> get onSyncNotes => onSyncNotesStreamController.stream;
+
   Stream<String> get onBookDetailsCLicked =>
       onBookDetailsCLickedStreamController.stream;
+
   Stream<String> get onSaveBookClicked =>
       onSaveBookClickedStreamController.stream;
+
   Stream<String> get onShareBook => onShareBookStreamController.stream;
+
   Stream<String> get onShareQuotes => onShareQuotesStreamController.stream;
+
   Stream<String> get onDownloadBook => onDownloadBookStreamController.stream;
+
   Stream<int> get onReaderClosed => onReaderClosedStreamController.stream;
+
   Stream<String> get onSampleEnded => onSampleEndedStreamController.stream;
+
   Stream<YaqutReaderReadingSession> get onSyncReadingSession =>
       onSyncReadingSessionStreamController.stream;
+
   Stream<String> get onOrientationChanged =>
       onOrientationChangedStreamController.stream;
 
@@ -102,12 +113,11 @@ class YaqutReaderPlugin {
     onOrientationChangedStreamController.add('onOrientationChanged');
   }
 
-  Future<void> startReader(
-      {required String? header,
-      required String? path,
-      required String? accessToken,
-      required YaqutReaderBook book,
-      required YaqutReaderStyle style}) async {
+  Future<void> startReader({required String? header,
+    required String? path,
+    required String? accessToken,
+    required YaqutReaderBook book,
+    required YaqutReaderStyle style}) async {
     methodChannel.setMethodCallHandler(readerListener);
     try {
       await methodChannel.invokeMethod('startReader', {
@@ -127,7 +137,8 @@ class YaqutReaderPlugin {
   Future<void> readerListener(MethodCall call) async {
     if (kDebugMode) {
       debugPrint(
-          "$constYaqutReaderPluginTag readerListener Called method: ${call.method}");
+          "$constYaqutReaderPluginTag readerListener Called method: ${call
+              .method}");
     }
     switch (call.method) {
       case 'onStyleChanged':
@@ -174,12 +185,12 @@ class YaqutReaderPlugin {
         onSampleEndedCallback();
       case 'onReadingSessionEnd':
         final Map<Object?, Object?> rawData =
-            call.arguments as Map<Object?, Object?>;
+        call.arguments as Map<Object?, Object?>;
         final Map<String, dynamic> data = rawData.map(
-          (key, value) => MapEntry(key as String, value),
+              (key, value) => MapEntry(key as String, value),
         );
         YaqutReaderReadingSession session =
-            YaqutReaderReadingSession.fromJson(data);
+        YaqutReaderReadingSession.fromJson(data);
         onSyncReadingSessionCallback(session);
       case 'onOrientationChanged':
         onOrientationChangedCallback();
@@ -231,15 +242,16 @@ class YaqutReaderPlugin {
   }
 
   Future<List<int>?> getLocalBooks() async {
-    List<int>? ids;
     try {
-      ids = await methodChannel.invokeMethod<List<int>>('getLocalBooks');
+      final List<Object?>? rawIds = await methodChannel.invokeMethod<
+          List<Object?>>('getLocalBooks');
+      return rawIds?.map((e) => e as int).toList();
     } on PlatformException catch (e) {
       if (kDebugMode) {
         debugPrint("Failed to call native method: '${e.message}'.");
       }
+      return null;
     }
-    return ids;
   }
 
   getPlatformVersion() {}
