@@ -230,5 +230,17 @@ class YaqutReaderPlugin {
     return success!;
   }
 
+  Future<List<int>> getLocalBooks() async {
+    List<int> ids = [];
+    try {
+      ids = await methodChannel.invokeMethod<List<int>>('getLocalBooks');
+    } on PlatformException catch (e) {
+      if (kDebugMode) {
+        debugPrint("Failed to call native method: '${e.message}'.");
+      }
+    }
+    return ids!;
+  }
+
   getPlatformVersion() {}
 }

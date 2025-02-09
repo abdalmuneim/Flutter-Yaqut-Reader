@@ -63,6 +63,11 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
                 }
                 result("AppDelegate Falied response")
             }
+        case "getLocalBooks":
+            let bookStorage = BookStorage()
+            let localBooks = bookStorage.getLocalBooks()
+            result(localBooks)
+            return
         default:
             result(FlutterMethodNotImplemented)
         }
