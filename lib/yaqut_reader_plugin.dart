@@ -230,8 +230,8 @@ class YaqutReaderPlugin {
     return success!;
   }
 
-  Future<List<int>> getLocalBooks() async {
-    List<int> ids = [];
+  Future<List<int>?> getLocalBooks() async {
+    List<int>? ids;
     try {
       ids = await methodChannel.invokeMethod<List<int>>('getLocalBooks');
     } on PlatformException catch (e) {
@@ -239,7 +239,7 @@ class YaqutReaderPlugin {
         debugPrint("Failed to call native method: '${e.message}'.");
       }
     }
-    return ids!;
+    return ids;
   }
 
   getPlatformVersion() {}
