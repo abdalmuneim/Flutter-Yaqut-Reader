@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import co.yaqut.reader.api.BookInfo;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.embedding.engine.plugins.activity.ActivityAware;
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
@@ -88,6 +89,54 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
                 boolean isLocal = BookStorage.isBookLocal(applicationContext, bookId);
                 result.success(isLocal);
                 break;
+            case "checkIfSample":
+                if (call.arguments instanceof Map) {
+                    Map<String, Object> arguments = (Map<String, Object>) call.arguments;
+                    if (arguments.containsKey("book_id") && arguments.get("book_id") instanceof Integer) {
+                        int bookId2 = (Integer) arguments.get("book_id");
+                        BookInfo bookInfo = BookStorage.getBookInfo(applicationContext,bookId2);
+                        result.success(bookInfo.isSample());
+                        return;
+                    }
+                    result.success("AppDelegate Failed response");
+                }
+                break;
+
+            case "deleteSampleBook":
+                if (call.arguments instanceof Map) {
+                    Map<String, Object> arguments = (Map<String, Object>) call.arguments;
+                    if (arguments.containsKey("book_id") && arguments.get("book_id") instanceof Integer) {
+                        int bookId3 = (Integer) arguments.get("book_id");
+                         BookStorage.deleteBook(applicationContext,bookId3);
+                        result.success(true);
+                        return;
+                    }
+                    result.success("AppDelegate Failed response");
+                }
+                break;
+
+            case "getLocalBooks":
+                int[] localBooks = BookStorage.getLocalBooks(applicationContext);
+                result.success(localBooks);
+                return;
+
+            case "removeAllBooks":
+                BookStorage.removeAllBooks();
+                return;
+
+            case "getLocalBooksInfo":
+                List<FileSizeInfo> filesInfo = BookStorage.getLocalBookFilesInfo();
+                List<Map<String, Object>> serializedFilesInfo = new ArrayList<>();
+
+                for (FileSizeInfo fileInfo : filesInfo) {
+                    Map<String, Object> fileData = new HashMap<>();
+                    fileData.put("id", fileInfo.getId());
+                    fileData.put("size", fileInfo.getSize());
+                    serializedFilesInfo.add(fileData);
+                }
+
+                result.success(serializedFilesInfo); // Returning a JSON-serializable array
+                return;
             default:
                 result.notImplemented();
         }
