@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 import co.yaqut.reader.api.BookInfo;
+import co.yaqut.reader.api.FileSizeInfo;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.embedding.engine.plugins.activity.ActivityAware;
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
@@ -121,7 +122,6 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
                 return;
 
             case "removeAllBooks":
-                BookStorage.removeAllBooks();
                 return;
 
             case "getLocalBooksInfo":
