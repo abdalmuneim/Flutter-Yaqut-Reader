@@ -15,7 +15,7 @@ class YaqutReaderPlugin {
   StreamController<int>.broadcast();
   final StreamController<List<dynamic>> onSyncNotesStreamController =
   StreamController<List<dynamic>>.broadcast();
-  final StreamController<String> onBookDetailsCLickedStreamController =
+  final StreamController<String> onBookDetailsClickedStreamController =
   StreamController<String>.broadcast();
   final StreamController<String> onSaveBookClickedStreamController =
   StreamController<String>.broadcast();
@@ -42,8 +42,8 @@ class YaqutReaderPlugin {
 
   Stream<List<dynamic>> get onSyncNotes => onSyncNotesStreamController.stream;
 
-  Stream<String> get onBookDetailsCLicked =>
-      onBookDetailsCLickedStreamController.stream;
+  Stream<String> get onBookDetailsClicked =>
+      onBookDetailsClickedStreamController.stream;
 
   Stream<String> get onSaveBookClicked =>
       onSaveBookClickedStreamController.stream;
@@ -76,8 +76,8 @@ class YaqutReaderPlugin {
     onSyncNotesStreamController.add(notes);
   }
 
-  void onBookDetailsCLickedCallback() {
-    onBookDetailsCLickedStreamController.add('onBookDetailsCLicked');
+  void onBookDetailsClickedCallback() {
+    onBookDetailsClickedStreamController.add('onBookDetailsClicked');
   }
 
   void onSaveBookClickedCallback() {
@@ -163,7 +163,7 @@ class YaqutReaderPlugin {
         int position = data[constPosition];
         onPositionChangedCallback(position);
       case 'onBookDetailsClicked':
-        onBookDetailsCLickedCallback();
+        onBookDetailsClickedCallback();
       case 'onSaveBookClicked':
         onSaveBookClickedCallback();
       case 'onShareBook':
