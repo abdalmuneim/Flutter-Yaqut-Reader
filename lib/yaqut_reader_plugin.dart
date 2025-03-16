@@ -162,7 +162,7 @@ class YaqutReaderPlugin {
         var data = call.arguments as Map;
         int position = data[constPosition];
         onPositionChangedCallback(position);
-      case 'onBookDetailsCLicked':
+      case 'onBookDetailsClicked':
         onBookDetailsCLickedCallback();
       case 'onSaveBookClicked':
         onSaveBookClickedCallback();
