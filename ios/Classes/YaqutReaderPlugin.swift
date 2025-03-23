@@ -25,6 +25,7 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
                 let header = arguments["header"] as? String
                 let path = arguments["path"] as? String
                 let token = arguments["access_token"] as? String
+                let saved = arguments["saved"] as? Bool
                 print("startReader invoked iOS")
                 self.startReader(header: header, path: path, accessToken: token, bookData: book, style: style)
             }
@@ -88,7 +89,7 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
         }
     }
     
-    private func startReader(header: String?, path: String?, accessToken: String?, bookData: [String: Any], style: [String: Any]) {
+    private func startReader(header: String?, path: String?, accessToken: String?, bookData: [String: Any], style: [String: Any], saved: Bool) {
         let bookId = bookData["bookId"] as? Int ?? 0
         let bookFileId = bookData["bookFileId"] as? Int ?? 0
         let title = bookData["title"] as? String ?? ""
@@ -107,7 +108,11 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
         self.readerBuilder?.setPosition(startPosition: position)
         self.readerBuilder?.setPercentageView(previewPercentage: previewPercentage)
         self.readerBuilder?.setDownloadEnabled(downloadEnabled: true)
-        self.readerBuilder?.setSaveState(saveState: .NOT_SAVED)
+        if saved {
+            self.readerBuilder?.setSaveState(saveState: .SAVED)
+        } else {
+            self.readerBuilder?.setSaveState(saveState: .NOT_SAVED)
+        }
         let notesAndMarksData = bookData["notesAndMarks"] as? [[String: Any]] ?? []
         var notesAndMarks = [NotesAndMarks]()
         for item in notesAndMarksData {

@@ -117,7 +117,8 @@ class YaqutReaderPlugin {
     required String? path,
     required String? accessToken,
     required YaqutReaderBook book,
-    required YaqutReaderStyle style}) async {
+    required YaqutReaderStyle style,
+    required bool saved}) async {
     methodChannel.setMethodCallHandler(readerListener);
     try {
       await methodChannel.invokeMethod('startReader', {
@@ -125,7 +126,8 @@ class YaqutReaderPlugin {
         constPath: path,
         constAccessToken: accessToken,
         constBook: book.toJson(),
-        constStyle: style.toJson()
+        constStyle: style.toJson(),
+        constSaved: saved,
       });
     } on PlatformException catch (e) {
       if (kDebugMode) {
