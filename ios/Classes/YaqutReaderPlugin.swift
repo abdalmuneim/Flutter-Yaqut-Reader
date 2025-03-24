@@ -214,7 +214,7 @@ extension YaqutReaderPlugin: ReaderDelegate {
     }
 
     public func onBookDetailsCLicked() {
-        channel?.invokeMethod("onBookDetailsCLicked", arguments: [:])
+        channel?.invokeMethod("onBookDetailsClicked", arguments: [:])
     }
 
     public func onSaveBookClicked(position: Int) {
