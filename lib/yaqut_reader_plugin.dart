@@ -275,5 +275,13 @@ class YaqutReaderPlugin {
     }
   }
 
+  void showReader() {
+    methodChannel.invokeMethod('showReader');
+  }
+
+  void hideReader() {
+    methodChannel.invokeMethod('hideReader');
+  }
+
   getPlatformVersion() {}
 }

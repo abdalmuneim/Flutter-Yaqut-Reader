@@ -84,6 +84,12 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
             }
             result(serializedFilesInfo) // Returning a JSON-serializable array
             return
+        case "hideReader":
+            self.readerBuilder?.hideReaderView()
+            return
+        case "showReader":
+            self.readerBuilder?.showReaderView()
+            return
         default:
             result(FlutterMethodNotImplemented)
         }
