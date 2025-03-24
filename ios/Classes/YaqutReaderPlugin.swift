@@ -90,6 +90,9 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
         case "showReader":
             self.readerBuilder?.showReaderView()
             return
+        case "closeReader":
+             self.readerBuilder?.closeBook()
+             return
         default:
             result(FlutterMethodNotImplemented)
         }

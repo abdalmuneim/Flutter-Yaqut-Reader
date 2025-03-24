@@ -289,5 +289,9 @@ class YaqutReaderPlugin {
     methodChannel.invokeMethod('hideReader');
   }
 
+  void closeReader() {
+    methodChannel.invokeMethod('closeReader');
+  }
+
   getPlatformVersion() {}
 }
