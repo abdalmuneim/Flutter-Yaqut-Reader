@@ -7,6 +7,12 @@ import 'package:yaqut_reader_plugin/models/yaqut_reader_reading_session.dart';
 import 'package:yaqut_reader_plugin/models/yaqut_reader_style.dart';
 
 class YaqutReaderPlugin {
+
+  YaqutReaderPlugin._internal();
+  static final YaqutReaderPlugin _instance = YaqutReaderPlugin._internal();
+  factory YaqutReaderPlugin() => _instance;
+
+
   final methodChannel = const MethodChannel('yaqut_reader_plugin');
 
   final StreamController<YaqutReaderStyle> onStyleChangedStreamController =
