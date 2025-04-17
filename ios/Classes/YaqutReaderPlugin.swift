@@ -26,7 +26,7 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
                 let path = arguments["path"] as? String
                 let token = arguments["access_token"] as? String
                 let saved = arguments["saved"] as? Bool
-                print("startReader invoked iOS")
+                print("startReader invoked iOS saved: \(saved)")
                 self.startReader(header: header, path: path, accessToken: token, bookData: book, style: style, saved: saved ?? false)
             }
         case "checkIfLocal":
@@ -99,6 +99,7 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
     }
     
     private func startReader(header: String?, path: String?, accessToken: String?, bookData: [String: Any], style: [String: Any], saved: Bool) {
+        print("startReader function saved: \(saved)")
         let bookId = bookData["bookId"] as? Int ?? 0
         let bookFileId = bookData["bookFileId"] as? Int ?? 0
         let title = bookData["title"] as? String ?? ""
@@ -118,6 +119,7 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
         self.readerBuilder?.setPercentageView(previewPercentage: previewPercentage)
         self.readerBuilder?.setDownloadEnabled(downloadEnabled: true)
         if saved {
+            print("setSaveState saved: \(saved)")
             self.readerBuilder?.setSaveState(saveState: .SAVED)
         } else {
             self.readerBuilder?.setSaveState(saveState: .NOT_SAVED)
