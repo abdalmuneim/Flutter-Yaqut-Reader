@@ -14,8 +14,6 @@ A new Flutter project.
   s.author           = { 'Your Company' => 'email@example.com' }
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
-  s.preserve_paths = 'YaqutReader.framework'
-  s.xcconfig = { 'OTHER_LDFLAGS' => '-framework YaqutReader' }
   s.vendored_frameworks = 'YaqutReader.xcframework'
   s.dependency 'Flutter'
   s.platform = :ios, '11.0'
