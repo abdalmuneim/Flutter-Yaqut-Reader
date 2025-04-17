@@ -16,7 +16,7 @@ A new Flutter project.
   s.source_files = 'Classes/**/*'
   s.preserve_paths = 'YaqutReader.framework'
   s.xcconfig = { 'OTHER_LDFLAGS' => '-framework YaqutReader' }
-  s.vendored_frameworks = 'YaqutReader.framework'
+  s.vendored_frameworks = 'YaqutReader.xcframework'
   s.dependency 'Flutter'
   s.platform = :ios, '11.0'
 
