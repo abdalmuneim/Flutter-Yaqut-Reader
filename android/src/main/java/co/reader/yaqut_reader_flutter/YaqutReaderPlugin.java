@@ -137,6 +137,13 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
 
                 result.success(serializedFilesInfo); // Returning a JSON-serializable array
                 return;
+            case "hideReader":
+                ReaderBuilder.hideReader();
+                result.success(null);
+                return;
+            case "showReader":
+                ReaderBuilder.showReader();
+                result.success(null);
             default:
                 result.notImplemented();
         }
