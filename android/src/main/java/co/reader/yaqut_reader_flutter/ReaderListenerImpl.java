@@ -117,10 +117,14 @@ public class ReaderListenerImpl implements ReaderListener, Parcelable {
     }
 
     @Override
-    public void onShareBook() {
+    public void onShareBook(String quote) {
         MethodChannel channel = ChannelManager.getInstance().getChannel();
         if (channel != null) {
-            channel.invokeMethod("onShareBook", new HashMap<String, Object>());
+            if (quote.isEmpty())
+                channel.invokeMethod("onShareBook", new HashMap<String, Object>());
+            else
+                channel.invokeMethod("onShareQuotes", quote);
+
         }
     }
 
