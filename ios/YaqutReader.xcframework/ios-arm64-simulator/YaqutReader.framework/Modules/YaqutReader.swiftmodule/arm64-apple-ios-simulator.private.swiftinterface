@@ -2762,6 +2762,7 @@ public class ReaderBuilder {
   public func setDownloadEnabled(downloadEnabled enabled: Swift.Bool)
   public func setMiniPlayerMargin(miniPlayerMargin margin: CoreFoundation.CGFloat)
   public func setMarks(allMarks marks: [YaqutReader.NotesAndMarks])
+  public func updateMarks(allMarks marks: [YaqutReader.NotesAndMarks])
   public func setCurrentJumpTime(jumpTime time: Swift.Int)
   public func setCurrentRate(rateIndex index: Swift.Int)
   public func setAudioStartChapter(audioStartChapter index: Swift.Int)

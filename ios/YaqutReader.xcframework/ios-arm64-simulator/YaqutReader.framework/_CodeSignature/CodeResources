@@ -22,7 +22,7 @@
 		</data>
 		<key>Assets.car</key>
 		<data>
-		fTQhS4jRD4Wtokos7lyAaSfrPVQ=
+		7G2FlkklhImXGMEYdceNlHegimk=
 		</data>
 		<key>Base.lproj/RRReaderView.nib</key>
 		<data>
@@ -90,11 +90,11 @@
 		</data>
 		<key>Modules/YaqutReader.swiftmodule/arm64-apple-ios-simulator.abi.json</key>
 		<data>
-		kT5gm/n++rpd4UQrUEqAMDRrtdk=
+		s6stWUWkb213B26P9REuOSj+TUw=
 		</data>
 		<key>Modules/YaqutReader.swiftmodule/arm64-apple-ios-simulator.private.swiftinterface</key>
 		<data>
-		6gsYsPKkKKZSNC7ydrOA/j67P5w=
+		WRD8MUE74yAYcNtiNpro3Sp0MoM=
 		</data>
 		<key>Modules/YaqutReader.swiftmodule/arm64-apple-ios-simulator.swiftdoc</key>
 		<data>
@@ -102,11 +102,11 @@
 		</data>
 		<key>Modules/YaqutReader.swiftmodule/arm64-apple-ios-simulator.swiftinterface</key>
 		<data>
-		6gsYsPKkKKZSNC7ydrOA/j67P5w=
+		WRD8MUE74yAYcNtiNpro3Sp0MoM=
 		</data>
 		<key>Modules/YaqutReader.swiftmodule/arm64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		FPZOZjtRfnrR9qQx4qImKgYRJD8=
+		HzW4wamB9xkdFBG/6YYQ/vDr2bI=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -357,7 +357,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			cB9dgBiVJ2Sfh972UtX+cS3GJDiciVZPtSZux3DPd7k=
+			2SZlRNN61xS/MmtbHWIp9zqDQVPc8PPKXow6M8nlgwY=
 			</data>
 		</dict>
 		<key>Base.lproj/RRReaderView.nib</key>
@@ -469,14 +469,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			y5e+7vtH5osAka7qnfJfGc11fXWsTClQRAS5zEReBME=
+			LW53JUB0EdFGvTkEWC0OCUYJCh1JMiGuEl0eRd+lrRM=
 			</data>
 		</dict>
 		<key>Modules/YaqutReader.swiftmodule/arm64-apple-ios-simulator.private.swiftinterface</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			6vtmC8JY3Kvwkxr2zLFHvYBfdXMVBkBLAxADOMYkSPo=
+			LEAhJUgrN+rYC9uaJaoLdD0ALJyzGw+79gVqILFxx9U=
 			</data>
 		</dict>
 		<key>Modules/YaqutReader.swiftmodule/arm64-apple-ios-simulator.swiftdoc</key>
@@ -490,14 +490,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			6vtmC8JY3Kvwkxr2zLFHvYBfdXMVBkBLAxADOMYkSPo=
+			LEAhJUgrN+rYC9uaJaoLdD0ALJyzGw+79gVqILFxx9U=
 			</data>
 		</dict>
 		<key>Modules/YaqutReader.swiftmodule/arm64-apple-ios-simulator.swiftmodule</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			LgfLZdBsPt4Su3YGqwGdBzrdQKX9qkAUI4sPbPqAmMo=
+			vHQDl8+1Ov6oUojuN//GkekXvjvchp0Pvq9uK4Mfkvc=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>

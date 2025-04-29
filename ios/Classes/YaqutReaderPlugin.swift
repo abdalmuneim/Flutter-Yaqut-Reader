@@ -93,11 +93,26 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
         case "closeReader":
              self.readerBuilder?.closeBook()
              return
+        case "updateMarks":
+            if let arguments = call.arguments as? [String: Any], let marks = arguments["marks"] as? [[String: Any]] {
+                self.updateMarks(notesAndMarksData: marks)
+            }
+            return
         default:
             result(FlutterMethodNotImplemented)
         }
     }
-    
+
+    private func updateMarks(notesAndMarksData: [[String: Any]]) {
+        var notesAndMarks = [NotesAndMarks]()
+        for item in notesAndMarksData {
+            let newItem: [String: Any] = ["bookId": bookId, "markId": item["id"] as? Int ?? 0, "fromOffset": item["location"] as? Int ?? 0, "toOffset": item["length"] as? Int ?? 0, "markColor": item["color"] as? Int ?? 0, "displayText": item["note"] as? String ?? "", "type": item["type"] as? Int ?? 0, "deleted": item["deleted"] as? Int ?? 0, "local": 1]
+            let noteAndMark = NotesAndMarks(data: newItem)
+            notesAndMarks.append(noteAndMark)
+        }
+        self.readerBuilder?.updateMarks(allMarks: notesAndMarks)
+    }
+
     private func startReader(header: String?, path: String?, accessToken: String?, bookData: [String: Any], style: [String: Any], saved: Bool) {
         print("startReader function saved: \(saved)")
         let bookId = bookData["bookId"] as? Int ?? 0
