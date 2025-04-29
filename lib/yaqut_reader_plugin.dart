@@ -148,7 +148,7 @@ class YaqutReaderPlugin {
       ) async {
     try {
       await methodChannel.invokeMethod('updateMarks', {
-        'marks': marks.toJson(),
+        'marks': marks,
       });
     } on PlatformException catch (e) {
       if (kDebugMode) {
