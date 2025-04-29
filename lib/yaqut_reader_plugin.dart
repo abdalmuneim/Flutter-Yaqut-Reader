@@ -142,6 +142,21 @@ class YaqutReaderPlugin {
     }
   }
 
+
+  void updateMarks(
+      List<Map<String, dynamic>> marks,
+      ) async {
+    try {
+      await methodChannel.invokeMethod('updateMarks', {
+        'marks': marks.toJson(),
+      });
+    } on PlatformException catch (e) {
+      if (kDebugMode) {
+        debugPrint("Failed to call native method: '${e.message}'.");
+      }
+    }
+  }
+
   Future<void> readerListener(MethodCall call) async {
     if (kDebugMode) {
       debugPrint(
