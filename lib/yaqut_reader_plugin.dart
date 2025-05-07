@@ -194,9 +194,18 @@ class YaqutReaderPlugin {
       case 'onShareBook':
         onShareBookCallback();
       case 'onShareQuotes':
-        var data = call.arguments as Map;
-        String text = data[constText];
-        onShareQuotesCallback(text);
+        // var data = call.arguments as Map;
+        // String text = data[constText];
+        // onShareQuotesCallback(text);
+        final arguments = call.arguments;
+        if (arguments is Map) {
+          final String? text = arguments[constText];
+          if (text != null) {
+            onShareQuotesCallback(text);
+          }
+        } else {
+          onShareQuotesCallback(arguments);
+        }
       case 'onDownloadBook':
         onDownloadBookCallback();
       case 'onSyncNotes':
