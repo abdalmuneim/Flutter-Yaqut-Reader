@@ -150,7 +150,7 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
                     if (arguments.containsKey("marks")) {
                         List<Map<String, Object>> notesAndMarksData = (List<Map<String, Object>>) arguments.get("marks");
                         List<NotesAndMarks> notesAndMarks = getNotesAndMarks(notesAndMarksData);
-                        readerBuilder.setNotesAndMarks(notesAndMarks);
+                        readerBuilder.updateNotesAndMarks(notesAndMarks);
                         result.success(null);
                         return;
                     }
