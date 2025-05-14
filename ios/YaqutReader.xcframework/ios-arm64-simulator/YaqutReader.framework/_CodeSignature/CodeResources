@@ -22,7 +22,7 @@
 		</data>
 		<key>Assets.car</key>
 		<data>
-		7G2FlkklhImXGMEYdceNlHegimk=
+		fTQhS4jRD4Wtokos7lyAaSfrPVQ=
 		</data>
 		<key>Base.lproj/RRReaderView.nib</key>
 		<data>
@@ -90,7 +90,7 @@
 		</data>
 		<key>Modules/YaqutReader.swiftmodule/arm64-apple-ios-simulator.abi.json</key>
 		<data>
-		Nu3Yxs4lpZ7Ddcl/5NLV4ydGkJ8=
+		vBH9a9GNa/UhEuraJfTJXIT4o+M=
 		</data>
 		<key>Modules/YaqutReader.swiftmodule/arm64-apple-ios-simulator.private.swiftinterface</key>
 		<data>
@@ -106,7 +106,7 @@
 		</data>
 		<key>Modules/YaqutReader.swiftmodule/arm64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		jsu4tK0+RNRJjHCQ1+AbTVy0UyU=
+		NMsyyN+2rdguxtkRd9g+mxcfX1U=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -182,7 +182,7 @@
 		</data>
 		<key>RRSettingsMenu.nib</key>
 		<data>
-		f0TbCE82IeZ1FVibfB+ckdWSG/0=
+		+9xYFI3sosBphzD2ooYomT2JEZU=
 		</data>
 		<key>RRSettingsViewController.nib</key>
 		<data>
@@ -357,7 +357,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			2SZlRNN61xS/MmtbHWIp9zqDQVPc8PPKXow6M8nlgwY=
+			cB9dgBiVJ2Sfh972UtX+cS3GJDiciVZPtSZux3DPd7k=
 			</data>
 		</dict>
 		<key>Base.lproj/RRReaderView.nib</key>
@@ -469,7 +469,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			4onKQ6qmXKhT9QxdWCRd5Z5HRTj+72/nBkbRmIP72qs=
+			EWvcMGGoU/A4uw6d6a9Ss1frvPddFEk7AlhvkuD9G4Q=
 			</data>
 		</dict>
 		<key>Modules/YaqutReader.swiftmodule/arm64-apple-ios-simulator.private.swiftinterface</key>
@@ -497,7 +497,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			ZtPPxK0fV4LtZ+5rV0jLgxbrG0HEbPR8XhNxvOy/WNw=
+			rJZYxmkHWfcbbxyFn+fwe9eBVQKQGNB4YQ9pGbOvUvI=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>
@@ -630,7 +630,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			xw+JLQYJu0cFBPzKZupQnn6ysJQK8vPEfJhi7cyQW0A=
+			k6d+MJGNYMGx/lbjoMTNTAZ6hErIaybnQqkE8v52xfQ=
 			</data>
 		</dict>
 		<key>RRSettingsViewController.nib</key>
