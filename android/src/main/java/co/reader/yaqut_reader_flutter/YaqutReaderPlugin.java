@@ -3,8 +3,6 @@ package co.reader.yaqut_reader_flutter;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -28,10 +26,9 @@ import co.yaqut.reader.api.ReaderStyle;
 import co.yaqut.reader.api.SaveBookManager;
 import co.yaqut.reader.api.ReaderManager;
 import co.yaqut.reader.api.NotesAndMarks;
-import co.yaqut.reader.api.ReaderListener;
 
 public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware {
-    private  MethodChannel channel;
+    private MethodChannel channel;
     private Context applicationContext;
     private Activity activity;
     private ReaderBuilder readerBuilder;
@@ -77,9 +74,10 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
                     String header = (String) arguments.get("header");
                     String path = (String) arguments.get("path");
                     String token = (String) arguments.get("access_token");
+                    boolean saved = (boolean) arguments.get("saved");
                     Map<String, Object> book = (Map<String, Object>) arguments.get("book");
                     Map<String, Object> style = (Map<String, Object>) arguments.get("style");
-                    startReader(header, path, token, book, style);
+                    startReader(header, path, token, book, style, saved);
                 } else {
                     Log.e(TAG, "onMethodCall: NO_ACTIVITY Activity context is not available");
                 }
@@ -95,7 +93,7 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
                     Map<String, Object> arguments = (Map<String, Object>) call.arguments;
                     if (arguments.containsKey("book_id") && arguments.get("book_id") instanceof Integer) {
                         int bookId2 = (Integer) arguments.get("book_id");
-                        BookInfo bookInfo = BookStorage.getBookInfo(applicationContext,bookId2);
+                        BookInfo bookInfo = BookStorage.getBookInfo(applicationContext, bookId2);
                         result.success(bookInfo.isSample());
                         return;
                     }
@@ -108,7 +106,7 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
                     Map<String, Object> arguments = (Map<String, Object>) call.arguments;
                     if (arguments.containsKey("book_id") && arguments.get("book_id") instanceof Integer) {
                         int bookId3 = (Integer) arguments.get("book_id");
-                         BookStorage.deleteBook(applicationContext,bookId3);
+                        BookStorage.deleteBook(applicationContext, bookId3);
                         result.success(true);
                         return;
                     }
@@ -161,7 +159,7 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
         }
     }
 
-    private void startReader(String header, String path, String token, Map<String, Object> bookData, Map<String, Object> styleData) {
+    private void startReader(String header, String path, String token, Map<String, Object> bookData, Map<String, Object> styleData, boolean saved) {
         if (activity == null || channel == null) {
             Log.e("YaqutReaderPlugin", "Cannot start reader: Activity or Channel is null");
             return;
@@ -193,7 +191,8 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
                 .setReadingStatsListener(new StatsSessionListenerImpl(channel));
         readerBuilder.setFileId(bookFileId);
         readerBuilder.setNotesAndMarks(notesAndMarks);
-        readerBuilder.setSaveState(ReaderBuilder.SAVE_STATE_NOT_SAVED).setDownloadEnabled(false);
+        readerBuilder.setSaveState(saved ? ReaderBuilder.SAVE_STATE_SAVED : ReaderBuilder.SAVE_STATE_NOT_SAVED)
+                .setDownloadEnabled(true);
 
         if (path.isEmpty()) {
             readerBuilder.build();
@@ -225,7 +224,6 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
         }
         return notesAndMarks;
     }
-
 
 
     private boolean saveBook(int bookId, String bodyPath, String header, String accessToken) {
