@@ -90,7 +90,7 @@
 		</data>
 		<key>Modules/YaqutReader.swiftmodule/arm64-apple-ios-simulator.abi.json</key>
 		<data>
-		yMgVpJ/zqChaW4zcyv3F6eoB2YU=
+		vBH9a9GNa/UhEuraJfTJXIT4o+M=
 		</data>
 		<key>Modules/YaqutReader.swiftmodule/arm64-apple-ios-simulator.private.swiftinterface</key>
 		<data>
@@ -106,7 +106,7 @@
 		</data>
 		<key>Modules/YaqutReader.swiftmodule/arm64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		HzW4wamB9xkdFBG/6YYQ/vDr2bI=
+		NMsyyN+2rdguxtkRd9g+mxcfX1U=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -182,11 +182,11 @@
 		</data>
 		<key>RRSettingsMenu.nib</key>
 		<data>
-		f0TbCE82IeZ1FVibfB+ckdWSG/0=
+		+9xYFI3sosBphzD2ooYomT2JEZU=
 		</data>
 		<key>RRSettingsViewController.nib</key>
 		<data>
-		EkX+8/nUeTvcW/FWDyGNJEld07A=
+		jzw5LqCsh1pWZ8f9uPo4tJjIdck=
 		</data>
 		<key>RRTOCController.nib</key>
 		<data>
@@ -469,7 +469,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			dzg8vw9mekaoGCB5aJwDeLocD3lXZPjYqvH8BftKDOI=
+			EWvcMGGoU/A4uw6d6a9Ss1frvPddFEk7AlhvkuD9G4Q=
 			</data>
 		</dict>
 		<key>Modules/YaqutReader.swiftmodule/arm64-apple-ios-simulator.private.swiftinterface</key>
@@ -497,7 +497,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			vHQDl8+1Ov6oUojuN//GkekXvjvchp0Pvq9uK4Mfkvc=
+			rJZYxmkHWfcbbxyFn+fwe9eBVQKQGNB4YQ9pGbOvUvI=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>
@@ -630,14 +630,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			xw+JLQYJu0cFBPzKZupQnn6ysJQK8vPEfJhi7cyQW0A=
+			k6d+MJGNYMGx/lbjoMTNTAZ6hErIaybnQqkE8v52xfQ=
 			</data>
 		</dict>
 		<key>RRSettingsViewController.nib</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			3uGgaRZM+lla82/ZKryAbkLoHKDB3vpC0PWupMAl100=
+			J60hAhYqjAHb02SHqmG2Y9NjVDyNhe6StiDEgjduhLM=
 			</data>
 		</dict>
 		<key>RRTOCController.nib</key>
