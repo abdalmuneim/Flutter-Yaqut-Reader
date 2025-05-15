@@ -197,8 +197,8 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
         if (path.isEmpty()) {
             readerBuilder.build();
         } else {
-            boolean saved = saveBook(bookId, path, header, token);
-            if (saved) {
+            boolean isSaved = saveBook(bookId, path, header, token);
+            if (isSaved) {
                 readerBuilder.build();
             }
         }
