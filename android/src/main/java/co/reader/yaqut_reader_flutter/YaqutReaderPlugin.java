@@ -194,14 +194,14 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
         readerBuilder.setSaveState(saved ? ReaderBuilder.SAVE_STATE_SAVED : ReaderBuilder.SAVE_STATE_NOT_SAVED)
                 .setDownloadEnabled(true);
 
-        if (path.isEmpty()) {
+//        if (path.isEmpty()) {
             readerBuilder.build();
-        } else {
-            boolean isSaved = saveBook(bookId, path, header, token);
-            if (isSaved) {
-                readerBuilder.build();
-            }
-        }
+//        } else {
+//            boolean isSaved = saveBook(bookId, path, header, token);
+//            if (isSaved) {
+//                readerBuilder.build();
+//            }
+//        }
     }
 
     private static @NonNull List<NotesAndMarks> getNotesAndMarks(List<Map<String, Object>> notesAndMarksData) {
