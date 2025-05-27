@@ -123,16 +123,16 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
                 return;
 
             case "getLocalBooksInfo":
-                List<FileSizeInfo> filesInfo = BookStorage.getLocalBookFilesInfo();
+                List<FileSizeInfo> filesInfo = BookStorage.getLocalBookFilesInfo(applicationContext);
                 List<Map<String, Object>> serializedFilesInfo = new ArrayList<>();
 
                 for (FileSizeInfo fileInfo : filesInfo) {
                     Map<String, Object> fileData = new HashMap<>();
-                    fileData.put("id", fileInfo.getFileName());
+                    fileData.put("id", fileInfo.getId());
+
                     fileData.put("size", fileInfo.getFileSize());
                     serializedFilesInfo.add(fileData);
                 }
-
                 result.success(serializedFilesInfo); // Returning a JSON-serializable array
                 return;
             case "hideReader":
