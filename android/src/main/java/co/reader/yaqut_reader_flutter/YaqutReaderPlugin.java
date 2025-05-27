@@ -119,6 +119,7 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
                 result.success(localBooks);
                 return;
 
+                
             case "removeAllBooks":
                 return;
 
