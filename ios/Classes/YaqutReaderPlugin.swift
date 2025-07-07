@@ -118,7 +118,7 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
         let bookId = bookData["bookId"] as? Int ?? 0
         let bookFileId = bookData["bookFileId"] as? Int ?? 0
         let title = bookData["title"] as? String ?? ""
-        let previewPercentage = bookData["samplePreviewPercentage"] as? Double ?? 0.15
+        let previewPercentage = bookData["previewPercentage"] as? Double ?? 0.15
         let position = bookData["position"] as? Int ?? 0
         self.bookId = bookId
         self.readerBuilder = ReaderBuilder(bookId: bookId, language: Language.arabic)
