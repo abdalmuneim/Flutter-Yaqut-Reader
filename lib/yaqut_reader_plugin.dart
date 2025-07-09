@@ -267,6 +267,10 @@ class YaqutReaderPlugin {
       length = await methodChannel.invokeMethod<int>('getBookLength', {
         'book_id': bookId,
       });
+
+      if (kDebugMode) {
+        debugPrint("getBookLength => bookId: $bookId, length: $length");
+      }
     } on PlatformException catch (e) {
       if (kDebugMode) {
         debugPrint("Failed to call native method: '${e.message}'.");
