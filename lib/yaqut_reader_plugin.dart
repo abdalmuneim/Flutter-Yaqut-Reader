@@ -261,6 +261,20 @@ class YaqutReaderPlugin {
     return isSample!;
   }
 
+  Future<int> getBookLength(int bookId) async {
+    int? length = 0;
+    try {
+      length = await methodChannel.invokeMethod<int>('getBookLength', {
+        'book_id': bookId,
+      });
+    } on PlatformException catch (e) {
+      if (kDebugMode) {
+        debugPrint("Failed to call native method: '${e.message}'.");
+      }
+    }
+    return isSample!;
+  }
+
   Future<bool> deleteSampleBook(int bookId) async {
     bool? success = false;
     try {
