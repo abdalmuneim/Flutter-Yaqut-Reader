@@ -272,7 +272,7 @@ class YaqutReaderPlugin {
         debugPrint("Failed to call native method: '${e.message}'.");
       }
     }
-    return isSample!;
+    return length!;
   }
 
   Future<bool> deleteSampleBook(int bookId) async {
