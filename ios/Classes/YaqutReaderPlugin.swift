@@ -54,6 +54,19 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
                }
                 result("AppDelegate Falied response")
            }
+
+           case "getBookLength":
+               if let arguments = call.arguments as? [String: Any] {
+                   if let bookId = arguments["book_id"] as? Int {
+                       let bookStorage = BookStorage()
+                       let bookInfo = bookStorage.getBookInfo(bookId: bookId)
+                       result(bookInfo.length)
+                       return
+                   }
+                   result(0) // or result(FlutterError(code: "INVALID_ARGUMENT", message: "Missing book_id", details: nil))
+               } else {
+                   result(0)
+               }
         case "deleteSampleBook":
             if let arguments = call.arguments as? [String: Any] {
                 if let bookId = arguments["book_id"] as? Int {

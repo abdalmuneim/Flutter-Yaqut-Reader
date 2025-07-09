@@ -101,6 +101,19 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
                 }
                 break;
 
+            case "getBookLength":
+                if (call.arguments instanceof Map) {
+                    Map<String, Object> arguments = (Map<String, Object>) call.arguments;
+                    if (arguments.containsKey("book_id") && arguments.get("book_id") instanceof Integer) {
+                        int bookId2 = (Integer) arguments.get("book_id");
+                        BookInfo bookInfo = BookStorage.getBookInfo(applicationContext, bookId2);
+                        result.success(bookInfo.getLength());
+                        return;
+                    }
+                }
+                result.success(0);
+                break;
+
             case "deleteSampleBook":
                 if (call.arguments instanceof Map) {
                     Map<String, Object> arguments = (Map<String, Object>) call.arguments;
