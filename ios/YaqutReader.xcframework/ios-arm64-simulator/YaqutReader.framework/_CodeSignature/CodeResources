@@ -22,11 +22,11 @@
 		</data>
 		<key>Assets.car</key>
 		<data>
-		sj973X7HHj6Oall42ybl74jDZT4=
+		82qB8J37Sz0vDR5K5wbDBF/nV3M=
 		</data>
 		<key>Base.lproj/RRReaderView.nib</key>
 		<data>
-		QZPoUVCmqIwOYdmKcvqYobqnTHE=
+		fejoboZwcnLyHFt/H+Ei+NRSsiQ=
 		</data>
 		<key>ElMessiri-All.ttf</key>
 		<data>
@@ -46,7 +46,7 @@
 		</data>
 		<key>Headers/YaqutReader-Swift.h</key>
 		<data>
-		ZkZA5IYL5MpH2sufEkCZRVfOmvw=
+		DuDQzCZc85p3cW70yG2Aadb6o4Q=
 		</data>
 		<key>Headers/YaqutReader.h</key>
 		<data>
@@ -62,7 +62,7 @@
 		</data>
 		<key>Info.plist</key>
 		<data>
-		0UM2e8geFEA0YMVOVhIgax4tIs4=
+		tCasgyDPo3PPpm5zsfPE03EvDek=
 		</data>
 		<key>KVNProgressView.nib</key>
 		<data>
@@ -90,23 +90,23 @@
 		</data>
 		<key>Modules/YaqutReader.swiftmodule/arm64-apple-ios-simulator.abi.json</key>
 		<data>
-		DVPtF5XabwmsIgHe8QxxhK4B6g4=
+		bRQkKYgqkjnM3h4P0aY8tFHyAzI=
 		</data>
 		<key>Modules/YaqutReader.swiftmodule/arm64-apple-ios-simulator.private.swiftinterface</key>
 		<data>
-		maJagfjORnNN+MQY5bT6yZqPb9Y=
+		wjx0z14RMNCIqiYkuoswJLgLBeA=
 		</data>
 		<key>Modules/YaqutReader.swiftmodule/arm64-apple-ios-simulator.swiftdoc</key>
 		<data>
-		c1f92ngv5vl+BDSY+BEBpE8vjVU=
+		NDFAVj5OH4n20Edj1ahe1Ff86sI=
 		</data>
 		<key>Modules/YaqutReader.swiftmodule/arm64-apple-ios-simulator.swiftinterface</key>
 		<data>
-		maJagfjORnNN+MQY5bT6yZqPb9Y=
+		wjx0z14RMNCIqiYkuoswJLgLBeA=
 		</data>
 		<key>Modules/YaqutReader.swiftmodule/arm64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		5L2ecnNp4ayxvOIjpatKjUctttM=
+		m/ogTg6BOLgHIFBTyI/P/vM54eU=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -126,7 +126,7 @@
 		</data>
 		<key>PDFReader.storyboardc/iqd-FA-oQ4-view-NlH-gX-4Vd.nib</key>
 		<data>
-		lD4tjqOmkcRSJxjDShQXnNkOmxE=
+		RffZKCCBbmkgCeCFYA1PGlJPrfc=
 		</data>
 		<key>PDFReader.storyboardc/yo8-rx-ycP-view-pAs-g9-8qc.nib</key>
 		<data>
@@ -146,11 +146,11 @@
 		</data>
 		<key>RRHighlightTableCell.nib</key>
 		<data>
-		DjxvbnV4UF04gdGRTN/8tLW9Uj0=
+		90nsvtwepHBP2aOJfsEIRaXjVQY=
 		</data>
 		<key>RRMarkTableCell.nib</key>
 		<data>
-		19nb2OgidQtQa/NUw4x76vT6bLc=
+		hIwcnxt0dmou8YQ1n0PQPREy0mk=
 		</data>
 		<key>RRMiniAudioPlayer.nib</key>
 		<data>
@@ -158,7 +158,7 @@
 		</data>
 		<key>RRNoteTableCell.nib</key>
 		<data>
-		T0DaKkyOythdGkPoeNiRj5Aa7U0=
+		M/TiM/VWc33lBcFVDltNuvoK8LI=
 		</data>
 		<key>RRNotesAndMarksController.nib</key>
 		<data>
@@ -194,15 +194,15 @@
 		</data>
 		<key>RRTableOfContentViewCell.nib</key>
 		<data>
-		Iym3+4MnuSKF/7WYa0YO+UB55KM=
+		e9/QibDZh0DRsRmZHzteaFfSa1o=
 		</data>
 		<key>RRTableOfContentViewCellEn.nib</key>
 		<data>
-		KKLbUWwVw76lQYruIwdhuRZTcuw=
+		l12RLmZqG4mx18ZCJraZ9wBx2hw=
 		</data>
 		<key>RRWordSearchCell.nib</key>
 		<data>
-		2GvMfUSoxRPDUzwUcjlqR5EYYH0=
+		Do4aVJVVcpimos5iJIIBZl0LIO0=
 		</data>
 		<key>Tajawal-Bold.ttf</key>
 		<data>
@@ -357,14 +357,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			a/CNfr1POQx46pI6NqU0cmMoCWJKho+NX1tlXKTGzp0=
+			xXzmFE0mcRY7fLhdkFfgCp7y/ICQsywpDEg+hp7CMB0=
 			</data>
 		</dict>
 		<key>Base.lproj/RRReaderView.nib</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			Y133dnES0a2S5tW1KrOesPyLLjgdTEsgJd/CU0+cpFA=
+			XIN1Wl/MQ7yYlrkt1P7B5UAZvv7cksYDm0snd0MDJlg=
 			</data>
 		</dict>
 		<key>ElMessiri-All.ttf</key>
@@ -399,7 +399,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			19hkRyKRaMeVKZIns4GZQmi0IT9TZn71QHFf5+wVxso=
+			DcpqDDVCNARVxLPuqwAmo1ug332hHuQ4hcKhL3gwE5c=
 			</data>
 		</dict>
 		<key>Headers/YaqutReader.h</key>
@@ -469,35 +469,35 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			w85oOEf3+mjMbzXSaktnK6kAAEGHa4A0Uga5e8OdDaM=
+			wJLZeW181THJmIeCuF4YzRQyFGDyhf0ST+n3hhVdGAk=
 			</data>
 		</dict>
 		<key>Modules/YaqutReader.swiftmodule/arm64-apple-ios-simulator.private.swiftinterface</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			pVWQPMK5EDmM6gYVGecmEAMOa7tFjZkI+VcKPsQicvc=
+			FEBSSgobxR0C6kpQ2ioGef3iMVsgFP8W1ZkpSSfPOZ8=
 			</data>
 		</dict>
 		<key>Modules/YaqutReader.swiftmodule/arm64-apple-ios-simulator.swiftdoc</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			Ybx6/VdPKSRGY3feVgZRyfGd0uH//wPl62s4JQO+6XA=
+			gCX/8Xc3oQGESjarXGagYjFWaF0maJTEqAvDSn4ESAU=
 			</data>
 		</dict>
 		<key>Modules/YaqutReader.swiftmodule/arm64-apple-ios-simulator.swiftinterface</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			pVWQPMK5EDmM6gYVGecmEAMOa7tFjZkI+VcKPsQicvc=
+			FEBSSgobxR0C6kpQ2ioGef3iMVsgFP8W1ZkpSSfPOZ8=
 			</data>
 		</dict>
 		<key>Modules/YaqutReader.swiftmodule/arm64-apple-ios-simulator.swiftmodule</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			F2/5kR7+gh3K802ZcIfebvlH73lRdqQPmqDgTG0djig=
+			1TW9GUcfJbXsO0hl0W2v2DL7DtTACsx9OxNvRGQDY+4=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>
@@ -532,7 +532,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			ZWosiv5UOALVcLxtbM335+rmMm4lovm60nQ+nkoxrBY=
+			JXxi3s0h/hdDh4l4P4kUEGv6bH/qBGRbnfJn/YBvYJ4=
 			</data>
 		</dict>
 		<key>PDFReader.storyboardc/yo8-rx-ycP-view-pAs-g9-8qc.nib</key>
@@ -567,14 +567,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			Sks0rWvAyKXAnagxzRvPjZ69Cr8Hvo0p8BRitSTaOqI=
+			vEGEAJrdNUiRhXnMGhm+2zkDemwvs8UfPOW27bo+F1M=
 			</data>
 		</dict>
 		<key>RRMarkTableCell.nib</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			DgxbVnk1MTtKMxCnFijz8RX22iDMGrxiUj1hKuF5FdU=
+			TOeVO4mzbnZU9CLCULb4NguBSZ9XcOF8+u1DArv7tqg=
 			</data>
 		</dict>
 		<key>RRMiniAudioPlayer.nib</key>
@@ -588,7 +588,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			+hboDkfRDC9ofldZbQG1NXbPXw9LOESs7SqbOwDv2yI=
+			rNfVlzeoj8We8Dggyp6WMVIarC9zvu6D4ubkLb7VZbI=
 			</data>
 		</dict>
 		<key>RRNotesAndMarksController.nib</key>
@@ -651,21 +651,21 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			WQuPsC26qa4xHKqyGTDKhtotE0fhOQG2qNHqJzLZsVo=
+			ubPX8aVJj9saO+Xn2yEEM+aJuTskaqbmRK08lypBj3o=
 			</data>
 		</dict>
 		<key>RRTableOfContentViewCellEn.nib</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			FYT7Qj2zN5GxSc0LDh+6WEABy5eNCXvWUECsfLM/6c8=
+			mfuF3VYDWFTacKuclSokJTSZTtFOOESO3pQg4BraNjk=
 			</data>
 		</dict>
 		<key>RRWordSearchCell.nib</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			GnYy6fRFvj85Xu/Sk0HsjS6YsaFm/1gRg3dasqWq5FU=
+			oC5Llr2DOPL2V8O0lch1l5iPVhXQjKa3FYaQlkeJSIs=
 			</data>
 		</dict>
 		<key>Tajawal-Bold.ttf</key>
