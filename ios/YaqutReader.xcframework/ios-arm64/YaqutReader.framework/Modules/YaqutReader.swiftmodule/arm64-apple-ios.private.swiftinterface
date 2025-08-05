@@ -2953,6 +2953,11 @@ public class RRTOCItem {
   public init(title: Swift.String, offset: Swift.Int, pages: Swift.Int, wordCount: Swift.Int, readingTime: Swift.Int, length: Swift.Int, audioUrl: Swift.String, audioFile: Swift.String, audioOffset: Swift.Double, audioLength: Swift.Int, hasAudioSync: Swift.Bool, cropping: Swift.String)
   @objc deinit
 }
+extension YaqutReader.RRTOCItem : Swift.CustomStringConvertible {
+  public var description: Swift.String {
+    get
+  }
+}
 extension YaqutReader.CS.BigUInt {
   public init?<S>(_ text: S, radix: Swift.Int = 10) where S : Swift.StringProtocol
 }
