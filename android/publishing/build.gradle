@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'co.yaqut.reader'
-project.version = '1.4.7'
+project.version = '1.4.8'
 
 publishing {
     publications {
