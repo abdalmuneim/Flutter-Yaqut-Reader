@@ -331,6 +331,10 @@ class YaqutReaderPlugin {
     methodChannel.invokeMethod('hideReader');
   }
 
+  void hideReaderForNavigation() {
+    methodChannel.invokeMethod('hideReaderForNavigation');
+  }
+
   void closeReader() {
     methodChannel.invokeMethod('closeReader');
   }

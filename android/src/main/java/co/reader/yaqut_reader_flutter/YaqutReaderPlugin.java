@@ -156,6 +156,9 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
             case "showReader":
                 ReaderBuilder.showReader();
                 result.success(null);
+            case "hideReaderForNavigation":
+                ReaderBuilder.hideReaderForNavigation();
+                result.success(null);
             case "updateMarks":
                 if (call.arguments instanceof Map) {
                     Map<String, Object> arguments = (Map<String, Object>) call.arguments;
