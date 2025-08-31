@@ -173,4 +173,15 @@ public class ReaderListenerImpl implements ReaderListener, Parcelable {
             channel.invokeMethod("onSampleEnded", new HashMap<String, Object>());
         }
     }
+
+    @Override
+    public void onBookForceEnd(int position) {
+        MethodChannel channel = ChannelManager.getInstance().getChannel();
+        if (channel != null) {
+            Map<String, Integer> data = new HashMap<>();
+            data.put("position", position);
+            data.put("book_id", bookId);
+            channel.invokeMethod("onReaderClosed", data);
+        }
+    }
 }
