@@ -181,7 +181,7 @@ public class ReaderListenerImpl implements ReaderListener, Parcelable {
             Map<String, Integer> data = new HashMap<>();
             data.put("position", position);
             data.put("book_id", bookId);
-            channel.invokeMethod("onReaderClosed", data);
+            channel.invokeMethod("onBookForceEnd", data);
         }
     }
 }

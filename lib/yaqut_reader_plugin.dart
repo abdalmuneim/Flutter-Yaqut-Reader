@@ -33,6 +33,11 @@ class YaqutReaderPlugin {
   StreamController<String>.broadcast();
   final StreamController<int> onReaderClosedStreamController =
   StreamController<int>.broadcast();
+  
+  final StreamController<int> onBookForceEndStreamController =
+  StreamController<int>.broadcast();
+  
+  
   final StreamController<String> onSampleEndedStreamController =
   StreamController<String>.broadcast();
   final StreamController<YaqutReaderReadingSession>
@@ -61,6 +66,8 @@ class YaqutReaderPlugin {
   Stream<String> get onDownloadBook => onDownloadBookStreamController.stream;
 
   Stream<int> get onReaderClosed => onReaderClosedStreamController.stream;
+
+  Stream<int> get onBookForceEnd => onBookForceEndStreamController.stream;
 
   Stream<String> get onSampleEnded => onSampleEndedStreamController.stream;
 
@@ -104,6 +111,10 @@ class YaqutReaderPlugin {
 
   void onReaderClosedCallback(int position) {
     onReaderClosedStreamController.add(position);
+  }
+
+  void onBookForceEndCallback(int position) {
+    onBookForceEndStreamController.add(position);
   }
 
   void onSampleEndedCallback() {
@@ -228,6 +239,10 @@ class YaqutReaderPlugin {
         onSyncReadingSessionCallback(session);
       case 'onOrientationChanged':
         onOrientationChangedCallback();
+      case 'onBookForceEnd':
+        var data = call.arguments as Map;
+        int position = data[constPosition];
+        onBookForceEndCallback(position);
       default:
     }
   }
