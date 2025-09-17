@@ -1,7 +1,7 @@
 // swift-interface-format-version: 1.0
-// swift-compiler-version: Apple Swift version 6.1.2 effective-5.10 (swiftlang-6.1.2.1.2 clang-1700.0.13.5)
+// swift-compiler-version: Apple Swift version 6.2 effective-5.10 (swiftlang-6.2.0.19.9 clang-1700.3.19.1)
 // swift-module-flags: -target arm64-apple-ios15.0-simulator -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -Onone -enable-experimental-feature DebugDescriptionMacro -enable-bare-slash-regex -module-name YaqutReader
-// swift-module-flags-ignorable: -no-verify-emitted-module-interface -interface-compiler-version 6.1.2
+// swift-module-flags-ignorable: -no-verify-emitted-module-interface -formal-cxx-interoperability-mode=off -interface-compiler-version 6.2
 import AVFoundation
 import Accelerate
 import CommonCrypto
@@ -39,7 +39,9 @@ public struct Entry : Swift.Equatable {
     case file
     case directory
     case symlink
+    #if compiler(>=5.3) && $NonescapableTypes
     public init?(rawValue: Swift.Int)
+    #endif
     public typealias RawValue = Swift.Int
     public var rawValue: Swift.Int {
       get
@@ -101,23 +103,39 @@ public class DiskCache : YaqutReader.DiskCacheable {
     get
   }
   public func totalCostWithHandler(handler: @escaping (Swift.Int32) -> Swift.Void)
+  #if compiler(>=5.3) && $NonescapableTypes
   required public init?(path: Swift.String, sizeThreshold threshold: Swift.Int32)
+  #endif
   @objc deinit
 }
 extension YaqutReader.DiskCache {
   public func containsObject(key: YaqutReader.DiskCache.Key) -> Swift.Bool
+  #if compiler(>=5.3) && $NonescapableTypes
   public func query(key: YaqutReader.DiskCache.Key) -> YaqutReader.DiskCache.Value?
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public func save(value: YaqutReader.DiskCache.Value?, for key: YaqutReader.DiskCache.Key)
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public func save(_ dataWork: @escaping () -> (YaqutReader.DiskCache.Value, Swift.Int)?, forKey key: YaqutReader.DiskCache.Key)
+  #endif
   public func remove(key: YaqutReader.DiskCache.Key)
   public func removeAll()
+  #if compiler(>=5.3) && $NonescapableTypes
   public func getCacheModifiedDateByKey(key: Swift.String) -> Foundation.Date?
+  #endif
 }
 extension YaqutReader.DiskCache {
   public func containsObject(key: YaqutReader.DiskCache.Key, _ result: @escaping (YaqutReader.DiskCache.Key, Swift.Bool) -> Swift.Void)
+  #if compiler(>=5.3) && $NonescapableTypes
   public func query(key: YaqutReader.DiskCache.Key, _ result: @escaping (YaqutReader.DiskCache.Key, YaqutReader.DiskCache.Value?) -> Swift.Void)
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public func save(value: YaqutReader.DiskCache.Value?, for key: YaqutReader.DiskCache.Key, _ result: @escaping () -> Swift.Void)
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public func save(_ dataWork: @escaping () -> (YaqutReader.DiskCache.Value, Swift.Int)?, forKey key: YaqutReader.DiskCache.Key, result: @escaping () -> Swift.Void)
+  #endif
   public func remove(key: YaqutReader.DiskCache.Key, _ result: @escaping (YaqutReader.DiskCache.Key) -> Swift.Void)
   public func removeAll(_ result: @escaping () -> Swift.Void)
 }
@@ -137,12 +155,16 @@ public struct PCBC : YaqutReader.BlockMode {
 }
 public protocol PaddingProtocol {
   func add(to: Swift.Array<Swift.UInt8>, blockSize: Swift.Int) -> Swift.Array<Swift.UInt8>
+  #if compiler(>=5.3) && $NonescapableTypes
   func remove(from: Swift.Array<Swift.UInt8>, blockSize: Swift.Int?) -> Swift.Array<Swift.UInt8>
+  #endif
 }
 public enum Padding : YaqutReader.PaddingProtocol {
   case noPadding, zeroPadding, pkcs7, pkcs5, eme_pkcs1v15, emsa_pkcs1v15, iso78164, iso10126
   public func add(to: Swift.Array<Swift.UInt8>, blockSize: Swift.Int) -> Swift.Array<Swift.UInt8>
+  #if compiler(>=5.3) && $NonescapableTypes
   public func remove(from: Swift.Array<Swift.UInt8>, blockSize: Swift.Int?) -> Swift.Array<Swift.UInt8>
+  #endif
   public static func == (a: YaqutReader.Padding, b: YaqutReader.Padding) -> Swift.Bool
   public func hash(into hasher: inout Swift.Hasher)
   public var hashValue: Swift.Int {
@@ -182,7 +204,9 @@ extension YaqutReader.PKCS5 {
     internal let keyLength: Swift.Int
     @usableFromInline
     internal let t1: Swift.Array<Swift.UInt8>
+    #if compiler(>=5.3) && $NonescapableTypes
     public init(password: Swift.Array<Swift.UInt8>, salt: Swift.Array<Swift.UInt8>, variant: YaqutReader.PKCS5.PBKDF1.Variant = .sha1, iterations: Swift.Int = 4096, keyLength: Swift.Int? = nil) throws
+    #endif
     @inlinable public func calculate() -> Swift.Array<Swift.UInt8> {
       var t = self.t1
       for _ in 2...self.iterations {
@@ -246,20 +270,34 @@ internal func strideCount(from: Swift.Int, to: Swift.Int, by: Swift.Int) -> Swif
   public static var index2: [Swift.String : Any]
   public static func getBookPath(bookId: Swift.Int) -> Foundation.URL
   public static func getPDFFilePath() -> Foundation.URL
+  #if compiler(>=5.3) && $NonescapableTypes
   public static func getChapterAndSpans(bookId: Swift.Int, forChapterNumber number: Swift.Int, formatVersion: Swift.Int?) -> (html: Swift.String, spans: Swift.String)
+  #endif
   public static func getBookInfoFile(bookId: Swift.Int) -> YaqutReader.RRBookInfoModel
   public static func getPDFBookInfoFile() -> YaqutReader.RRBookInfoModel
+  #if compiler(>=5.3) && $NonescapableTypes
   public static func getBookToc(bookId: Swift.Int, formatVersion: Swift.Int?) -> [YaqutReader.RRTOCItem]
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public static func getLocationsFile(bookId: Swift.Int, formatVersion: Swift.Int?) -> [Swift.String : Any]?
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public static func getPagesFile(bookId: Swift.Int, formatVersion: Swift.Int?) -> [Swift.Int]?
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public static func getSyncFile(bookId: Swift.Int, formatVersion: Swift.Int?, chaptersCount: Swift.Int) -> [[[Swift.Int]]]
+  #endif
   public static func getChapterIndex(offset: Swift.Int) -> Swift.Int
   public static func getChapterAndPageIndex(offset: Swift.Int, chapters: [YaqutReader.RRChapterItem]) -> (pageNumber: Swift.Int, chapterNumber: Swift.Int)
   public static func isAttr(charIndex: Swift.Int, textView: UIKit.UITextView) -> Swift.Bool
   public static func isAttrLink(charIndex: Swift.Int, textView: UIKit.UITextView) -> Swift.String
   public static func isAttrLink(length: Swift.Int, startLocation: Swift.Int, attr: Foundation.NSAttributedString) -> Swift.String
+  #if compiler(>=5.3) && $NonescapableTypes
   public static func boundingRectForCharacterRange(range: Foundation.NSRange, textView: UIKit.UITextView) -> CoreFoundation.CGRect?
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public static func getSyncAudioChapter(bookId: Swift.Int, fileName: Swift.String, formatVersion: Swift.Int? = 0, completion: @escaping (Foundation.Data?) -> ())
+  #endif
   public static func getBookPageIndex(chapterIndex: Swift.Int, pageIndex: Swift.Int, chapters: [YaqutReader.RRChapterItem]) -> Swift.Int
   public static func getChapterFromPageIndex(pageIndex: Swift.Int, chapters: [YaqutReader.RRChapterItem]) -> (chapterIndex: Swift.Int, pageIndex: Swift.Int)
   public static func getPageIndexAndChapterPagesCount(chapterIndex: Swift.Int, pageIndex: Swift.Int, chapters: [YaqutReader.RRChapterItem]) -> (pageIndex: Swift.Int, pagesCount: Swift.Int)
@@ -269,16 +307,22 @@ internal func strideCount(from: Swift.Int, to: Swift.Int, by: Swift.Int) -> Swif
   public static func dateAddedSort(books: [YaqutReader.RRBookDataModel]) -> [YaqutReader.RRBookDataModel]
   public static func checkBookFileIfExist(bookId: Swift.Int) -> Swift.Bool
   public static func checkOffline(bookId: Swift.Int) -> Swift.Bool
+  #if compiler(>=5.3) && $NonescapableTypes
   public static func getBookIndex(_ lookupWord: Swift.String, bookId: Swift.Int, isEnglish: Swift.Bool, formatVersion: Swift.Int? = 0, callback: @escaping ([Swift.String : Any]?, Swift.Int?) -> ())
+  #endif
   @objc deinit
 }
 extension YaqutReader.CS.BigUInt {
   public func greatestCommonDivisor(with b: YaqutReader.CS.BigUInt) -> YaqutReader.CS.BigUInt
+  #if compiler(>=5.3) && $NonescapableTypes
   public func inverse(_ modulus: YaqutReader.CS.BigUInt) -> YaqutReader.CS.BigUInt?
+  #endif
 }
 extension YaqutReader.CS.BigInt {
   public func greatestCommonDivisor(with b: YaqutReader.CS.BigInt) -> YaqutReader.CS.BigInt
+  #if compiler(>=5.3) && $NonescapableTypes
   public func inverse(_ modulus: YaqutReader.CS.BigInt) -> YaqutReader.CS.BigInt?
+  #endif
 }
 public struct ECB : YaqutReader.BlockMode {
   public let options: YaqutReader.BlockModeOption
@@ -290,7 +334,9 @@ public let appleLanguagesKey: Swift.String
 public enum Language : Swift.String {
   case english
   case arabic
+  #if compiler(>=5.3) && $NonescapableTypes
   public init?(rawValue: Swift.String)
+  #endif
   public typealias RawValue = Swift.String
   public var rawValue: Swift.String {
     get
@@ -317,12 +363,14 @@ extension YaqutReader.Blowfish : YaqutReader.Cipher {
   final public func encrypt<C>(_ bytes: C) throws -> Swift.Array<Swift.UInt8> where C : Swift.Collection, C.Element == Swift.UInt8, C.Index == Swift.Int
   final public func decrypt<C>(_ bytes: C) throws -> Swift.Array<Swift.UInt8> where C : Swift.Collection, C.Element == Swift.UInt8, C.Index == Swift.Int
 }
-public typealias FILEPointer = Swift.UnsafeMutablePointer<_stdio.FILE>
+public typealias FILEPointer = Swift.UnsafeMutablePointer<_DarwinFoundation2.FILE>
 extension UIKit.UIViewController {
   @_Concurrency.MainActor @preconcurrency public var isPanModalPresented: Swift.Bool {
     get
   }
+  #if compiler(>=5.3) && $NonescapableTypes
   @_Concurrency.MainActor @preconcurrency public func presentPanModal(_ viewControllerToPresent: any UIKit.UIViewController & YaqutReader.RRPanModalPresentable, sourceView: UIKit.UIView? = nil, sourceRect: CoreFoundation.CGRect = .zero)
+  #endif
 }
 extension YaqutReader.PKCS5 {
   public struct PBKDF2 {
@@ -335,7 +383,9 @@ extension YaqutReader.PKCS5 {
         get
       }
     }
+    #if compiler(>=5.3) && $NonescapableTypes
     public init(password: Swift.Array<Swift.UInt8>, salt: Swift.Array<Swift.UInt8>, iterations: Swift.Int = 4096, keyLength: Swift.Int? = nil, variant: YaqutReader.HMAC.Variant = .sha2(.sha256)) throws
+    #endif
     public func calculate() throws -> Swift.Array<Swift.UInt8>
     public func callAsFunction() throws -> Swift.Array<Swift.UInt8>
   }
@@ -366,8 +416,12 @@ extension YaqutReader.PKCS5 {
   open var meta: YaqutReader.JukeboxItem.Meta {
     get
   }
+  #if compiler(>=5.3) && $NonescapableTypes
   required public init(URL: Foundation.URL, localTitle: Swift.String? = nil)
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   @objc override dynamic open func observeValue(forKeyPath keyPath: Swift.String?, of object: Any?, change: [Foundation.NSKeyValueChangeKey : Any]?, context: Swift.UnsafeMutableRawPointer?)
+  #endif
   @objc deinit
   @objc override dynamic open var description: Swift.String {
     @objc get
@@ -406,6 +460,7 @@ final public class Checksum {
   internal static let table16: [Swift.UInt16]
   @usableFromInline
   internal init()
+  #if compiler(>=5.3) && $NonescapableTypes
   @inlinable final internal func crc32(_ message: Swift.Array<Swift.UInt8>, seed: Swift.UInt32? = nil, reflect: Swift.Bool = true) -> Swift.UInt32 {
     var crc: UInt32 = seed != nil ? seed! : 0xFFFF_FFFF
     for chunk in message.batched(by: 256) {
@@ -416,6 +471,8 @@ final public class Checksum {
     }
     return (reflect ? crc : reversed(crc)) ^ 0xFFFF_FFFF
   }
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   @inlinable final internal func crc32c(_ message: Swift.Array<Swift.UInt8>, seed: Swift.UInt32? = nil, reflect: Swift.Bool = true) -> Swift.UInt32 {
     var crc: UInt32 = seed != nil ? seed! : 0xFFFF_FFFF
     for chunk in message.batched(by: 256) {
@@ -426,6 +483,8 @@ final public class Checksum {
     }
     return (reflect ? crc : reversed(crc)) ^ 0xFFFF_FFFF
   }
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   @inlinable final internal func crc16(_ message: Swift.Array<Swift.UInt8>, seed: Swift.UInt16? = nil) -> Swift.UInt16 {
     var crc: UInt16 = seed != nil ? seed! : 0x0000
     for chunk in message.batched(by: 256) {
@@ -435,34 +494,47 @@ final public class Checksum {
     }
     return crc
   }
+  #endif
   @objc deinit
 }
 extension YaqutReader.Checksum {
+  #if compiler(>=5.3) && $NonescapableTypes
   @inlinable public static func crc32(_ message: Swift.Array<Swift.UInt8>, seed: Swift.UInt32? = nil, reflect: Swift.Bool = true) -> Swift.UInt32 {
     Checksum().crc32(message, seed: seed, reflect: reflect)
   }
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   @inlinable public static func crc32c(_ message: Swift.Array<Swift.UInt8>, seed: Swift.UInt32? = nil, reflect: Swift.Bool = true) -> Swift.UInt32 {
     Checksum().crc32c(message, seed: seed, reflect: reflect)
   }
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   @inlinable public static func crc16(_ message: Swift.Array<Swift.UInt8>, seed: Swift.UInt16? = nil) -> Swift.UInt16 {
     Checksum().crc16(message, seed: seed)
   }
+  #endif
 }
 public typealias LonginusSetImageBlock = (UIKit.UIImage?) -> Swift.Void
 public typealias LonginusSetShowTransitionBlock = (UIKit.UIImage?) -> Swift.Void
 public let LonginusImageFadeAnimationKey: Swift.String
 public protocol ImageWebCacheable : AnyObject {
+  #if compiler(>=5.3) && $NonescapableTypes
   func setImage(with resource: (any YaqutReader.ImageWebCacheResourceable)?, placeholder: UIKit.UIImage?, options: YaqutReader.LonginusImageOptions?, transformer: YaqutReader.ImageTransformer?, taskKey: Swift.String, setShowTransition: @escaping YaqutReader.LonginusSetShowTransitionBlock, setImage: @escaping YaqutReader.LonginusSetImageBlock, progress: YaqutReader.ImageDownloaderProgressBlock?, completion: YaqutReader.ImageManagerCompletionBlock?)
+  #endif
 }
 extension YaqutReader.ImageWebCacheable {
   public var webCacheOperation: YaqutReader.ImageWebCacheOperation {
     get
   }
+  #if compiler(>=5.3) && $NonescapableTypes
   public func setImage(with resource: (any YaqutReader.ImageWebCacheResourceable)?, placeholder: UIKit.UIImage?, options: YaqutReader.LonginusImageOptions?, transformer: YaqutReader.ImageTransformer?, taskKey: Swift.String, setShowTransition: @escaping YaqutReader.LonginusSetShowTransitionBlock, setImage: @escaping YaqutReader.LonginusSetImageBlock, progress: YaqutReader.ImageDownloaderProgressBlock?, completion: YaqutReader.ImageManagerCompletionBlock?)
+  #endif
 }
 public class ImageWebCacheOperation {
   public init()
+  #if compiler(>=5.3) && $NonescapableTypes
   public func task(forKey key: Swift.String) -> YaqutReader.ImageLoadTask?
+  #endif
   public func setTask(_ task: YaqutReader.ImageLoadTask, forKey key: Swift.String)
   public func downloadProgress(forKey key: Swift.String) -> Swift.Double
   public func setDownloadProgress(_ downloadProgress: Swift.Double, forKey key: Swift.String)
@@ -530,12 +602,16 @@ public class MemoryCache<Key, Value> where Key : Swift.Hashable {
   public var totalCost: Swift.Int {
     get
   }
+  #if compiler(>=5.3) && $NonescapableTypes
   public var first: Value? {
     get
   }
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public var last: Value? {
     get
   }
+  #endif
   public var countLimit: Swift.Int32 {
     get
     set
@@ -562,10 +638,18 @@ public class MemoryCache<Key, Value> where Key : Swift.Hashable {
 }
 extension YaqutReader.MemoryCache : YaqutReader.MemoryCacheable {
   public func containsObject(key: Key) -> Swift.Bool
+  #if compiler(>=5.3) && $NonescapableTypes
   public func query(key: Key) -> Value?
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public func save(value: Value?, for key: Key)
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public func save(_ dataWork: @escaping () -> (Value, Swift.Int)?, forKey key: Key)
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public func save(value: Value?, for key: Key, cost: Swift.Int = 0)
+  #endif
   public func remove(key: Key)
   public func removeAll()
 }
@@ -624,11 +708,13 @@ extension YaqutReader.UnfairLock {
 }
 @available(iOS 10.0, *)
 extension YaqutReader.UnfairLock {
+  #if compiler(>=5.3) && $NonescapableTypes
   @inlinable final public func trySync<R>(_ block: () throws -> R) rethrows -> R? {
     guard trylock() else  { return nil }
     defer { unlock() }
     return try block()
   }
+  #endif
   @inlinable final public func sync<R>(_ block: () throws -> R) rethrows -> R {
     lock()
     defer { unlock() }
@@ -679,7 +765,9 @@ extension YaqutReader.Signature {
 }
 @objc @_inheritsConvenienceInitializers @IBDesignable @_Concurrency.MainActor @preconcurrency public class VerticalSlider : UIKit.UIControl {
   @_Concurrency.MainActor @preconcurrency final public let slider: UIKit.UISlider
+  #if compiler(>=5.3) && $NonescapableTypes
   @_Concurrency.MainActor @preconcurrency @objc required dynamic public init?(coder aDecoder: Foundation.NSCoder)
+  #endif
   @_Concurrency.MainActor @preconcurrency @objc required override dynamic public init(frame: CoreFoundation.CGRect)
   @objc @IBInspectable @_Concurrency.MainActor @preconcurrency open var ascending: Swift.Bool {
     @objc get
@@ -701,28 +789,40 @@ extension YaqutReader.Signature {
     @objc get
     @objc set
   }
+  #if compiler(>=5.3) && $NonescapableTypes
   @objc @IBInspectable @_Concurrency.MainActor @preconcurrency open var thumbTintColor: UIKit.UIColor? {
     @objc get
     @objc set
   }
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   @objc @IBInspectable @_Concurrency.MainActor @preconcurrency open var minimumTrackTintColor: UIKit.UIColor? {
     @objc get
     @objc set
   }
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   @objc @IBInspectable @_Concurrency.MainActor @preconcurrency open var maximumTrackTintColor: UIKit.UIColor? {
     @objc get
     @objc set
   }
+  #endif
   @objc @IBInspectable @_Concurrency.MainActor @preconcurrency open var isContinuous: Swift.Bool {
     @objc get
     @objc set
   }
+  #if compiler(>=5.3) && $NonescapableTypes
   @_Concurrency.MainActor @preconcurrency @objc override dynamic open func addTarget(_ target: Any?, action: ObjectiveC.Selector, for controlEvents: UIKit.UIControl.Event)
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   @_Concurrency.MainActor @preconcurrency @objc override dynamic open func removeTarget(_ target: Any?, action: ObjectiveC.Selector?, for controlEvents: UIKit.UIControl.Event)
+  #endif
   @objc deinit
 }
 @_hasMissingDesignatedInitializers public class DRM {
+  #if compiler(>=5.3) && $NonescapableTypes
   public func create() -> (success: Swift.Bool, error: Swift.String?)
+  #endif
   @objc deinit
 }
 public typealias BigInteger = YaqutReader.CS.BigInt
@@ -823,10 +923,18 @@ extension Swift.Collection {
 extension YaqutReader.ImageCacher : YaqutReader.ImageCacheable {
   public func image(forKey key: Swift.String, cacheType: YaqutReader.ImageCacheType, completion: @escaping (YaqutReader.ImageCacheQueryCompletionResult) -> Swift.Void)
   public func isCached(forKey key: Swift.String) -> (Swift.Bool, YaqutReader.ImageCacheType)
+  #if compiler(>=5.3) && $NonescapableTypes
   public func diskDataExists(forKey key: Swift.String, completion: ((Swift.Bool) -> Swift.Void)?)
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public func store(_ image: UIKit.UIImage?, data: Foundation.Data?, forKey key: Swift.String, cacheType: YaqutReader.ImageCacheType, completion: (() -> Swift.Void)?)
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public func removeImage(forKey key: Swift.String, cacheType: YaqutReader.ImageCacheType, completion: ((Swift.String) -> Swift.Void)?)
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public func remove(_ type: YaqutReader.ImageCacheType, completion: (() -> Swift.Void)?)
+  #endif
 }
 extension YaqutReader.CS.BigUInt {
   public static func randomInteger<RNG>(withMaximumWidth width: Swift.Int, using generator: inout RNG) -> YaqutReader.CS.BigUInt where RNG : Swift.RandomNumberGenerator
@@ -978,9 +1086,11 @@ extension YaqutReader.CS.BigInt : Swift.Hashable {
   }
 }
 extension YaqutReader.LonginusExtension where Base : UIKit.UIImage {
+  #if compiler(>=5.3) && $NonescapableTypes
   public var cgImage: CoreGraphics.CGImage? {
     get
   }
+  #endif
   public var size: CoreFoundation.CGSize {
     get
   }
@@ -990,14 +1100,18 @@ extension YaqutReader.LonginusExtension where Base : UIKit.UIImage {
   public var bytes: Swift.Int64 {
     get
   }
+  #if compiler(>=5.3) && $NonescapableTypes
   public var imageFormat: YaqutReader.ImageFormat? {
     get
     set
   }
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public var lgImageEditKey: Swift.String? {
     get
     set
   }
+  #endif
 }
 extension YaqutReader.LonginusExtension where Base : CoreGraphics.CGImage {
   public var containsAlpha: Swift.Bool {
@@ -1057,33 +1171,59 @@ extension Swift.UInt64 {
 }
 public typealias Async = YaqutReader.AsyncBlock<Swift.Void, Swift.Void>
 public struct AsyncBlock<In, Out> {
+  #if compiler(>=5.3) && $NonescapableTypes
   @discardableResult
   public static func main<O>(after seconds: Swift.Double? = nil, _ block: @escaping () -> O) -> YaqutReader.AsyncBlock<Swift.Void, O>
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   @discardableResult
   public static func userInteractive<O>(after seconds: Swift.Double? = nil, _ block: @escaping () -> O) -> YaqutReader.AsyncBlock<Swift.Void, O>
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   @discardableResult
   public static func userInitiated<O>(after seconds: Swift.Double? = nil, _ block: @escaping () -> O) -> YaqutReader.AsyncBlock<Swift.Void, O>
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   @discardableResult
   public static func utility<O>(after seconds: Swift.Double? = nil, _ block: @escaping () -> O) -> YaqutReader.AsyncBlock<Swift.Void, O>
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   @discardableResult
   public static func background<O>(after seconds: Swift.Double? = nil, _ block: @escaping () -> O) -> YaqutReader.AsyncBlock<Swift.Void, O>
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   @discardableResult
   public static func custom<O>(queue: Dispatch.DispatchQueue, after seconds: Swift.Double? = nil, _ block: @escaping () -> O) -> YaqutReader.AsyncBlock<Swift.Void, O>
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   @discardableResult
   public func main<O>(after seconds: Swift.Double? = nil, _ chainingBlock: @escaping (Out) -> O) -> YaqutReader.AsyncBlock<Out, O>
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   @discardableResult
   public func userInteractive<O>(after seconds: Swift.Double? = nil, _ chainingBlock: @escaping (Out) -> O) -> YaqutReader.AsyncBlock<Out, O>
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   @discardableResult
   public func userInitiated<O>(after seconds: Swift.Double? = nil, _ chainingBlock: @escaping (Out) -> O) -> YaqutReader.AsyncBlock<Out, O>
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   @discardableResult
   public func utility<O>(after seconds: Swift.Double? = nil, _ chainingBlock: @escaping (Out) -> O) -> YaqutReader.AsyncBlock<Out, O>
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   @discardableResult
   public func background<O>(after seconds: Swift.Double? = nil, _ chainingBlock: @escaping (Out) -> O) -> YaqutReader.AsyncBlock<Out, O>
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   @discardableResult
   public func custom<O>(queue: Dispatch.DispatchQueue, after seconds: Swift.Double? = nil, _ chainingBlock: @escaping (Out) -> O) -> YaqutReader.AsyncBlock<Out, O>
+  #endif
   public func cancel()
+  #if compiler(>=5.3) && $NonescapableTypes
   @discardableResult
   public func wait(seconds: Swift.Double? = nil) -> Dispatch.DispatchTimeoutResult
+  #endif
 }
 public struct Apply {
   public static func userInteractive(_ iterations: Swift.Int, block: @escaping (Swift.Int) -> ())
@@ -1102,10 +1242,12 @@ public struct AsyncGroup {
   public func utility(_ block: @escaping @convention(block) () -> Swift.Void)
   public func background(_ block: @escaping @convention(block) () -> Swift.Void)
   public func custom(queue: Dispatch.DispatchQueue, block: @escaping @convention(block) () -> Swift.Void)
+  #if compiler(>=5.3) && $NonescapableTypes
   @discardableResult
   public func wait(seconds: Swift.Double? = nil) -> Dispatch.DispatchTimeoutResult
+  #endif
 }
-extension DarwinFoundation.qos_class_t {
+extension _DarwinFoundation1.qos_class_t {
   public var description: Swift.String {
     get
   }
@@ -1160,7 +1302,9 @@ final public class Rabbit {
     get
   }
   convenience public init(key: Swift.Array<Swift.UInt8>) throws
+  #if compiler(>=5.3) && $NonescapableTypes
   public init(key: Swift.Array<Swift.UInt8>, iv: Swift.Array<Swift.UInt8>?) throws
+  #endif
   @objc deinit
 }
 extension YaqutReader.Rabbit : YaqutReader.Cipher {
@@ -1177,7 +1321,9 @@ extension YaqutReader.Rabbit : YaqutReader.Cipher {
   override public func finish(success: Swift.Bool = true)
   @objc override dynamic public func cancel()
   override public func execute()
+  #if compiler(>=5.3) && $NonescapableTypes
   override public init(name: Swift.String? = nil, executionBlock: ((_ operation: YaqutReader.ConcurrentOperation) -> Swift.Void)? = nil)
+  #endif
   @objc deinit
 }
 extension YaqutReader.XChaCha20 {
@@ -1212,9 +1358,11 @@ public class DispatchQueuePool {
   @objc deinit
 }
 extension YaqutReader.Archive {
+  #if compiler(>=5.3) && $NonescapableTypes
   final public var data: Foundation.Data? {
     get
   }
+  #endif
 }
 public struct CubeAttributesAnimator : YaqutReader.LayoutAttributesAnimator {
   public var perspective: CoreFoundation.CGFloat
@@ -1244,8 +1392,12 @@ final public class GCM : YaqutReader.BlockMode {
   }
   final public let customBlockSize: Swift.Int?
   final public var authenticationTag: Swift.Array<Swift.UInt8>?
+  #if compiler(>=5.3) && $NonescapableTypes
   public init(iv: Swift.Array<Swift.UInt8>, additionalAuthenticatedData: Swift.Array<Swift.UInt8>? = nil, tagLength: Swift.Int = 16, mode: YaqutReader.GCM.Mode = .detached)
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   convenience public init(iv: Swift.Array<Swift.UInt8>, authenticationTag: Swift.Array<Swift.UInt8>, additionalAuthenticatedData: Swift.Array<Swift.UInt8>? = nil, mode: YaqutReader.GCM.Mode = .detached)
+  #endif
   final public func worker(blockSize: Swift.Int, cipherOperation: @escaping YaqutReader.CipherOperationOnBlock, encryptionOperation: @escaping YaqutReader.CipherOperationOnBlock) throws -> any YaqutReader.CipherModeWorker
   @objc deinit
 }
@@ -1271,8 +1423,12 @@ extension YaqutReader.Cryptors {
 }
 @objc public class LonginusWeakProxy : ObjectiveC.NSObject {
   public init(target: any ObjectiveC.NSObjectProtocol)
+  #if compiler(>=5.3) && $NonescapableTypes
   @objc override dynamic public func responds(to aSelector: ObjectiveC.Selector!) -> Swift.Bool
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   @objc override dynamic public func forwardingTarget(for aSelector: ObjectiveC.Selector!) -> Any?
+  #endif
   @objc deinit
 }
 @available(*, renamed: "Digest")
@@ -1288,7 +1444,9 @@ public struct Digest {
   public static func sha3(_ bytes: Swift.Array<Swift.UInt8>, variant: YaqutReader.SHA3.Variant) -> Swift.Array<Swift.UInt8>
 }
 extension YaqutReader.CS.BigUInt {
+  #if compiler(>=5.3) && $NonescapableTypes
   public init?<T>(exactly source: T) where T : Swift.BinaryInteger
+  #endif
   public init<T>(_ source: T) where T : Swift.BinaryInteger
   public init<T>(truncatingIfNeeded source: T) where T : Swift.BinaryInteger
   public init<T>(clamping source: T) where T : Swift.BinaryInteger
@@ -1297,7 +1455,9 @@ extension YaqutReader.CS.BigInt {
   public init()
   public init(_ integer: YaqutReader.CS.BigUInt)
   public init<T>(_ source: T) where T : Swift.BinaryInteger
+  #if compiler(>=5.3) && $NonescapableTypes
   public init?<T>(exactly source: T) where T : Swift.BinaryInteger
+  #endif
   public init<T>(clamping source: T) where T : Swift.BinaryInteger
   public init<T>(truncatingIfNeeded source: T) where T : Swift.BinaryInteger
 }
@@ -1333,44 +1493,100 @@ public struct RotateInOutAttributesAnimator : YaqutReader.LayoutAttributesAnimat
   public func animate(collectionView: UIKit.UICollectionView, attributes: YaqutReader.AnimatedCollectionViewLayoutAttributes)
 }
 public struct RRSwiftData {
+  #if compiler(>=5.3) && $NonescapableTypes
   public static func executeChange(_ sqlStr: Swift.String) -> Swift.Int?
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public static func executeChange(_ sqlStr: Swift.String, withArgs: [Any]) -> Swift.Int?
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public static func executeMultipleChanges(_ sqlArr: [Swift.String]) -> Swift.Int?
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public static func executeQuery(_ sqlStr: Swift.String) -> (result: [YaqutReader.RRSwiftData.SDRow], error: Swift.Int?)
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public static func executeQuery(_ sqlStr: Swift.String, withArgs: [Any]) -> (result: [YaqutReader.RRSwiftData.SDRow], error: Swift.Int?)
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public static func executeWithConnection(_ flags: YaqutReader.SD.Flags, closure: @escaping () -> Swift.Void) -> Swift.Int?
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public static func escapeValue(_ obj: Any?) -> Swift.String
+  #endif
   public static func escapeIdentifier(_ obj: Swift.String) -> Swift.String
+  #if compiler(>=5.3) && $NonescapableTypes
   public static func createTable(_ table: Swift.String, withColumnNamesAndTypes values: [Swift.String : YaqutReader.RRSwiftData.DataType]) -> Swift.Int?
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public static func deleteTable(_ table: Swift.String) -> Swift.Int?
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public static func existingTables() -> (result: [Swift.String], error: Swift.Int?)
+  #endif
   public static func errorMessageForCode(_ code: Swift.Int) -> Swift.String
   public static func databasePath() -> Swift.String
+  #if compiler(>=5.3) && $NonescapableTypes
   public static func lastInsertedRowID() -> (rowID: Swift.Int, error: Swift.Int?)
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public static func numberOfRowsModified() -> (rowID: Swift.Int, error: Swift.Int?)
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public static func createIndex(name: Swift.String, onColumns: [Swift.String], inTable: Swift.String, isUnique: Swift.Bool = false) -> Swift.Int?
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public static func removeIndex(_ indexName: Swift.String) -> Swift.Int?
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public static func existingIndexes() -> (result: [Swift.String], error: Swift.Int?)
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public static func existingIndexesForTable(_ table: Swift.String) -> (result: [Swift.String], error: Swift.Int?)
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public static func transaction(_ transactionClosure: @escaping () -> Swift.Bool) -> Swift.Int?
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public static func savepoint(_ savepointClosure: @escaping () -> Swift.Bool) -> Swift.Int?
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public static func saveUIImage(_ image: UIKit.UIImage) -> Swift.String?
+  #endif
   public static func deleteUIImageWithID(_ id: Swift.String) -> Swift.Bool
   public struct SDRow {
+    #if compiler(>=5.3) && $NonescapableTypes
     public subscript(key: Swift.String) -> YaqutReader.RRSwiftData.SDColumn? {
       get
       set(newValue)
     }
+    #endif
   }
   public struct SDColumn {
+    #if compiler(>=5.3) && $NonescapableTypes
     public func asString() -> Swift.String?
+    #endif
+    #if compiler(>=5.3) && $NonescapableTypes
     public func asInt() -> Swift.Int?
+    #endif
+    #if compiler(>=5.3) && $NonescapableTypes
     public func asDouble() -> Swift.Double?
+    #endif
+    #if compiler(>=5.3) && $NonescapableTypes
     public func asBool() -> Swift.Bool?
+    #endif
+    #if compiler(>=5.3) && $NonescapableTypes
     public func asData() -> Foundation.Data?
+    #endif
+    #if compiler(>=5.3) && $NonescapableTypes
     public func asDate() -> Foundation.Date?
+    #endif
+    #if compiler(>=5.3) && $NonescapableTypes
     public func asAnyObject() -> Any?
+    #endif
+    #if compiler(>=5.3) && $NonescapableTypes
     public func asUIImage() -> UIKit.UIImage?
+    #endif
   }
 }
 extension YaqutReader.RRSwiftData {
@@ -1422,7 +1638,9 @@ final public class AES {
   }
   public enum Variant : Swift.Int {
     case aes128, aes192, aes256
+    #if compiler(>=5.3) && $NonescapableTypes
     public init?(rawValue: Swift.Int)
+    #endif
     public typealias RawValue = Swift.Int
     public var rawValue: Swift.Int {
       get
@@ -1476,6 +1694,7 @@ final public class AES {
   @usableFromInline
   internal static let U4: [Swift.UInt32]
   public init(key: Swift.Array<Swift.UInt8>, blockMode: any YaqutReader.BlockMode, padding: YaqutReader.Padding = .pkcs7) throws
+  #if compiler(>=5.3) && $NonescapableTypes
   @inlinable final internal func encrypt(block: Swift.ArraySlice<Swift.UInt8>) -> Swift.Array<Swift.UInt8>? {
     if self.blockMode.options.contains(.paddingRequired) && block.count != AES.blockSize {
       return Array(block)
@@ -1569,8 +1788,11 @@ final public class AES {
     ]
     return encrypted
   }
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   @usableFromInline
   final internal func decrypt(block: Swift.ArraySlice<Swift.UInt8>) -> Swift.Array<Swift.UInt8>?
+  #endif
   @objc deinit
 }
 extension YaqutReader.AES {
@@ -1636,7 +1858,9 @@ public class NotesAndMarks {
   public var type: Swift.Int
   public var deleted: Swift.Int?
   public var local: Swift.Int?
+  #if compiler(>=5.3) && $NonescapableTypes
   public init(bookId: Swift.Int, markId: Swift.Int, fromOffset: Swift.Int, toOffset: Swift.Int, markColor: Swift.Int?, displayText: Swift.String?, type: Swift.Int, deleted: Swift.Int?, local: Swift.Int?)
+  #endif
   public init(data: [Swift.String : Any])
   public init(dbData: [Swift.String : Any])
   @objc deinit
@@ -1681,11 +1905,15 @@ final public class OCB : YaqutReader.BlockMode {
   }
   final public let customBlockSize: Swift.Int?
   final public var authenticationTag: Swift.Array<Swift.UInt8>?
+  #if compiler(>=5.3) && $NonescapableTypes
   public init(nonce N: Swift.Array<Swift.UInt8>, additionalAuthenticatedData: Swift.Array<Swift.UInt8>? = nil, tagLength: Swift.Int = 16, mode: YaqutReader.OCB.Mode = .detached)
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   @inlinable convenience public init(nonce N: Swift.Array<Swift.UInt8>, authenticationTag: Swift.Array<Swift.UInt8>, additionalAuthenticatedData: Swift.Array<Swift.UInt8>? = nil, mode: YaqutReader.OCB.Mode = .detached) {
     self.init(nonce: N, additionalAuthenticatedData: additionalAuthenticatedData, tagLength: authenticationTag.count, mode: mode)
     self.authenticationTag = authenticationTag
   }
+  #endif
   final public func worker(blockSize: Swift.Int, cipherOperation: @escaping YaqutReader.CipherOperationOnBlock, encryptionOperation: @escaping YaqutReader.CipherOperationOnBlock) throws -> any YaqutReader.CipherModeWorker
   @objc deinit
 }
@@ -1727,43 +1955,67 @@ public typealias CipherOperationOnBlock = (_ block: Swift.ArraySlice<Swift.UInt8
 public protocol BlockMode {
   var options: YaqutReader.BlockModeOption { get }
   @inlinable func worker(blockSize: Swift.Int, cipherOperation: @escaping YaqutReader.CipherOperationOnBlock, encryptionOperation: @escaping YaqutReader.CipherOperationOnBlock) throws -> any YaqutReader.CipherModeWorker
+  #if compiler(>=5.3) && $NonescapableTypes
   var customBlockSize: Swift.Int? { get }
+  #endif
 }
 extension YaqutReader.Archive {
+  #if compiler(>=5.3) && $NonescapableTypes
   @available(*, deprecated, message: "Please use `Int` for `bufferSize`.")
   final public func extract(_ entry: YaqutReader.Entry, to url: Foundation.URL, bufferSize: Swift.UInt32, skipCRC32: Swift.Bool = false, progress: Foundation.Progress? = nil) throws -> YaqutReader.CRC32
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   @available(*, deprecated, message: "Please use `Int` for `bufferSize`.")
   final public func extract(_ entry: YaqutReader.Entry, bufferSize: Swift.UInt32, skipCRC32: Swift.Bool = false, progress: Foundation.Progress? = nil, consumer: (_ data: Foundation.Data) throws -> Swift.Void) throws -> YaqutReader.CRC32
+  #endif
 }
 public class ImageGIFCoder {
   public var imageData: Foundation.Data? {
     get
     set
   }
+  #if compiler(>=5.3) && $NonescapableTypes
   public var frameCount: Swift.Int? {
     get
   }
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public var loopCount: Swift.Int? {
     get
   }
+  #endif
   public init()
   @objc deinit
 }
 extension YaqutReader.ImageGIFCoder : YaqutReader.ImageCodeable {
   public func canDecode(_ data: Foundation.Data) -> Swift.Bool
+  #if compiler(>=5.3) && $NonescapableTypes
   public func decodedImage(with data: Foundation.Data) -> UIKit.UIImage?
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public func decompressedImage(with image: UIKit.UIImage, data: Foundation.Data) -> UIKit.UIImage?
+  #endif
   public func canEncode(_ format: YaqutReader.ImageFormat) -> Swift.Bool
+  #if compiler(>=5.3) && $NonescapableTypes
   public func encodedData(with image: UIKit.UIImage, format: YaqutReader.ImageFormat) -> Foundation.Data?
+  #endif
   public func copy() -> any YaqutReader.ImageCodeable
 }
 extension YaqutReader.ImageGIFCoder : YaqutReader.AnimatedImageCodeable {
+  #if compiler(>=5.3) && $NonescapableTypes
   public var bytesPerFrame: Swift.Int64? {
     get
   }
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public func imageFrame(at index: Swift.Int, decompress: Swift.Bool) -> UIKit.UIImage?
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public func imageFrameSize(at index: Swift.Int) -> CoreFoundation.CGSize?
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public func duration(at index: Swift.Int) -> Foundation.TimeInterval?
+  #endif
 }
 extension YaqutReader.CS.BigUInt {
   public mutating func subtractReportingOverflow(_ b: YaqutReader.CS.BigUInt, shiftedBy shift: Swift.Int = 0) -> Swift.Bool
@@ -1800,7 +2052,9 @@ extension YaqutReader.CS.BigInt {
   @_Concurrency.MainActor @preconcurrency @objc override dynamic public func dismissalTransitionWillBegin()
   @_Concurrency.MainActor @preconcurrency @objc override dynamic public func dismissalTransitionDidEnd(_ completed: Swift.Bool)
   @_Concurrency.MainActor @preconcurrency @objc override dynamic public func viewWillTransition(to size: CoreFoundation.CGSize, with coordinator: any UIKit.UIViewControllerTransitionCoordinator)
+  #if compiler(>=5.3) && $NonescapableTypes
   @_Concurrency.MainActor @preconcurrency @objc override dynamic public init(presentedViewController: UIKit.UIViewController, presenting presentingViewController: UIKit.UIViewController?)
+  #endif
 }
 extension YaqutReader.RRPanModalPresentationController {
   @_Concurrency.MainActor @preconcurrency public func transition(to state: YaqutReader.RRPanModalPresentationController.PresentationState)
@@ -1834,8 +2088,12 @@ final public class RSA {
   final public let d: YaqutReader.BigUInteger?
   final public let keySize: Swift.Int
   final public let keySizeBytes: Swift.Int
+  #if compiler(>=5.3) && $NonescapableTypes
   public init(n: YaqutReader.BigUInteger, e: YaqutReader.BigUInteger, d: YaqutReader.BigUInteger? = nil)
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   convenience public init(n: Swift.Array<Swift.UInt8>, e: Swift.Array<Swift.UInt8>, d: Swift.Array<Swift.UInt8>? = nil)
+  #endif
   convenience public init(keySize: Swift.Int) throws
   public init(n: YaqutReader.BigUInteger, e: YaqutReader.BigUInteger, d: YaqutReader.BigUInteger, p: YaqutReader.BigUInteger, q: YaqutReader.BigUInteger) throws
   @objc deinit
@@ -1868,11 +2126,17 @@ extension Swift.FixedWidthInteger {
   }
 }
 public protocol ImageDownloadRedirectHandler {
+  #if compiler(>=5.3) && $NonescapableTypes
   func handleHTTPRedirection(for operation: YaqutReader.ImageDownloadOperation, response: Foundation.HTTPURLResponse, newRequest: Foundation.URLRequest, completionHandler: @escaping (Foundation.URLRequest?) -> Swift.Void)
+  #endif
 }
 public struct AnyRedirectHandler : YaqutReader.ImageDownloadRedirectHandler {
+  #if compiler(>=5.3) && $NonescapableTypes
   public func handleHTTPRedirection(for operation: YaqutReader.ImageDownloadOperation, response: Foundation.HTTPURLResponse, newRequest: Foundation.URLRequest, completionHandler: @escaping (Foundation.URLRequest?) -> Swift.Void)
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public init(handle: @escaping (YaqutReader.ImageDownloadOperation, Foundation.HTTPURLResponse, Foundation.URLRequest, (Foundation.URLRequest?) -> Swift.Void) -> Swift.Void)
+  #endif
 }
 extension YaqutReader.CS.BigUInt : Swift.Strideable {
   public typealias Stride = YaqutReader.CS.BigInt
@@ -1896,7 +2160,9 @@ public struct CFB : YaqutReader.BlockMode {
   public enum SegmentSize : Swift.Int {
     case cfb8
     case cfb128
+    #if compiler(>=5.3) && $NonescapableTypes
     public init?(rawValue: Swift.Int)
+    #endif
     public typealias RawValue = Swift.Int
     public var rawValue: Swift.Int {
       get
@@ -1977,8 +2243,12 @@ extension YaqutReader.Updatable {
   }
   @_Concurrency.MainActor @preconcurrency @objc override dynamic public func awakeFromNib()
   @objc deinit
+  #if compiler(>=5.3) && $NonescapableTypes
   @_Concurrency.MainActor @preconcurrency @objc override dynamic public func willMove(toSuperview newSuperview: UIKit.UIView?)
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   @_Concurrency.MainActor @preconcurrency @objc override dynamic public func touchesEnded(_ touches: Swift.Set<UIKit.UITouch>, with event: UIKit.UIEvent?)
+  #endif
   @_Concurrency.MainActor @preconcurrency @objc public func textFieldShouldReturn(_ textField: UIKit.UITextField) -> Swift.Bool
   @_Concurrency.MainActor @preconcurrency @objc override dynamic public func layoutSubviews()
 }
@@ -1993,8 +2263,12 @@ extension YaqutReader.Updatable {
   }
   @_Concurrency.MainActor @preconcurrency @objc override dynamic public func awakeFromNib()
   @objc deinit
+  #if compiler(>=5.3) && $NonescapableTypes
   @_Concurrency.MainActor @preconcurrency @objc override dynamic public func willMove(toSuperview newSuperview: UIKit.UIView?)
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   @_Concurrency.MainActor @preconcurrency @objc override dynamic public func touchesEnded(_ touches: Swift.Set<UIKit.UITouch>, with event: UIKit.UIEvent?)
+  #endif
   @_Concurrency.MainActor @preconcurrency @objc override dynamic public func layoutSubviews()
 }
 @objc @_inheritsConvenienceInitializers @_hasMissingDesignatedInitializers @_Concurrency.MainActor @preconcurrency public class TPKeyboardAvoidingScrollView : UIKit.UIScrollView, UIKit.UITextFieldDelegate, UIKit.UITextViewDelegate {
@@ -2008,8 +2282,12 @@ extension YaqutReader.Updatable {
   }
   @_Concurrency.MainActor @preconcurrency @objc override dynamic public func awakeFromNib()
   @objc deinit
+  #if compiler(>=5.3) && $NonescapableTypes
   @_Concurrency.MainActor @preconcurrency @objc override dynamic public func willMove(toSuperview newSuperview: UIKit.UIView?)
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   @_Concurrency.MainActor @preconcurrency @objc override dynamic public func touchesEnded(_ touches: Swift.Set<UIKit.UITouch>, with event: UIKit.UIEvent?)
+  #endif
   @_Concurrency.MainActor @preconcurrency @objc public func textFieldShouldReturn(_ textField: UIKit.UITextField) -> Swift.Bool
   @_Concurrency.MainActor @preconcurrency @objc override dynamic public func layoutSubviews()
 }
@@ -2022,15 +2300,23 @@ extension YaqutReader.Updatable {
 }
 extension YaqutReader.ImageCoderManager : YaqutReader.ImageCodeable {
   public func canDecode(_ data: Foundation.Data) -> Swift.Bool
+  #if compiler(>=5.3) && $NonescapableTypes
   public func decodedImage(with data: Foundation.Data) -> UIKit.UIImage?
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public func decompressedImage(with image: UIKit.UIImage, data: Foundation.Data) -> UIKit.UIImage?
+  #endif
   public func canEncode(_ format: YaqutReader.ImageFormat) -> Swift.Bool
+  #if compiler(>=5.3) && $NonescapableTypes
   public func encodedData(with image: UIKit.UIImage, format: YaqutReader.ImageFormat) -> Foundation.Data?
+  #endif
   public func copy() -> any YaqutReader.ImageCodeable
 }
 extension YaqutReader.ImageCoderManager : YaqutReader.ImageProgressiveCodeable {
   public func canIncrementallyDecode(_ data: Foundation.Data) -> Swift.Bool
+  #if compiler(>=5.3) && $NonescapableTypes
   public func incrementallyDecodedImage(with data: Foundation.Data, finished: Swift.Bool) -> UIKit.UIImage?
+  #endif
 }
 @objc @_inheritsConvenienceInitializers @_hasMissingDesignatedInitializers @_Concurrency.MainActor @preconcurrency public class RRReaderView : UIKit.UIView {
   @_Concurrency.MainActor @preconcurrency public func setBookId(bookId id: Swift.Int)
@@ -2085,7 +2371,9 @@ extension YaqutReader.RRReaderView : YaqutReader.MarkSliderDelegate {
 }
 @objc @_inheritsConvenienceInitializers @_Concurrency.MainActor @preconcurrency public class SpeedBtn : UIKit.UIButton {
   @_Concurrency.MainActor @preconcurrency @objc override dynamic public init(frame: CoreFoundation.CGRect)
+  #if compiler(>=5.3) && $NonescapableTypes
   @_Concurrency.MainActor @preconcurrency @objc required dynamic public init?(coder: Foundation.NSCoder)
+  #endif
   @objc deinit
 }
 extension YaqutReader.RRReaderView : UIKit.UIScrollViewDelegate {
@@ -2126,9 +2414,15 @@ extension Foundation.Data {
   public func sha384() -> Foundation.Data
   public func sha512() -> Foundation.Data
   public func sha3(_ variant: YaqutReader.SHA3.Variant) -> Foundation.Data
+  #if compiler(>=5.3) && $NonescapableTypes
   public func crc32(seed: Swift.UInt32? = nil, reflect: Swift.Bool = true) -> Foundation.Data
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public func crc32c(seed: Swift.UInt32? = nil, reflect: Swift.Bool = true) -> Foundation.Data
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public func crc16(seed: Swift.UInt16? = nil) -> Foundation.Data
+  #endif
   public func encrypt(cipher: any YaqutReader.Cipher) throws -> Foundation.Data
   public func decrypt(cipher: any YaqutReader.Cipher) throws -> Foundation.Data
   public func authenticate(with authenticator: any YaqutReader.Authenticator) throws -> Foundation.Data
@@ -2214,10 +2508,16 @@ final internal class StreamDecryptor : YaqutReader.Cryptor, YaqutReader.Updatabl
 public struct PDFDocument {
   public let pageCount: Swift.Int
   public let fileName: Swift.String
+  #if compiler(>=5.3) && $NonescapableTypes
   public init?(url: Foundation.URL, password: Swift.String? = nil)
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public init?(fileData: Foundation.Data, fileName: Swift.String, password: Swift.String? = nil)
+  #endif
 }
+#if compiler(>=5.3) && $NonescapableTypes
 public func LGPrint(_ object: @autoclosure () -> Any?, _ file: Swift.String = #file, _ function: Swift.String = #function, _ line: Swift.Int = #line)
+#endif
 @_hasMissingDesignatedInitializers public class RRReadingSession {
   public func getBookId() -> Swift.Int
   public func setBookId(_ bookId: Swift.Int)
@@ -2241,8 +2541,12 @@ public func LGPrint(_ object: @autoclosure () -> Any?, _ file: Swift.String = #f
   public func setEndTimeMillis(_ endTime: Swift.Double)
   public func getMd5() -> Swift.String
   public func setMd5(_ md5: Swift.String)
+  #if compiler(>=5.3) && $NonescapableTypes
   public func getUuid() -> Swift.String?
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public func setUuid(_ uuid: Swift.String?)
+  #endif
   @objc deinit
 }
 public enum PKCS5 {
@@ -2256,9 +2560,13 @@ extension UIKit.UIButton : YaqutReader.ImageWebCacheable {
 }
 extension YaqutReader.LonginusExtension where Base : UIKit.UIButton {
   public func imageLoadTaskKey(forState state: UIKit.UIControl.State) -> Swift.String
+  #if compiler(>=5.3) && $NonescapableTypes
   public func setImage(with resource: (any YaqutReader.ImageWebCacheResourceable)?, forState state: UIKit.UIControl.State, placeholder: UIKit.UIImage? = nil, options: YaqutReader.LonginusImageOptions? = nil, transformer: YaqutReader.ImageTransformer? = nil, progress: YaqutReader.ImageDownloaderProgressBlock? = nil, completion: YaqutReader.ImageManagerCompletionBlock? = nil)
+  #endif
   public func cancelImageLoadTask(forState state: UIKit.UIControl.State)
+  #if compiler(>=5.3) && $NonescapableTypes
   public func setBackgroundImage(with resource: any YaqutReader.ImageWebCacheResourceable, forState state: UIKit.UIControl.State, placeholder: UIKit.UIImage? = nil, options: YaqutReader.LonginusImageOptions? = nil, transformer: YaqutReader.ImageTransformer? = nil, progress: YaqutReader.ImageDownloaderProgressBlock? = nil, completion: YaqutReader.ImageManagerCompletionBlock? = nil)
+  #endif
   public func cancelBackgroundImageLoadTask(forState state: UIKit.UIControl.State)
   public func backgroundImageLoadTaskKey(forState state: UIKit.UIControl.State) -> Swift.String
 }
@@ -2308,7 +2616,9 @@ public class RRReaderBookData {
   public var locations: [Swift.String : Any]?
   public var pages: [Swift.Int]?
   public var syncFile: [[[Swift.Int]]]?
+  #if compiler(>=5.3) && $NonescapableTypes
   public init(bookInfo info: YaqutReader.RRBookInfoModel, bookToc toc: [YaqutReader.RRTOCItem], audioToc aToc: [YaqutReader.RRTOCItem]?, bookLocations locations: [Swift.String : Any]?, bookPages pages: [Swift.Int]?, bookSyncFile syncFile: [[[Swift.Int]]])
+  #endif
   public init(bookInfo: YaqutReader.RRBookInfoModel, bookToc toc: [YaqutReader.RRTOCItem])
   public init()
   @objc deinit
@@ -2334,21 +2644,35 @@ extension YaqutReader.AES : YaqutReader.Cryptors {
 }
 public protocol ImageDownloadModifier {
   associatedtype T
+  #if compiler(>=5.3) && $NonescapableTypes
   func modified(for original: Self.T?) -> Self.T?
+  #endif
 }
 public struct URLRequestModifier : YaqutReader.ImageDownloadModifier {
+  #if compiler(>=5.3) && $NonescapableTypes
   public func modified(for request: Foundation.URLRequest?) -> Foundation.URLRequest?
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public init(modify: @escaping (Foundation.URLRequest?) -> Foundation.URLRequest?)
+  #endif
   public typealias T = Foundation.URLRequest
 }
 public struct URLModifier : YaqutReader.ImageDownloadModifier {
+  #if compiler(>=5.3) && $NonescapableTypes
   public func modified(for URL: Foundation.URL?) -> Foundation.URL?
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public init(url: Foundation.URL?)
+  #endif
   public typealias T = Foundation.URL
 }
 public struct URLHttpHeadersModifier : YaqutReader.ImageDownloadModifier {
+  #if compiler(>=5.3) && $NonescapableTypes
   public func modified(for headers: [Swift.String : Swift.String]?) -> [Swift.String : Swift.String]?
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public init(httpHeaders: [Swift.String : Swift.String]?)
+  #endif
   public typealias T = [Swift.String : Swift.String]
 }
 final public class XChaCha20 : YaqutReader.BlockMode {
@@ -2407,8 +2731,12 @@ public class Queuer {
 extension YaqutReader.Queuer {
   public func addOperation(_ operation: @escaping () -> Swift.Void)
   public func addOperation(_ operation: Foundation.Operation)
+  #if compiler(>=5.3) && $NonescapableTypes
   public func addChainedOperations(_ operations: [Foundation.Operation], completionHandler: (() -> Swift.Void)? = nil)
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public func addChainedOperations(_ operations: Foundation.Operation..., completionHandler: (() -> Swift.Void)? = nil)
+  #endif
   public func addCompletionHandler(_ completionHandler: @escaping () -> Swift.Void)
 }
 extension YaqutReader.Queuer {
@@ -2419,14 +2747,18 @@ extension YaqutReader.Queuer {
 extension UIKit.UIApplication : YaqutReader.LonginusCompatible {
 }
 extension YaqutReader.LonginusExtension where Base : UIKit.UIApplication {
+  #if compiler(>=5.3) && $NonescapableTypes
   public static var shared: UIKit.UIApplication? {
     get
   }
+  #endif
 }
 public enum CompressionMethod : Swift.UInt16 {
   case none
   case deflate
+  #if compiler(>=5.3) && $NonescapableTypes
   public init?(rawValue: Swift.UInt16)
+  #endif
   public typealias RawValue = Swift.UInt16
   public var rawValue: Swift.UInt16 {
     get
@@ -2451,7 +2783,9 @@ public class Mutex {
   @objc deinit
 }
 @objc @_hasMissingDesignatedInitializers @_Concurrency.MainActor @preconcurrency public class RRDimmedView : UIKit.UIView {
+  #if compiler(>=5.3) && $NonescapableTypes
   @_Concurrency.MainActor @preconcurrency @objc required dynamic public init?(coder aDecoder: Foundation.NSCoder)
+  #endif
   @objc deinit
 }
 final public class HMAC : YaqutReader.Authenticator {
@@ -2477,18 +2811,32 @@ final public class HMAC : YaqutReader.Authenticator {
   @objc deinit
 }
 extension YaqutReader.Archive {
+  #if compiler(>=5.3) && $NonescapableTypes
   final public func addEntry(with path: Swift.String, relativeTo baseURL: Foundation.URL, compressionMethod: YaqutReader.CompressionMethod = .none, bufferSize: Swift.Int = defaultWriteChunkSize, progress: Foundation.Progress? = nil) throws
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   final public func addEntry(with path: Swift.String, fileURL: Foundation.URL, compressionMethod: YaqutReader.CompressionMethod = .none, bufferSize: Swift.Int = defaultWriteChunkSize, progress: Foundation.Progress? = nil) throws
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   final public func addEntry(with path: Swift.String, type: YaqutReader.Entry.EntryType, uncompressedSize: Swift.Int64, modificationDate: Foundation.Date = Date(), permissions: Swift.UInt16? = nil, compressionMethod: YaqutReader.CompressionMethod = .none, bufferSize: Swift.Int = defaultWriteChunkSize, progress: Foundation.Progress? = nil, provider: (_ position: Swift.Int64, _ size: Swift.Int) throws -> Foundation.Data) throws
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   final public func remove(_ entry: YaqutReader.Entry, bufferSize: Swift.Int = defaultReadChunkSize, progress: Foundation.Progress? = nil) throws
+  #endif
 }
 public protocol ImageDownloadOperateable : AnyObject {
   var url: Foundation.URL { get }
   var dataTaskId: Swift.Int { get }
   var downloads: [YaqutReader.ImageDefaultDownload] { get }
+  #if compiler(>=5.3) && $NonescapableTypes
   var imageCoder: (any YaqutReader.ImageCodeable)? { get set }
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   var completion: (() -> Swift.Void)? { get set }
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   init(request: Foundation.URLRequest, session: Foundation.URLSession, options: YaqutReader.LonginusImageOptions?)
+  #endif
   func add(download: YaqutReader.ImageDefaultDownload)
   func start()
   func cancel()
@@ -2506,14 +2854,18 @@ public protocol ImageDownloadOperateable : AnyObject {
   public var options: YaqutReader.LonginusImageOptions?
   weak public var imageCoder: (any YaqutReader.ImageCodeable)?
   public var completion: (() -> Swift.Void)?
+  #if compiler(>=5.3) && $NonescapableTypes
   required public init(request: Foundation.URLRequest, session: Foundation.URLSession, options: YaqutReader.LonginusImageOptions?)
+  #endif
   public func add(download: YaqutReader.ImageDefaultDownload)
   public func start()
   public func cancel()
   @objc deinit
 }
 extension YaqutReader.ImageDownloadOperation : Foundation.URLSessionTaskDelegate {
+  #if compiler(>=5.3) && $NonescapableTypes
   @objc dynamic public func urlSession(_ session: Foundation.URLSession, task: Foundation.URLSessionTask, didCompleteWithError error: (any Swift.Error)?)
+  #endif
 }
 extension YaqutReader.ImageDownloadOperation : Foundation.URLSessionDataDelegate {
   @objc dynamic public func urlSession(_ session: Foundation.URLSession, dataTask: Foundation.URLSessionDataTask, didReceive response: Foundation.URLResponse, completionHandler: @escaping (Foundation.URLSession.ResponseDisposition) -> Swift.Void)
@@ -2674,14 +3026,22 @@ final public class Scrypt {
   @objc deinit
 }
 extension YaqutReader.Archive {
+  #if compiler(>=5.3) && $NonescapableTypes
   @available(*, deprecated, message: "Please use `Int` for `bufferSize`.")
   final public func addEntry(with path: Swift.String, relativeTo baseURL: Foundation.URL, compressionMethod: YaqutReader.CompressionMethod = .none, bufferSize: Swift.UInt32, progress: Foundation.Progress? = nil) throws
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   @available(*, deprecated, message: "Please use `Int` for `bufferSize`.")
   final public func addEntry(with path: Swift.String, fileURL: Foundation.URL, compressionMethod: YaqutReader.CompressionMethod = .none, bufferSize: Swift.UInt32, progress: Foundation.Progress? = nil) throws
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   @available(*, deprecated, message: "Please use `Int64` for `uncompressedSize` and provider `position`. `Int` for `bufferSize`.")
   final public func addEntry(with path: Swift.String, type: YaqutReader.Entry.EntryType, uncompressedSize: Swift.UInt32, modificationDate: Foundation.Date = Date(), permissions: Swift.UInt16? = nil, compressionMethod: YaqutReader.CompressionMethod = .none, bufferSize: Swift.Int = defaultWriteChunkSize, progress: Foundation.Progress? = nil, provider: (_ position: Swift.Int, _ size: Swift.Int) throws -> Foundation.Data) throws
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   @available(*, deprecated, message: "Please use `Int` for `bufferSize`.")
   final public func remove(_ entry: YaqutReader.Entry, bufferSize: Swift.UInt32, progress: Foundation.Progress? = nil) throws
+  #endif
 }
 public protocol Cryptor {
   mutating func seek(to: Swift.Int) throws
@@ -2691,10 +3051,14 @@ public protocol Cryptor {
   @_Concurrency.MainActor @preconcurrency @objc override dynamic open class var layoutAttributesClass: Swift.AnyClass {
     @objc get
   }
+  #if compiler(>=5.3) && $NonescapableTypes
   @_Concurrency.MainActor @preconcurrency @objc override dynamic open func layoutAttributesForElements(in rect: CoreFoundation.CGRect) -> [UIKit.UICollectionViewLayoutAttributes]?
+  #endif
   @_Concurrency.MainActor @preconcurrency @objc override dynamic open func shouldInvalidateLayout(forBoundsChange newBounds: CoreFoundation.CGRect) -> Swift.Bool
   @_Concurrency.MainActor @preconcurrency @objc override dynamic public init()
+  #if compiler(>=5.3) && $NonescapableTypes
   @_Concurrency.MainActor @preconcurrency @objc required dynamic public init?(coder: Foundation.NSCoder)
+  #endif
   @objc deinit
 }
 @objc @_inheritsConvenienceInitializers @_Concurrency.MainActor @preconcurrency open class AnimatedCollectionViewLayoutAttributes : UIKit.UICollectionViewLayoutAttributes {
@@ -2703,8 +3067,12 @@ public protocol Cryptor {
   @_Concurrency.MainActor @preconcurrency public var startOffset: CoreFoundation.CGFloat
   @_Concurrency.MainActor @preconcurrency public var middleOffset: CoreFoundation.CGFloat
   @_Concurrency.MainActor @preconcurrency public var endOffset: CoreFoundation.CGFloat
+  #if compiler(>=5.3) && $NonescapableTypes
   @_Concurrency.MainActor @preconcurrency @objc override dynamic open func copy(with zone: ObjectiveC.NSZone? = nil) -> Any
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   @_Concurrency.MainActor @preconcurrency @objc override dynamic open func isEqual(_ object: Any?) -> Swift.Bool
+  #endif
   @_Concurrency.MainActor @preconcurrency @objc override dynamic public init()
   @objc deinit
 }
@@ -2736,7 +3104,9 @@ public struct OFB : YaqutReader.BlockMode {
   @objc deinit
 }
 extension YaqutReader.RRPanModalPresentationAnimator : UIKit.UIViewControllerAnimatedTransitioning {
+  #if compiler(>=5.3) && $NonescapableTypes
   @_Concurrency.MainActor @preconcurrency @objc dynamic public func transitionDuration(using transitionContext: (any UIKit.UIViewControllerContextTransitioning)?) -> Foundation.TimeInterval
+  #endif
   @_Concurrency.MainActor @preconcurrency @objc dynamic public func animateTransition(using transitionContext: any UIKit.UIViewControllerContextTransitioning)
 }
 public var currentBookLanguage: Swift.String
@@ -2750,8 +3120,12 @@ public var rrWindow: UIKit.UIWindow?
 public class ReaderBuilder {
   public init(bookId: Swift.Int, language: YaqutReader.Language)
   public func build()
+  #if compiler(>=5.3) && $NonescapableTypes
   public func setReaderDelegate(withReaderDelegate readerDelegate: (any YaqutReader.ReaderDelegate)?)
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public func setReadingStatsDelegate(withStatsSessionDelegate statsSessionDelegate: (any YaqutReader.StatsSessionDelegate)?)
+  #endif
   public func setReaderStyle(readerStyle style: YaqutReader.ReaderStyle)
   public func setFileId(fileId id: Swift.Int)
   public func setTitle(bookTitle title: Swift.String)
@@ -2847,7 +3221,9 @@ extension Foundation.Data {
   }
   public func gzipped(level: YaqutReader.CompressionLevel = .defaultCompression, wBits: Swift.Int32 = Gzip.maxWindowBits + 16) throws -> Foundation.Data
   public func gunzipped(wBits: Swift.Int32 = Gzip.maxWindowBits + 32) throws -> Foundation.Data
+  #if compiler(>=5.3) && $NonescapableTypes
   public func gtm_dataByInflatingBytes(_ bytes: Swift.UnsafeRawPointer?, length: Swift.UInt) -> Foundation.Data?
+  #endif
 }
 public protocol RRPDFViewDelegate {
   func onSaveBookClicked(position: Swift.Int)
@@ -2870,7 +3246,9 @@ final public class Poly1305 : YaqutReader.Authenticator {
   @objc deinit
 }
 public protocol RRPanModalPresentable : AnyObject {
+  #if compiler(>=5.3) && $NonescapableTypes
   var panScrollable: UIKit.UIScrollView? { get }
+  #endif
   var topOffset: CoreFoundation.CGFloat { get }
   var shortFormHeight: YaqutReader.RRPanModalHeight { get }
   var longFormHeight: YaqutReader.RRPanModalHeight { get }
@@ -2916,11 +3294,19 @@ public protocol RRPanModalPresentable : AnyObject {
   @_Concurrency.MainActor @preconcurrency @objc override final public var preferredStatusBarUpdateAnimation: UIKit.UIStatusBarAnimation {
     @objc get
   }
+  #if compiler(>=5.3) && $NonescapableTypes
   @_Concurrency.MainActor @preconcurrency @objc override final public func shouldPerformSegue(withIdentifier identifier: Swift.String, sender: Any?) -> Swift.Bool
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   @_Concurrency.MainActor @preconcurrency @objc override final public func prepare(for segue: UIKit.UIStoryboardSegue, sender: Any?)
+  #endif
   @_Concurrency.MainActor @preconcurrency @objc override final public func viewWillTransition(to size: CoreFoundation.CGSize, with coordinator: any UIKit.UIViewControllerTransitionCoordinator)
+  #if compiler(>=5.3) && $NonescapableTypes
   @_Concurrency.MainActor @preconcurrency @objc override dynamic public init(nibName nibNameOrNil: Swift.String?, bundle nibBundleOrNil: Foundation.Bundle?)
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   @_Concurrency.MainActor @preconcurrency @objc required dynamic public init?(coder: Foundation.NSCoder)
+  #endif
   @objc deinit
 }
 extension YaqutReader.PDFViewController : UIKit.UICollectionViewDataSource {
@@ -2942,7 +3328,9 @@ public protocol RRBookMakerDelegate {
   func errorCloseBook()
 }
 public class RRBookMaker {
+  #if compiler(>=5.3) && $NonescapableTypes
   public init(bookId: Swift.Int, bookInfoModel model: YaqutReader.RRBookInfoModel, startingChapter index: Swift.Int, withDelegate delegate: (any YaqutReader.RRBookMakerDelegate)?)
+  #endif
   public var rrchapterBuilder: YaqutReader.RRChapterBuilder!
   public func getCollectionViewChapters() -> [YaqutReader.RRChapterItem]
   public func getNoOfPages() -> Swift.Int
@@ -2959,10 +3347,14 @@ extension YaqutReader.RRTOCItem : Swift.CustomStringConvertible {
   }
 }
 extension YaqutReader.CS.BigUInt {
+  #if compiler(>=5.3) && $NonescapableTypes
   public init?<S>(_ text: S, radix: Swift.Int = 10) where S : Swift.StringProtocol
+  #endif
 }
 extension YaqutReader.CS.BigInt {
+  #if compiler(>=5.3) && $NonescapableTypes
   public init?<S>(_ text: S, radix: Swift.Int = 10) where S : Swift.StringProtocol
+  #endif
 }
 extension Swift.String {
   public init(_ v: YaqutReader.CS.BigUInt)
@@ -3013,12 +3405,20 @@ public protocol RRAudioPlayerDelegate {
   func onEndOfSample()
 }
 public protocol AuthenticationChallengeResponsable : AnyObject {
+  #if compiler(>=5.3) && $NonescapableTypes
   func downloader(_ downloader: YaqutReader.ImageDownloader, didReceive challenge: Foundation.URLAuthenticationChallenge, completionHandler: @escaping (Foundation.URLSession.AuthChallengeDisposition, Foundation.URLCredential?) -> Swift.Void)
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   func downloader(_ downloader: YaqutReader.ImageDownloader, task: Foundation.URLSessionTask, didReceive challenge: Foundation.URLAuthenticationChallenge, completionHandler: @escaping (Foundation.URLSession.AuthChallengeDisposition, Foundation.URLCredential?) -> Swift.Void)
+  #endif
 }
 extension YaqutReader.AuthenticationChallengeResponsable {
+  #if compiler(>=5.3) && $NonescapableTypes
   public func downloader(_ downloader: YaqutReader.ImageDownloader, didReceive challenge: Foundation.URLAuthenticationChallenge, completionHandler: @escaping (Foundation.URLSession.AuthChallengeDisposition, Foundation.URLCredential?) -> Swift.Void)
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public func downloader(_ downloader: YaqutReader.ImageDownloader, task: Foundation.URLSessionTask, didReceive challenge: Foundation.URLAuthenticationChallenge, completionHandler: @escaping (Foundation.URLSession.AuthChallengeDisposition, Foundation.URLCredential?) -> Swift.Void)
+  #endif
 }
 public enum AnimatedImageViewType {
   case none
@@ -3047,26 +3447,40 @@ public enum AnimatedImageViewType {
   @_Concurrency.MainActor @preconcurrency @objc override dynamic open var isAnimating: Swift.Bool {
     @objc get
   }
+  #if compiler(>=5.3) && $NonescapableTypes
   @_Concurrency.MainActor @preconcurrency @objc override dynamic open var image: UIKit.UIImage? {
     @objc get
     @objc set
   }
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   @_Concurrency.MainActor @preconcurrency @objc override dynamic open var highlightedImage: UIKit.UIImage? {
     @objc get
     @objc set
   }
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   @_Concurrency.MainActor @preconcurrency @objc override dynamic open var animationImages: [UIKit.UIImage]? {
     @objc get
     @objc set
   }
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   @_Concurrency.MainActor @preconcurrency @objc override dynamic open var highlightedAnimationImages: [UIKit.UIImage]? {
     @objc get
     @objc set
   }
+  #endif
   @_Concurrency.MainActor @preconcurrency @objc override dynamic public init(frame: CoreFoundation.CGRect)
+  #if compiler(>=5.3) && $NonescapableTypes
   @_Concurrency.MainActor @preconcurrency @objc override dynamic public init(image: UIKit.UIImage?)
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   @_Concurrency.MainActor @preconcurrency @objc override dynamic public init(image: UIKit.UIImage?, highlightedImage: UIKit.UIImage?)
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   @_Concurrency.MainActor @preconcurrency @objc required dynamic public init?(coder aDecoder: Foundation.NSCoder)
+  #endif
   @_Concurrency.MainActor @preconcurrency @objc override dynamic open func encode(with aCoder: Foundation.NSCoder)
   @_Concurrency.MainActor @preconcurrency @objc override dynamic open func didMoveToWindow()
   @_Concurrency.MainActor @preconcurrency @objc override dynamic open func didMoveToSuperview()
@@ -3078,9 +3492,11 @@ public enum AnimatedImageViewType {
   @_Concurrency.MainActor @preconcurrency public func setCurrentAnimatedImageIndex(_ index: Swift.Int)
 }
 extension UIKit.UIWindow {
+  #if compiler(>=5.3) && $NonescapableTypes
   @_Concurrency.MainActor @preconcurrency public static var key: UIKit.UIWindow? {
     get
   }
+  #endif
 }
 extension YaqutReader.Blowfish {
   convenience public init(key: Swift.String, iv: Swift.String, padding: YaqutReader.Padding = .pkcs7) throws
@@ -3101,7 +3517,9 @@ public typealias ImageManagerCompletionBlock = (UIKit.UIImage?, Foundation.Data?
 public typealias ImagePreloadProgress = (_ successCount: Swift.Int, _ finishCount: Swift.Int, _ total: Swift.Int) -> Swift.Void
 public typealias ImagePreloadCompletion = (_ successCount: Swift.Int, _ total: Swift.Int) -> Swift.Void
 public protocol ImageDownloadable : AnyObject {
+  #if compiler(>=5.3) && $NonescapableTypes
   func downloadImage(with url: Foundation.URL, options: YaqutReader.LonginusImageOptions?, progress: YaqutReader.ImageDownloaderProgressBlock?, completion: @escaping YaqutReader.ImageDownloaderCompletionBlock) -> YaqutReader.ImageDefaultDownload
+  #endif
   func cancel(download: YaqutReader.ImageDefaultDownload)
   func cancel(url: Foundation.URL)
   func cancelPreloading()
@@ -3114,14 +3532,18 @@ public class ImageDownloader {
   public var donwloadTimeout: Foundation.TimeInterval
   public var requestsUsePipelining: Swift.Bool
   weak public var imageCoder: (any YaqutReader.ImageCodeable)?
+  #if compiler(>=5.3) && $NonescapableTypes
   public var generateDownload: (Foundation.URL, YaqutReader.ImageDownloaderProgressBlock?, @escaping YaqutReader.ImageDownloaderCompletionBlock) -> YaqutReader.ImageDefaultDownload {
     get
     set
   }
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public var generateDownloadOperation: (Foundation.URLRequest, Foundation.URLSession, YaqutReader.LonginusImageOptions?) -> any YaqutReader.ImageDownloadOperateable {
     get
     set
   }
+  #endif
   public var currentDownloadCount: Swift.Int {
     get
   }
@@ -3142,8 +3564,10 @@ public class ImageDownloader {
   @objc deinit
 }
 extension YaqutReader.ImageDownloader : YaqutReader.ImageDownloadable {
+  #if compiler(>=5.3) && $NonescapableTypes
   @discardableResult
   public func downloadImage(with url: Foundation.URL, options: YaqutReader.LonginusImageOptions? = nil, progress: YaqutReader.ImageDownloaderProgressBlock? = nil, completion: @escaping YaqutReader.ImageDownloaderCompletionBlock) -> YaqutReader.ImageDefaultDownload
+  #endif
   public func cancel(download: YaqutReader.ImageDefaultDownload)
   public func cancel(url: Foundation.URL)
   public func cancelPreloading()
@@ -3152,8 +3576,12 @@ extension YaqutReader.ImageDownloader : YaqutReader.ImageDownloadable {
 extension YaqutReader.ImageDownloader : YaqutReader.AuthenticationChallengeResponsable {
 }
 extension Foundation.FileManager {
+  #if compiler(>=5.3) && $NonescapableTypes
   public func zipItem(at sourceURL: Foundation.URL, to destinationURL: Foundation.URL, shouldKeepParent: Swift.Bool = true, compressionMethod: YaqutReader.CompressionMethod = .none, progress: Foundation.Progress? = nil) throws
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public func unzipItem(at sourceURL: Foundation.URL, to destinationURL: Foundation.URL, skipCRC32: Swift.Bool = false, progress: Foundation.Progress? = nil, preferredEncoding: Swift.String.Encoding? = nil) throws
+  #endif
 }
 extension Foundation.URL {
   public func isContained(in parentDirectoryURL: Foundation.URL) -> Swift.Bool
@@ -3249,7 +3677,9 @@ extension YaqutReader.LonginusExtension where Base : QuartzCore.CALayer {
   public var imageLoadTaskKey: Swift.String {
     get
   }
+  #if compiler(>=5.3) && $NonescapableTypes
   public func setImage(with resource: (any YaqutReader.ImageWebCacheResourceable)?, placeholder: UIKit.UIImage? = nil, options: YaqutReader.LonginusImageOptions? = nil, transformer: YaqutReader.ImageTransformer? = nil, progress: YaqutReader.ImageDownloaderProgressBlock? = nil, completion: YaqutReader.ImageManagerCompletionBlock? = nil)
+  #endif
   public func cancelImageLoadTask()
 }
 extension YaqutReader.RRPanModalPresentable where Self : UIKit.UIViewController {
@@ -3259,7 +3689,9 @@ extension YaqutReader.RRPanModalPresentable where Self : UIKit.UIViewController 
   public func panModalTransition(to state: YaqutReader.RRPanModalPresentationController.PresentationState)
   public func panModalSetNeedsLayoutUpdate()
   public func panModalPerformUpdates(_ updates: () -> Swift.Void)
+  #if compiler(>=5.3) && $NonescapableTypes
   public func panModalAnimate(_ animationBlock: @escaping Self.AnimationBlockType, _ completion: Self.AnimationCompletionType? = nil)
+  #endif
 }
 public struct CCM {
   public enum Error : Swift.Error {
@@ -3275,8 +3707,12 @@ public struct CCM {
   public let options: YaqutReader.BlockModeOption
   public let customBlockSize: Swift.Int?
   public var authenticationTag: Swift.Array<Swift.UInt8>?
+  #if compiler(>=5.3) && $NonescapableTypes
   public init(iv: Swift.Array<Swift.UInt8>, tagLength: Swift.Int, messageLength: Swift.Int, additionalAuthenticatedData: Swift.Array<Swift.UInt8>? = nil)
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public init(iv: Swift.Array<Swift.UInt8>, tagLength: Swift.Int, messageLength: Swift.Int, authenticationTag: Swift.Array<Swift.UInt8>, additionalAuthenticatedData: Swift.Array<Swift.UInt8>? = nil)
+  #endif
   public func worker(blockSize: Swift.Int, cipherOperation: @escaping YaqutReader.CipherOperationOnBlock, encryptionOperation: @escaping YaqutReader.CipherOperationOnBlock) throws -> any YaqutReader.CipherModeWorker
 }
 public let defaultReadChunkSize: Swift.Int
@@ -3309,7 +3745,9 @@ final public class Archive : Swift.Sequence {
     case create
     case read
     case update
+    #if compiler(>=5.3) && $NonescapableTypes
     public init?(rawValue: Swift.UInt)
+    #endif
     public typealias RawValue = Swift.UInt
     public var rawValue: Swift.UInt {
       get
@@ -3317,13 +3755,19 @@ final public class Archive : Swift.Sequence {
   }
   final public let url: Foundation.URL
   final public let accessMode: YaqutReader.Archive.AccessMode
+  #if compiler(>=5.3) && $NonescapableTypes
   public init?(url: Foundation.URL, accessMode mode: YaqutReader.Archive.AccessMode, preferredEncoding: Swift.String.Encoding? = nil)
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public init?(data: Foundation.Data = Data(), accessMode mode: YaqutReader.Archive.AccessMode, preferredEncoding: Swift.String.Encoding? = nil)
+  #endif
   @objc deinit
   final public func makeIterator() -> Swift.AnyIterator<YaqutReader.Entry>
+  #if compiler(>=5.3) && $NonescapableTypes
   final public subscript(path: Swift.String) -> YaqutReader.Entry? {
     get
   }
+  #endif
   public typealias Element = YaqutReader.Entry
   public typealias Iterator = Swift.AnyIterator<YaqutReader.Entry>
 }
@@ -3361,11 +3805,15 @@ extension YaqutReader.RRAudioPlayer : YaqutReader.JukeboxDelegate {
   @objc deinit
 }
 public class Histogram {
+  #if compiler(>=5.3) && $NonescapableTypes
   public init(fiveStars: Swift.Int? = nil, fourStars: Swift.Int? = nil, threeStars: Swift.Int? = nil, twoStars: Swift.Int? = nil, oneStar: Swift.Int? = nil, total: Swift.Int? = nil)
+  #endif
   @objc deinit
 }
 public class SubscriptionsAvailable {
+  #if compiler(>=5.3) && $NonescapableTypes
   public init(subscription_id: Swift.Int? = nil, subscription_name: Swift.String? = nil, expiry_date: Swift.Int? = nil)
+  #endif
   @objc deinit
 }
 public class SeriesModel {
@@ -3456,12 +3904,18 @@ public struct Scheduler {
   public var handler: (() -> Swift.Void)? {
     get
   }
+  #if compiler(>=5.3) && $NonescapableTypes
   public init(deadline: Dispatch.DispatchTime, repeating: Dispatch.DispatchTimeInterval, qualityOfService: Dispatch.DispatchQoS = .default, handler: (() -> Swift.Void)? = nil)
+  #endif
   public mutating func setHandler(_ handler: @escaping () -> Swift.Void)
 }
 extension YaqutReader.Archive {
+  #if compiler(>=5.3) && $NonescapableTypes
   final public func extract(_ entry: YaqutReader.Entry, to url: Foundation.URL, bufferSize: Swift.Int = defaultReadChunkSize, skipCRC32: Swift.Bool = false, progress: Foundation.Progress? = nil) throws -> YaqutReader.CRC32
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   final public func extract(_ entry: YaqutReader.Entry, bufferSize: Swift.Int = defaultReadChunkSize, skipCRC32: Swift.Bool = false, progress: Foundation.Progress? = nil, consumer: (_ data: Foundation.Data) throws -> Swift.Void) throws -> YaqutReader.CRC32
+  #endif
 }
 @_specialize(exported: false, kind: full, where T == Swift.Int)
 @_specialize(exported: false, kind: full, where T == Swift.UInt)
@@ -3513,7 +3967,9 @@ final public class SHA2 {
     public var rawValue: YaqutReader.SHA2.Variant.RawValue {
       get
     }
+    #if compiler(>=5.3) && $NonescapableTypes
     public init?(rawValue: YaqutReader.SHA2.Variant.RawValue)
+    #endif
     @usableFromInline
     internal var h: Swift.Array<Swift.UInt64> {
       get
@@ -3647,7 +4103,9 @@ public struct LonginusParsedImageOptionsInfo {
   public var requestModifier: YaqutReader.URLRequestModifier?
   public var httpHeadersModifier: YaqutReader.URLHttpHeadersModifier?
   public var redirectHandler: (any YaqutReader.ImageDownloadRedirectHandler)?
+  #if compiler(>=5.3) && $NonescapableTypes
   public init(_ options: YaqutReader.LonginusImageOptions?)
+  #endif
 }
 @usableFromInline
 final internal class BlockEncryptor : YaqutReader.Cryptor, YaqutReader.Updatable {
@@ -3662,8 +4120,12 @@ final internal class BlockEncryptor : YaqutReader.Cryptor, YaqutReader.Updatable
 extension UIKit.UIImageView : YaqutReader.ImageWebCacheable {
 }
 extension YaqutReader.LonginusExtension where Base : UIKit.UIImageView {
+  #if compiler(>=5.3) && $NonescapableTypes
   public func setImage(with resource: (any YaqutReader.ImageWebCacheResourceable)?, placeholder: UIKit.UIImage? = nil, options: YaqutReader.LonginusImageOptions? = nil, transformer: YaqutReader.ImageTransformer? = nil, progress: YaqutReader.ImageDownloaderProgressBlock? = nil, completion: YaqutReader.ImageManagerCompletionBlock? = nil)
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public func setHighlightedImage(with resource: any YaqutReader.ImageWebCacheResourceable, placeholder: UIKit.UIImage? = nil, options: YaqutReader.LonginusImageOptions? = nil, transformer: YaqutReader.ImageTransformer? = nil, progress: YaqutReader.ImageDownloaderProgressBlock? = nil, completion: YaqutReader.ImageManagerCompletionBlock? = nil)
+  #endif
   public func cancelHighlightedImageLoadTask()
   public var highlightedImageLoadTaskKey: Swift.String {
     get
@@ -3731,7 +4193,9 @@ public protocol FinalizingDecryptModeWorker : YaqutReader.CipherModeWorker {
   mutating func finalize(decrypt plaintext: Swift.ArraySlice<Swift.UInt8>) throws -> Swift.ArraySlice<Swift.UInt8>
 }
 public class SaveBookManager {
+  #if compiler(>=5.3) && $NonescapableTypes
   public init(bookId: Swift.Int, bodyPath: Swift.String, header: Swift.String?, token: Swift.String?)
+  #endif
   public func save() -> Swift.Bool
   @objc deinit
 }
@@ -3775,7 +4239,9 @@ extension YaqutReader.Jukebox {
     public var description: Swift.String {
       get
     }
+    #if compiler(>=5.3) && $NonescapableTypes
     public init?(rawValue: Swift.Int)
+    #endif
     public typealias RawValue = Swift.Int
     public var rawValue: Swift.Int {
       get
@@ -3805,10 +4271,14 @@ extension YaqutReader.Jukebox {
     get
     set
   }
+  #if compiler(>=5.3) && $NonescapableTypes
   open var currentItem: YaqutReader.JukeboxItem? {
     get
   }
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   required public init?(delegate: (any YaqutReader.JukeboxDelegate)? = nil, items: [YaqutReader.JukeboxItem] = [JukeboxItem]())
+  #endif
   @objc deinit
 }
 @_hasMissingDesignatedInitializers public class RRUtil {
@@ -3936,10 +4406,14 @@ extension YaqutReader.CS.BigUInt : Swift.Codable {
 public enum PKCS7 {
 }
 public protocol MemoryCacheable : YaqutReader.CacheStandard {
+  #if compiler(>=5.3) && $NonescapableTypes
   mutating func save(value: Self.Value?, for key: Self.Key, cost: Swift.Int)
+  #endif
 }
 public protocol DiskCacheable : YaqutReader.CacheAsyncStandard, YaqutReader.CacheStandard {
+  #if compiler(>=5.3) && $NonescapableTypes
   init?(path: Swift.String, sizeThreshold threshold: Swift.Int32)
+  #endif
 }
 public protocol Cacheable {
   associatedtype M : YaqutReader.CacheStandard
@@ -3950,9 +4424,15 @@ public protocol CacheStandard {
   associatedtype Value
   associatedtype Key : Swift.Hashable
   func containsObject(key: Self.Key) -> Swift.Bool
+  #if compiler(>=5.3) && $NonescapableTypes
   mutating func query(key: Self.Key) -> Self.Value?
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   mutating func save(value: Self.Value?, for key: Self.Key)
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   mutating func save(_ dataWork: @escaping () -> (Self.Value, Swift.Int)?, forKey key: Self.Key)
+  #endif
   mutating func remove(key: Self.Key)
   mutating func removeAll()
 }
@@ -3960,9 +4440,15 @@ public protocol CacheAsyncStandard {
   associatedtype Value
   associatedtype Key : Swift.Hashable
   func containsObject(key: Self.Key, _ result: @escaping (_ key: Self.Key, _ contain: Swift.Bool) -> Swift.Void)
+  #if compiler(>=5.3) && $NonescapableTypes
   mutating func query(key: Self.Key, _ result: @escaping (_ key: Self.Key, _ value: Self.Value?) -> Swift.Void)
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   mutating func save(value: Self.Value?, for key: Self.Key, _ result: @escaping () -> Swift.Void)
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   mutating func save(_ dataWork: @escaping () -> (Self.Value, Swift.Int)?, forKey key: Self.Key, result: @escaping () -> Swift.Void)
+  #endif
   mutating func remove(key: Self.Key, _ result: @escaping (_ key: Self.Key) -> Swift.Void)
   mutating func removeAll(_ result: @escaping () -> Swift.Void)
 }
@@ -3994,10 +4480,18 @@ public enum ImageCacheQueryCompletionResult {
 public protocol ImageCacheable : AnyObject {
   func image(forKey key: Swift.String, cacheType: YaqutReader.ImageCacheType, completion: @escaping (YaqutReader.ImageCacheQueryCompletionResult) -> Swift.Void)
   func isCached(forKey key: Swift.String) -> (Swift.Bool, YaqutReader.ImageCacheType)
+  #if compiler(>=5.3) && $NonescapableTypes
   func diskDataExists(forKey key: Swift.String, completion: ((Swift.Bool) -> Swift.Void)?)
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   func store(_ image: UIKit.UIImage?, data: Foundation.Data?, forKey key: Swift.String, cacheType: YaqutReader.ImageCacheType, completion: (() -> Swift.Void)?)
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   func removeImage(forKey key: Swift.String, cacheType: YaqutReader.ImageCacheType, completion: ((_ key: Swift.String) -> Swift.Void)?)
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   func remove(_ type: YaqutReader.ImageCacheType, completion: (() -> Swift.Void)?)
+  #endif
 }
 extension YaqutReader.CS.BigUInt {
   public func power(_ exponent: Swift.Int) -> YaqutReader.CS.BigUInt
@@ -4017,14 +4511,18 @@ public struct HKDF {
       get
     }
   }
+  #if compiler(>=5.3) && $NonescapableTypes
   public init(password: Swift.Array<Swift.UInt8>, salt: Swift.Array<Swift.UInt8>? = nil, info: Swift.Array<Swift.UInt8>? = nil, keyLength: Swift.Int? = nil, variant: YaqutReader.HMAC.Variant = .sha2(.sha256)) throws
+  #endif
   public func calculate() throws -> Swift.Array<Swift.UInt8>
   public func callAsFunction() throws -> Swift.Array<Swift.UInt8>
 }
 public enum Bit : Swift.Int {
   case zero
   case one
+  #if compiler(>=5.3) && $NonescapableTypes
   public init?(rawValue: Swift.Int)
+  #endif
   public typealias RawValue = Swift.Int
   public var rawValue: Swift.Int {
     get
@@ -4069,11 +4567,15 @@ extension YaqutReader.RSA {
   }
 }
 extension YaqutReader.CS.BigUInt {
+  #if compiler(>=5.3) && $NonescapableTypes
   public init?<T>(exactly source: T) where T : Swift.BinaryFloatingPoint
+  #endif
   public init<T>(_ source: T) where T : Swift.BinaryFloatingPoint
 }
 extension YaqutReader.CS.BigInt {
+  #if compiler(>=5.3) && $NonescapableTypes
   public init?<T>(exactly source: T) where T : Swift.BinaryFloatingPoint
+  #endif
   public init<T>(_ source: T) where T : Swift.BinaryFloatingPoint
 }
 extension Swift.BinaryFloatingPoint where Self.RawExponent : Swift.FixedWidthInteger, Self.RawSignificand : Swift.FixedWidthInteger {
@@ -4110,11 +4612,13 @@ extension Swift.Array {
     self[self.startIndex ..< self.endIndex]
   }
   }
+  #if compiler(>=5.3) && $NonescapableTypes
   @inlinable internal subscript(safe index: Swift.Array<Element>.Index) -> Element? {
     get {
     return indices.contains(index) ? self[index] : nil
   }
   }
+  #endif
 }
 extension Swift.Array where Element == Swift.UInt8 {
   public init(hex: Swift.String)
@@ -4131,9 +4635,15 @@ extension Swift.Array where Element == Swift.UInt8 {
   public func sha512() -> [Element]
   public func sha2(_ variant: YaqutReader.SHA2.Variant) -> [Element]
   public func sha3(_ variant: YaqutReader.SHA3.Variant) -> [Element]
+  #if compiler(>=5.3) && $NonescapableTypes
   public func crc32(seed: Swift.UInt32? = nil, reflect: Swift.Bool = true) -> Swift.UInt32
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public func crc32c(seed: Swift.UInt32? = nil, reflect: Swift.Bool = true) -> Swift.UInt32
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public func crc16(seed: Swift.UInt16? = nil) -> Swift.UInt16
+  #endif
   public func encrypt(cipher: any YaqutReader.Cipher) throws -> [Element]
   public func decrypt(cipher: any YaqutReader.Cipher) throws -> [Element]
   public func authenticate<A>(with authenticator: A) throws -> [Element] where A : YaqutReader.Authenticator
@@ -4190,7 +4700,9 @@ extension Dispatch.DispatchQueue {
     get
   }
   open var manualRetry: Swift.Bool
+  #if compiler(>=5.3) && $NonescapableTypes
   public init(name: Swift.String? = nil, executionBlock: ((_ operation: YaqutReader.ConcurrentOperation) -> Swift.Void)? = nil)
+  #endif
   @objc override dynamic open func start()
   open func retry()
   open func execute()
@@ -4207,28 +4719,54 @@ extension YaqutReader.ConcurrentOperation {
 }
 public protocol ImageCodeable : AnyObject {
   func canDecode(_ data: Foundation.Data) -> Swift.Bool
+  #if compiler(>=5.3) && $NonescapableTypes
   func decodedImage(with data: Foundation.Data) -> UIKit.UIImage?
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   func decompressedImage(with image: UIKit.UIImage, data: Foundation.Data) -> UIKit.UIImage?
+  #endif
   func canEncode(_ format: YaqutReader.ImageFormat) -> Swift.Bool
+  #if compiler(>=5.3) && $NonescapableTypes
   func encodedData(with image: UIKit.UIImage, format: YaqutReader.ImageFormat) -> Foundation.Data?
+  #endif
   func copy() -> any YaqutReader.ImageCodeable
 }
 public protocol ImageProgressiveCodeable : YaqutReader.ImageCodeable {
   func canIncrementallyDecode(_ data: Foundation.Data) -> Swift.Bool
+  #if compiler(>=5.3) && $NonescapableTypes
   func incrementallyDecodedImage(with data: Foundation.Data, finished: Swift.Bool) -> UIKit.UIImage?
+  #endif
 }
 public protocol AnimatedImageCodeable {
+  #if compiler(>=5.3) && $NonescapableTypes
   var imageData: Foundation.Data? { get set }
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   var frameCount: Swift.Int? { get }
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   var loopCount: Swift.Int? { get }
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   var bytesPerFrame: Swift.Int64? { get }
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   func imageFrame(at index: Swift.Int, decompress: Swift.Bool) -> UIKit.UIImage?
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   func imageFrameSize(at index: Swift.Int) -> CoreFoundation.CGSize?
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   func duration(at index: Swift.Int) -> Foundation.TimeInterval?
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   func contentsRect(at index: Swift.Int) -> CoreFoundation.CGRect?
+  #endif
 }
 extension YaqutReader.AnimatedImageCodeable {
+  #if compiler(>=5.3) && $NonescapableTypes
   public func contentsRect(at index: Swift.Int) -> CoreFoundation.CGRect?
+  #endif
 }
 public enum ImageFormat {
   case unknown
@@ -4254,13 +4792,17 @@ public enum ImageFormat {
   }
 }
 extension YaqutReader.LonginusExtension where Base : YaqutReader.AnimatedImage {
+  #if compiler(>=5.3) && $NonescapableTypes
   public var transformer: YaqutReader.ImageTransformer? {
     get
     set
   }
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public var originalImageData: Foundation.Data? {
     get
   }
+  #endif
   public var currentCacheSize: Swift.Int64 {
     get
   }
@@ -4270,28 +4812,48 @@ extension YaqutReader.LonginusExtension where Base : YaqutReader.AnimatedImage {
   public func didAddToView(_ view: YaqutReader.AnimatedImageView)
   public func didRemoveFromView(_ view: YaqutReader.AnimatedImageView)
   public func cancelPreloadTask()
+  #if compiler(>=5.3) && $NonescapableTypes
   public func clearAsynchronously(completion: (() -> Swift.Void)?)
+  #endif
   public func clear()
 }
 @objc @_inheritsConvenienceInitializers @_Concurrency.MainActor @preconcurrency public class AnimatedImage : UIKit.UIImage, YaqutReader.AnimatedImageCodeable {
+  #if compiler(>=5.3) && $NonescapableTypes
   @_Concurrency.MainActor @preconcurrency public var imageData: Foundation.Data? {
     get
     set
   }
+  #endif
   @_Concurrency.MainActor @preconcurrency public var frameCount: Swift.Int?
   @_Concurrency.MainActor @preconcurrency public var loopCount: Swift.Int?
+  #if compiler(>=5.3) && $NonescapableTypes
   @_Concurrency.MainActor @preconcurrency public var bytesPerFrame: Swift.Int64? {
     get
   }
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   @_Concurrency.MainActor @preconcurrency public func imageFrame(at index: Swift.Int, decompress: Swift.Bool) -> UIKit.UIImage?
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   @_Concurrency.MainActor @preconcurrency public func imageFrameSize(at index: Swift.Int) -> CoreFoundation.CGSize?
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   @_Concurrency.MainActor @preconcurrency public func duration(at index: Swift.Int) -> Foundation.TimeInterval?
+  #endif
   @objc deinit
+  #if compiler(>=5.3) && $NonescapableTypes
   @_Concurrency.MainActor @preconcurrency convenience public init?(lg_data data: Foundation.Data, decoder aDecoder: any YaqutReader.AnimatedImageCodeable & YaqutReader.ImageCodeable)
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   @_Concurrency.MainActor @preconcurrency @objc override dynamic public init?(contentsOfFile path: Swift.String)
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   @_Concurrency.MainActor @preconcurrency @objc override dynamic public init?(data: Foundation.Data)
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   @available(iOS 6.0, *)
   @_Concurrency.MainActor @preconcurrency @objc override dynamic public init?(data: Foundation.Data, scale: CoreFoundation.CGFloat)
+  #endif
   @_Concurrency.MainActor @preconcurrency @objc override dynamic public init(cgImage: CoreGraphics.CGImage)
   @available(iOS 4.0, *)
   @_Concurrency.MainActor @preconcurrency @objc override dynamic public init(cgImage: CoreGraphics.CGImage, scale: CoreFoundation.CGFloat, orientation: UIKit.UIImage.Orientation)
@@ -4300,7 +4862,9 @@ extension YaqutReader.LonginusExtension where Base : YaqutReader.AnimatedImage {
   @available(iOS 6.0, *)
   @_Concurrency.MainActor @preconcurrency @objc override dynamic public init(ciImage: CoreImage.CIImage, scale: CoreFoundation.CGFloat, orientation: UIKit.UIImage.Orientation)
   @_Concurrency.MainActor @preconcurrency @objc override dynamic public init()
+  #if compiler(>=5.3) && $NonescapableTypes
   @_Concurrency.MainActor @preconcurrency @objc required dynamic public init?(coder: Foundation.NSCoder)
+  #endif
 }
 extension YaqutReader.CS {
   public struct BigInt : Swift.SignedInteger {
@@ -4392,11 +4956,17 @@ public class LonginusManager {
     get
   }
   convenience public init(cachePath: Swift.String, sizeThreshold: Swift.Int32)
+  #if compiler(>=5.3) && $NonescapableTypes
   public init(cacher: YaqutReader.ImageCacher?, downloader: any YaqutReader.ImageDownloadable, coder: any YaqutReader.ImageCodeable)
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   @discardableResult
   public func loadImage(with resource: any YaqutReader.ImageWebCacheResourceable, options: YaqutReader.LonginusImageOptions? = nil, transformer: YaqutReader.ImageTransformer? = nil, progress: YaqutReader.ImageDownloaderProgressBlock? = nil, completion: @escaping YaqutReader.ImageManagerCompletionBlock) -> YaqutReader.ImageLoadTask
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   @discardableResult
   public func preload(_ resources: [any YaqutReader.ImageWebCacheResourceable], options: YaqutReader.LonginusImageOptions? = nil, progress: YaqutReader.ImagePreloadProgress? = nil, completion: YaqutReader.ImagePreloadCompletion? = nil) -> [YaqutReader.ImageLoadTask]
+  #endif
   public func cancelPreloading(url: Swift.String)
   public func cancelPreloading()
   public func cancelAll()
@@ -4409,20 +4979,30 @@ public protocol StatsSessionDelegate {
 }
 public class ImageIOCoder : YaqutReader.ImageCodeable {
   public func canDecode(_ data: Foundation.Data) -> Swift.Bool
+  #if compiler(>=5.3) && $NonescapableTypes
   public func decodedImage(with data: Foundation.Data) -> UIKit.UIImage?
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public func decompressedImage(with image: UIKit.UIImage, data: Foundation.Data) -> UIKit.UIImage?
+  #endif
   public func canEncode(_ format: YaqutReader.ImageFormat) -> Swift.Bool
+  #if compiler(>=5.3) && $NonescapableTypes
   public func encodedData(with image: UIKit.UIImage, format: YaqutReader.ImageFormat) -> Foundation.Data?
+  #endif
   public func copy() -> any YaqutReader.ImageCodeable
   public init()
   @objc deinit
 }
 extension YaqutReader.ImageIOCoder {
+  #if compiler(>=5.3) && $NonescapableTypes
   public static func decompressedImage(_ sourceImage: CoreGraphics.CGImage) -> CoreGraphics.CGImage?
+  #endif
 }
 extension YaqutReader.ImageIOCoder : YaqutReader.ImageProgressiveCodeable {
   public func canIncrementallyDecode(_ data: Foundation.Data) -> Swift.Bool
+  #if compiler(>=5.3) && $NonescapableTypes
   public func incrementallyDecodedImage(with data: Foundation.Data, finished: Swift.Bool) -> UIKit.UIImage?
+  #endif
 }
 extension YaqutReader.CS.BigUInt {
   public func squareRoot() -> YaqutReader.CS.BigUInt
@@ -4442,7 +5022,9 @@ public enum AnimationsType : Swift.Int {
   case ANIMATION_CUBE_OUT
   case ANIMATION_PARALLAX
   case ANIMATION_CROSS_FADE
+  #if compiler(>=5.3) && $NonescapableTypes
   public init?(rawValue: Swift.Int)
+  #endif
   public typealias RawValue = Swift.Int
   public var rawValue: Swift.Int {
     get
@@ -4451,7 +5033,9 @@ public enum AnimationsType : Swift.Int {
 public enum ScrollOrientation : Swift.Int {
   case ORIENTATION_HORIZONTAL
   case ORIENTATION_VERTICAL
+  #if compiler(>=5.3) && $NonescapableTypes
   public init?(rawValue: Swift.Int)
+  #endif
   public typealias RawValue = Swift.Int
   public var rawValue: Swift.Int {
     get
@@ -4461,7 +5045,9 @@ public enum LineSpacing : Swift.Int {
   case LINESPACE_SMALL
   case LINESPACE_MEDIUM
   case LINESPACE_LARGE
+  #if compiler(>=5.3) && $NonescapableTypes
   public init?(rawValue: Swift.Int)
+  #endif
   public typealias RawValue = Swift.Int
   public var rawValue: Swift.Int {
     get
@@ -4472,7 +5058,9 @@ public enum ReaderColors : Swift.Int {
   case BROWN
   case DARK
   case GREEN
+  #if compiler(>=5.3) && $NonescapableTypes
   public init?(rawValue: Swift.Int)
+  #endif
   public typealias RawValue = Swift.Int
   public var rawValue: Swift.Int {
     get
@@ -4485,7 +5073,9 @@ public enum ActionsType : Swift.String {
   case saveDownloadAction
   case unSaveAction
   case downloadAction
+  #if compiler(>=5.3) && $NonescapableTypes
   public init?(rawValue: Swift.String)
+  #endif
   public typealias RawValue = Swift.String
   public var rawValue: Swift.String {
     get
@@ -4493,7 +5083,9 @@ public enum ActionsType : Swift.String {
 }
 public enum FontWeight : Swift.String {
   case WEIGHT_BOLD
+  #if compiler(>=5.3) && $NonescapableTypes
   public init?(rawValue: Swift.String)
+  #endif
   public typealias RawValue = Swift.String
   public var rawValue: Swift.String {
     get
@@ -4518,7 +5110,9 @@ public enum MarkStyle : Swift.Int {
   case MARK_PAGE
   case MARK_IMAGE
   case POETRY_MARGIN
+  #if compiler(>=5.3) && $NonescapableTypes
   public init?(rawValue: Swift.Int)
+  #endif
   public typealias RawValue = Swift.Int
   public var rawValue: Swift.Int {
     get
@@ -4536,7 +5130,9 @@ public enum FontType : Swift.String {
   case FONT_AREF_RUQAA
   case FONT_MADA
   case FONT_HARMATTAN
+  #if compiler(>=5.3) && $NonescapableTypes
   public init?(rawValue: Swift.String)
+  #endif
   public typealias RawValue = Swift.String
   public var rawValue: Swift.String {
     get
@@ -4554,7 +5150,9 @@ public enum FontNamesAr : Swift.String {
   case FONT_AREF_RUQAA
   case FONT_MADA
   case FONT_HARMATTAN
+  #if compiler(>=5.3) && $NonescapableTypes
   public init?(rawValue: Swift.String)
+  #endif
   public typealias RawValue = Swift.String
   public var rawValue: Swift.String {
     get
@@ -4572,7 +5170,9 @@ public enum FontNamesEn : Swift.String {
   case FONT_AREF_RUQAA
   case FONT_MADA
   case FONT_HARMATTAN
+  #if compiler(>=5.3) && $NonescapableTypes
   public init?(rawValue: Swift.String)
+  #endif
   public typealias RawValue = Swift.String
   public var rawValue: Swift.String {
     get
@@ -4583,7 +5183,9 @@ public enum BookType : Swift.String {
   case BOOK_SYNC
   case BOOK_AUDIO
   case BOOK_PDF
+  #if compiler(>=5.3) && $NonescapableTypes
   public init?(rawValue: Swift.String)
+  #endif
   public typealias RawValue = Swift.String
   public var rawValue: Swift.String {
     get
@@ -4592,7 +5194,9 @@ public enum BookType : Swift.String {
 public enum BookLanguage : Swift.String {
   case LANGUAGE_AR
   case LANGUAGE_EN
+  #if compiler(>=5.3) && $NonescapableTypes
   public init?(rawValue: Swift.String)
+  #endif
   public typealias RawValue = Swift.String
   public var rawValue: Swift.String {
     get
@@ -4602,7 +5206,9 @@ public enum SaveState : Swift.String {
   case SAVED
   case NOT_SAVED
   case DISBALED
+  #if compiler(>=5.3) && $NonescapableTypes
   public init?(rawValue: Swift.String)
+  #endif
   public typealias RawValue = Swift.String
   public var rawValue: Swift.String {
     get
@@ -4655,12 +5261,16 @@ public protocol MarkSliderDelegate {
   @_Concurrency.MainActor @preconcurrency open var minimumMarkTintColor: UIKit.UIColor
   @_Concurrency.MainActor @preconcurrency open var maximumMarkTintColor: UIKit.UIColor
   @_Concurrency.MainActor @preconcurrency @objc override dynamic public init(frame: CoreFoundation.CGRect)
+  #if compiler(>=5.3) && $NonescapableTypes
   @_Concurrency.MainActor @preconcurrency @objc required dynamic public init?(coder: Foundation.NSCoder)
+  #endif
   @_Concurrency.MainActor @preconcurrency @objc override dynamic open func draw(_ rect: CoreFoundation.CGRect)
   @objc deinit
 }
 extension YaqutReader.MarkSlider {
+  #if compiler(>=5.3) && $NonescapableTypes
   @_Concurrency.MainActor @preconcurrency @objc override dynamic open func beginTracking(_ touch: UIKit.UITouch, with event: UIKit.UIEvent?) -> Swift.Bool
+  #endif
 }
 extension Swift.String {
   @inlinable public var bytes: Swift.Array<Swift.UInt8> {
@@ -4689,15 +5299,21 @@ extension Swift.String {
   @inlinable public func sha3(_ variant: YaqutReader.SHA3.Variant) -> Swift.String {
     self.bytes.sha3(variant).toHexString()
   }
+  #if compiler(>=5.3) && $NonescapableTypes
   @inlinable public func crc32(seed: Swift.UInt32? = nil, reflect: Swift.Bool = true) -> Swift.String {
     self.bytes.crc32(seed: seed, reflect: reflect).bytes().toHexString()
   }
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   @inlinable public func crc32c(seed: Swift.UInt32? = nil, reflect: Swift.Bool = true) -> Swift.String {
     self.bytes.crc32c(seed: seed, reflect: reflect).bytes().toHexString()
   }
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   @inlinable public func crc16(seed: Swift.UInt16? = nil) -> Swift.String {
     self.bytes.crc16(seed: seed).bytes().toHexString()
   }
+  #endif
   @inlinable public func encrypt(cipher: any YaqutReader.Cipher) throws -> Swift.String {
     try self.bytes.encrypt(cipher: cipher).toHexString()
   }
@@ -4728,9 +5344,15 @@ extension YaqutReader.MD5 : YaqutReader.Updatable {
   @objc deinit
 }
 extension YaqutReader.RRPanModalPresentationDelegate : UIKit.UIViewControllerTransitioningDelegate {
+  #if compiler(>=5.3) && $NonescapableTypes
   @_Concurrency.MainActor @preconcurrency @objc dynamic public func animationController(forPresented presented: UIKit.UIViewController, presenting: UIKit.UIViewController, source: UIKit.UIViewController) -> (any UIKit.UIViewControllerAnimatedTransitioning)?
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   @_Concurrency.MainActor @preconcurrency @objc dynamic public func animationController(forDismissed dismissed: UIKit.UIViewController) -> (any UIKit.UIViewControllerAnimatedTransitioning)?
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   @_Concurrency.MainActor @preconcurrency @objc dynamic public func presentationController(forPresented presented: UIKit.UIViewController, presenting: UIKit.UIViewController?, source: UIKit.UIViewController) -> UIKit.UIPresentationController?
+  #endif
 }
 extension YaqutReader.RRPanModalPresentationDelegate : UIKit.UIAdaptivePresentationControllerDelegate, UIKit.UIPopoverPresentationControllerDelegate {
   @_Concurrency.MainActor @preconcurrency @objc dynamic public func adaptivePresentationStyle(for controller: UIKit.UIPresentationController, traitCollection: UIKit.UITraitCollection) -> UIKit.UIModalPresentationStyle
@@ -4756,30 +5378,62 @@ extension YaqutReader.ImageTransformer {
   public static func imageTransformerGradientlyTint(with colors: [UIKit.UIColor], locations: [CoreFoundation.CGFloat], start: CoreFoundation.CGPoint = CGPoint(x: 0.5, y: 0), end: CoreFoundation.CGPoint = CGPoint(x: 0.5, y: 1), blendMode: CoreGraphics.CGBlendMode = .normal) -> YaqutReader.ImageTransformer
   public static func imageTransformerOverlay(with overlayImage: UIKit.UIImage, blendMode: CoreGraphics.CGBlendMode = .normal, alpha: CoreFoundation.CGFloat) -> YaqutReader.ImageTransformer
   public static func imageTransformerCornerRadius(radius: CoreFoundation.CGFloat, corners: UIKit.UIRectCorner, borderWidth: CoreFoundation.CGFloat, borderColor: UIKit.UIColor) -> YaqutReader.ImageTransformer
+  #if compiler(>=5.3) && $NonescapableTypes
   public static func imageTransformerCommon(with displaySize: CoreFoundation.CGSize, fillContentMode: YaqutReader.LonginusExtension<UIKit.UIView>.FillContentMode = .center, maxResolution: Swift.Int = 0, corner: UIKit.UIRectCorner = UIRectCorner(rawValue: 0), cornerRadius: CoreFoundation.CGFloat = 0, borderWidth: CoreFoundation.CGFloat = 0, borderColor: UIKit.UIColor? = nil, backgroundColor: UIKit.UIColor? = nil) -> YaqutReader.ImageTransformer
+  #endif
 }
 extension YaqutReader.LonginusExtension where Base : UIKit.UIImage {
+  #if compiler(>=5.3) && $NonescapableTypes
   public var imageByBlurExtraLight: UIKit.UIImage? {
     get
   }
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public var imageByBlurLight: UIKit.UIImage? {
     get
   }
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public var imageByBlurDark: UIKit.UIImage? {
     get
   }
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public func image(byBlurRadius blurRadius: CoreFoundation.CGFloat, tintColor: UIKit.UIColor?, tintMode tintBlendMode: CoreGraphics.CGBlendMode, saturation: CoreFoundation.CGFloat, maskImage: UIKit.UIImage?) -> UIKit.UIImage?
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public func croppedImage(with originalRect: CoreFoundation.CGRect) -> UIKit.UIImage?
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public func resizedImage(with size: CoreFoundation.CGSize) -> UIKit.UIImage?
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public func resizedImage(with displaySize: CoreFoundation.CGSize, contentMode: UIKit.UIView.ContentMode) -> UIKit.UIImage?
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public func resizedImage(with displaySize: CoreFoundation.CGSize, fillContentMode: YaqutReader.LonginusExtension<UIKit.UIView>.FillContentMode) -> UIKit.UIImage?
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public func rotatedImage(withAngle angle: CoreFoundation.CGFloat, fitSize: Swift.Bool) -> UIKit.UIImage?
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public func flippedImage(withHorizontal horizontal: Swift.Bool, vertical: Swift.Bool) -> UIKit.UIImage?
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public func tintedImage(with color: UIKit.UIColor, blendMode: CoreGraphics.CGBlendMode = .destinationIn) -> UIKit.UIImage?
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public func gradientlyTintedImage(with colors: [UIKit.UIColor], locations: [CoreFoundation.CGFloat], start: CoreFoundation.CGPoint = CGPoint(x: 0.5, y: 0), end: CoreFoundation.CGPoint = CGPoint(x: 0.5, y: 1), blendMode: CoreGraphics.CGBlendMode = .normal) -> UIKit.UIImage?
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public func overlaidImage(with overlayImage: UIKit.UIImage, blendMode: CoreGraphics.CGBlendMode = .normal, alpha: CoreFoundation.CGFloat) -> UIKit.UIImage?
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public func roundCornerRadius(radius: CoreFoundation.CGFloat, corners: UIKit.UIRectCorner, borderWidth: CoreFoundation.CGFloat, borderColor: UIKit.UIColor, backgroundColor: UIKit.UIColor? = .clear) -> UIKit.UIImage?
+  #endif
+  #if compiler(>=5.3) && $NonescapableTypes
   public func commonEditedImage(with displaySize: CoreFoundation.CGSize, fillContentMode: YaqutReader.LonginusExtension<UIKit.UIView>.FillContentMode = .center, maxResolution: Swift.Int = 0, corner: UIKit.UIRectCorner = UIRectCorner(rawValue: 0), cornerRadius: CoreFoundation.CGFloat = 0, borderWidth: CoreFoundation.CGFloat = 0, borderColor: UIKit.UIColor? = nil, backgroundColor: UIKit.UIColor? = .clear) -> UIKit.UIImage?
+  #endif
 }
 extension YaqutReader.CS.BigUInt {
   public subscript(bitAt index: Swift.Int) -> Swift.Bool {
