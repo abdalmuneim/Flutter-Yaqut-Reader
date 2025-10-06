@@ -19,6 +19,8 @@ import org.json.JSONArray;
 
 public class StatsSessionListenerImpl implements StatsSessionListener, Parcelable {
 
+    private static final String TAG = "StatsSessionListenerImpl";
+
     // Constructor
     public StatsSessionListenerImpl() {
         // Channel will be retrieved from ChannelManager when needed
