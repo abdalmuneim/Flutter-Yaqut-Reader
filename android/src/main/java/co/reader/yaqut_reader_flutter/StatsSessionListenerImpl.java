@@ -14,12 +14,10 @@ import java.util.Map;
 import android.util.Log;
 
 public class StatsSessionListenerImpl implements StatsSessionListener, Parcelable {
-    private static final String TAG = "StatsSessionListenerImp";
-    private MethodChannel channel;
 
     // Constructor
-    public StatsSessionListenerImpl(MethodChannel channel) {
-        this.channel = channel;
+    public StatsSessionListenerImpl() {
+        // Channel will be retrieved from ChannelManager when needed
     }
 
     // Parcelable implementation
@@ -66,6 +64,7 @@ public class StatsSessionListenerImpl implements StatsSessionListener, Parcelabl
         data.put("md5", session.getMd5());
         data.put("uuid", session.getUuid());
 
+        MethodChannel channel = ChannelManager.getInstance().getChannel();
         Log.d("StatsSessionListenerImpl", "channel: " + channel);
         if (channel != null) {
             channel.invokeMethod("onReadingSessionEnd", data);
