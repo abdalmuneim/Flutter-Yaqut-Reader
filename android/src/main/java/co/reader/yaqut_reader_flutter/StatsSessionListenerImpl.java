@@ -50,7 +50,6 @@ public class StatsSessionListenerImpl implements StatsSessionListener, Parcelabl
     // Implement the StatsSessionListener methods here
     @Override
     public void onReadingSessionEnd(ReadingSession session) {
-        Log.d("StatsSessionListenerImpl", "onReadingSessionEnd");
         Map<String, Object> data = new HashMap<>();
         data.put("book_id", session.getBookId());
         data.put("book_file_id", session.getBookFileId());
@@ -65,7 +64,6 @@ public class StatsSessionListenerImpl implements StatsSessionListener, Parcelabl
         data.put("uuid", session.getUuid());
 
         MethodChannel channel = ChannelManager.getInstance().getChannel();
-        Log.d("StatsSessionListenerImpl", "channel: " + channel);
         if (channel != null) {
             channel.invokeMethod("onReadingSessionEnd", data);
         }
