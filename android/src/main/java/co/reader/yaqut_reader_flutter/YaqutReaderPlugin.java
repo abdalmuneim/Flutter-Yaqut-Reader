@@ -202,7 +202,7 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
                 .setPercentageView((float) previewPercentage)
                 .setReaderListener(new ReaderListenerImpl(bookId))
                 .setNotesAndMarks(notesAndMarks)
-                .setReadingStatsListener(new StatsSessionListenerImpl(channel));
+                .setReadingStatsListener(new StatsSessionListenerImpl());
         readerBuilder.setFileId(bookFileId);
         readerBuilder.setNotesAndMarks(notesAndMarks);
         readerBuilder.setSaveState(saved ? ReaderBuilder.SAVE_STATE_SAVED : ReaderBuilder.SAVE_STATE_NOT_SAVED)
