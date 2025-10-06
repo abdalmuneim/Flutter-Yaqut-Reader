@@ -11,6 +11,8 @@ import androidx.annotation.NonNull;
 import java.util.HashMap;
 import java.util.Map;
 
+import android.util.Log;
+
 public class StatsSessionListenerImpl implements StatsSessionListener, Parcelable {
     private static final String TAG = "StatsSessionListenerImp";
     private MethodChannel channel;
