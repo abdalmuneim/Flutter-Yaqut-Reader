@@ -122,6 +122,7 @@ class YaqutReaderPlugin {
   }
 
   void onSyncReadingSessionCallback(YaqutReaderReadingSession session) {
+    print('onSyncReadingSessionCallback session: $session');
     if (kDebugMode) {}
     onSyncReadingSessionStreamController.add(session);
   }
@@ -229,15 +230,17 @@ class YaqutReaderPlugin {
       case 'onSampleEnded':
         onSampleEndedCallback();
       case 'onReadingSessionEnd':
-        Log.d("onReadingSessionEnd");
+        print('onReadingSessionEnd');
         final Map<Object?, Object?> rawData =
         call.arguments as Map<Object?, Object?>;
-        Log.d("onReadingSessionEnd", "rawData: " + rawData);
+        print('onReadingSessionEnd rawData: $rawData');
         final Map<String, dynamic> data = rawData.map(
               (key, value) => MapEntry(key as String, value),
         );
+        print('onReadingSessionEnd data: $data');
         YaqutReaderReadingSession session =
         YaqutReaderReadingSession.fromJson(data);
+        print('onReadingSessionEnd session: $session');
         onSyncReadingSessionCallback(session);
       case 'onOrientationChanged':
         onOrientationChangedCallback();
