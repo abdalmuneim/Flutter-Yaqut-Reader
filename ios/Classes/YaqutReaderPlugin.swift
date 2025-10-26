@@ -27,7 +27,7 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
                 let token = arguments["access_token"] as? String
                 let saved = arguments["saved"] as? String
                 print("startReader invoked iOS saved: \(saved)")
-                self.startReader(header: header, path: path, accessToken: token, bookData: book, style: style, saved: saved == null ?? 'disabled')
+                self.startReader(header: header, path: path, accessToken: token, bookData: book, style: style, saved: saved == null ?? "disabled")
             }
         case "checkIfLocal":
             if let arguments = call.arguments as? [String: Any] {
