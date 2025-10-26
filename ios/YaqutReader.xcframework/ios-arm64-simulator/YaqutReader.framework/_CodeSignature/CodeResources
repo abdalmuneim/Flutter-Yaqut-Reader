@@ -90,11 +90,11 @@
 		</data>
 		<key>Modules/YaqutReader.swiftmodule/arm64-apple-ios-simulator.abi.json</key>
 		<data>
-		fheXHAkZXEoXNH/UKWLx7SUriFc=
+		uEr/VpATE2nRi6edB9zbTLpmZto=
 		</data>
 		<key>Modules/YaqutReader.swiftmodule/arm64-apple-ios-simulator.private.swiftinterface</key>
 		<data>
-		+FOvpSYZNAHO4dQOaIITcW/OIvk=
+		8bFWuChjqL5KMIKowe9j+rPW+s0=
 		</data>
 		<key>Modules/YaqutReader.swiftmodule/arm64-apple-ios-simulator.swiftdoc</key>
 		<data>
@@ -102,11 +102,11 @@
 		</data>
 		<key>Modules/YaqutReader.swiftmodule/arm64-apple-ios-simulator.swiftinterface</key>
 		<data>
-		+FOvpSYZNAHO4dQOaIITcW/OIvk=
+		8bFWuChjqL5KMIKowe9j+rPW+s0=
 		</data>
 		<key>Modules/YaqutReader.swiftmodule/arm64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		Ug2u7dMCbiqhkn+kUCIEKyEQSVo=
+		RA6WwYdaDD1YAQNKQOEAVBmbsIw=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -469,14 +469,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			qCZYKAIkCcJdIsgbM3bz/l3rE8UieDIsHyFHb0SVNcE=
+			BZBgb5g+YGqbBqb74yMIt5Ssh81X8/6KRIxg9nFgbz0=
 			</data>
 		</dict>
 		<key>Modules/YaqutReader.swiftmodule/arm64-apple-ios-simulator.private.swiftinterface</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			kVkh9YluuBtfI7xJZM563DsmRbmMnj9jFf2xyzy9qZU=
+			Hd/HN/1SJY9GCFUMH+sTOqJhIu9yZs4N5c9csChyWXw=
 			</data>
 		</dict>
 		<key>Modules/YaqutReader.swiftmodule/arm64-apple-ios-simulator.swiftdoc</key>
@@ -490,14 +490,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			kVkh9YluuBtfI7xJZM563DsmRbmMnj9jFf2xyzy9qZU=
+			Hd/HN/1SJY9GCFUMH+sTOqJhIu9yZs4N5c9csChyWXw=
 			</data>
 		</dict>
 		<key>Modules/YaqutReader.swiftmodule/arm64-apple-ios-simulator.swiftmodule</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			FcPJ61EjWswu5Cx1fztyxt9PdoFOYkQpyzHbuWfEeaQ=
+			9h83CeGlmVm0mgJtiLuf7LzRBTLmHBpmieMEN+ePPkE=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>

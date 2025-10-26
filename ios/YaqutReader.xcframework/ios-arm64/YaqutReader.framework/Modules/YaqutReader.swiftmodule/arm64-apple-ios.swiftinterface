@@ -5205,7 +5205,7 @@ public enum BookLanguage : Swift.String {
 public enum SaveState : Swift.String {
   case SAVED
   case NOT_SAVED
-  case DISBALED
+  case DISABLED
   #if compiler(>=5.3) && $NonescapableTypes
   public init?(rawValue: Swift.String)
   #endif

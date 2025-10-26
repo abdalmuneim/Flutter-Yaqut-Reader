@@ -146,11 +146,15 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
         self.readerBuilder?.setPosition(startPosition: position)
         self.readerBuilder?.setPercentageView(previewPercentage: previewPercentage)
         self.readerBuilder?.setDownloadEnabled(downloadEnabled: true)
-        if saved {
-            print("setSaveState saved: \(saved)")
-            self.readerBuilder?.setSaveState(saveState: .SAVED)
+        if accessToken == "" {
+            self.readerBuilder?.setSaveState(saveState: .DISABLED)
         } else {
-            self.readerBuilder?.setSaveState(saveState: .NOT_SAVED)
+            if saved {
+                print("setSaveState saved: \(saved)")
+                self.readerBuilder?.setSaveState(saveState: .SAVED)
+            } else {
+                self.readerBuilder?.setSaveState(saveState: .NOT_SAVED)
+            }
         }
         let notesAndMarksData = bookData["notesAndMarks"] as? [[String: Any]] ?? []
         var notesAndMarks = [NotesAndMarks]()
