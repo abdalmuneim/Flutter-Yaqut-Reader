@@ -137,7 +137,7 @@ class YaqutReaderPlugin {
     required String? accessToken,
     required YaqutReaderBook book,
     required YaqutReaderStyle style,
-    required bool saved}) async {
+    required String saved}) async {
     methodChannel.setMethodCallHandler(readerListener);
     try {
       await methodChannel.invokeMethod('startReader', {

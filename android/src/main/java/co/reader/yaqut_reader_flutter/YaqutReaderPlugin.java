@@ -74,7 +74,7 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
                     String header = (String) arguments.get("header");
                     String path = (String) arguments.get("path");
                     String token = (String) arguments.get("access_token");
-                    boolean saved = (boolean) arguments.get("saved");
+                    String saved = (String) arguments.get("saved");
                     Map<String, Object> book = (Map<String, Object>) arguments.get("book");
                     Map<String, Object> style = (Map<String, Object>) arguments.get("style");
                     startReader(header, path, token, book, style, saved);
@@ -173,7 +173,7 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
         }
     }
 
-    private void startReader(String header, String path, String token, Map<String, Object> bookData, Map<String, Object> styleData, boolean saved) {
+    private void startReader(String header, String path, String token, Map<String, Object> bookData, Map<String, Object> styleData, String saved) {
         if (activity == null || channel == null) {
             Log.e("YaqutReaderPlugin", "Cannot start reader: Activity or Channel is null");
             return;
@@ -205,8 +205,16 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
                 .setReadingStatsListener(new StatsSessionListenerImpl());
         readerBuilder.setFileId(bookFileId);
         readerBuilder.setNotesAndMarks(notesAndMarks);
-        readerBuilder.setSaveState(saved ? ReaderBuilder.SAVE_STATE_SAVED : ReaderBuilder.SAVE_STATE_NOT_SAVED)
-                .setDownloadEnabled(true);
+        if (saved.equals("true")) {
+            readerBuilder.setSaveState(ReaderBuilder.SAVE_STATE_SAVED)
+            readerBuilder.setDownloadEnabled(true);
+        } else if (saved.equals("false")) {
+            readerBuilder.setSaveState(ReaderBuilder.SAVE_STATE_NOT_SAVED)
+            readerBuilder.setDownloadEnabled(true);
+        } else {
+            readerBuilder.setSaveState(ReaderBuilder.SAVE_STATE_DISABLED)
+            readerBuilder.setDownloadEnabled(false);
+        }
 
         if (path.isEmpty()) {
             readerBuilder.build();

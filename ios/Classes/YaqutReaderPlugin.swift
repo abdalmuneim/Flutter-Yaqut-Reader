@@ -25,9 +25,9 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
                 let header = arguments["header"] as? String
                 let path = arguments["path"] as? String
                 let token = arguments["access_token"] as? String
-                let saved = arguments["saved"] as? Bool
+                let saved = arguments["saved"] as? String
                 print("startReader invoked iOS saved: \(saved)")
-                self.startReader(header: header, path: path, accessToken: token, bookData: book, style: style, saved: saved ?? false)
+                self.startReader(header: header, path: path, accessToken: token, bookData: book, style: style, saved: saved ?? 'disabled')
             }
         case "checkIfLocal":
             if let arguments = call.arguments as? [String: Any] {
@@ -126,7 +126,7 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
         self.readerBuilder?.updateMarks(allMarks: notesAndMarks)
     }
 
-    private func startReader(header: String?, path: String?, accessToken: String?, bookData: [String: Any], style: [String: Any], saved: Bool) {
+    private func startReader(header: String?, path: String?, accessToken: String?, bookData: [String: Any], style: [String: Any], saved: String) {
         print("startReader function saved: \(saved)")
         let bookId = bookData["bookId"] as? Int ?? 0
         let bookFileId = bookData["bookFileId"] as? Int ?? 0
@@ -146,15 +146,13 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
         self.readerBuilder?.setPosition(startPosition: position)
         self.readerBuilder?.setPercentageView(previewPercentage: previewPercentage)
         self.readerBuilder?.setDownloadEnabled(downloadEnabled: true)
-        if accessToken == "" {
-            self.readerBuilder?.setSaveState(saveState: .DISABLED)
+        print("setSaveState saved: \(saved)")
+        if saved == "true" {
+            self.readerBuilder?.setSaveState(saveState: .SAVED)
+        } else if saved == "false" {
+            self.readerBuilder?.setSaveState(saveState: .NOT_SAVED)
         } else {
-            if saved {
-                print("setSaveState saved: \(saved)")
-                self.readerBuilder?.setSaveState(saveState: .SAVED)
-            } else {
-                self.readerBuilder?.setSaveState(saveState: .NOT_SAVED)
-            }
+            self.readerBuilder?.setSaveState(saveState: .DISABLED)
         }
         let notesAndMarksData = bookData["notesAndMarks"] as? [[String: Any]] ?? []
         var notesAndMarks = [NotesAndMarks]()
