@@ -295,6 +295,7 @@ extension YaqutReaderPlugin: ReaderDelegate {
     }
 
     public func onOrientationChanged() {
+    print("**> onOrientationChanged")
         channel?.invokeMethod("onOrientationChanged", arguments: [:])
     }
 }

@@ -128,6 +128,7 @@ class YaqutReaderPlugin {
   }
 
   void onOrientationChangedCallback() {
+    print('==> onOrientationChangedCallback');
     onOrientationChangedStreamController.add('onOrientationChanged');
   }
 
@@ -243,6 +244,7 @@ class YaqutReaderPlugin {
         print('onReadingSessionEnd session: $session');
         onSyncReadingSessionCallback(session);
       case 'onOrientationChanged':
+        print('==> onOrientationChanged');
         onOrientationChangedCallback();
       case 'onBookForceEnd':
         var data = call.arguments as Map;
