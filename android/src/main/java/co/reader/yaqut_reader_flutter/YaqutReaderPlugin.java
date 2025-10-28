@@ -206,13 +206,13 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
         readerBuilder.setFileId(bookFileId);
         readerBuilder.setNotesAndMarks(notesAndMarks);
         if (saved.equals("true")) {
-            readerBuilder.setSaveState(ReaderBuilder.SAVE_STATE_SAVED)
+            readerBuilder.setSaveState(ReaderBuilder.SAVE_STATE_SAVED);
             readerBuilder.setDownloadEnabled(true);
         } else if (saved.equals("false")) {
-            readerBuilder.setSaveState(ReaderBuilder.SAVE_STATE_NOT_SAVED)
+            readerBuilder.setSaveState(ReaderBuilder.SAVE_STATE_NOT_SAVED);
             readerBuilder.setDownloadEnabled(true);
         } else {
-            readerBuilder.setSaveState(ReaderBuilder.SAVE_STATE_DISABLED)
+            readerBuilder.setSaveState(ReaderBuilder.SAVE_STATE_DISABLED);
             readerBuilder.setDownloadEnabled(false);
         }
 
