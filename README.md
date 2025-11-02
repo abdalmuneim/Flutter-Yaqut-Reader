@@ -1,5 +1,9 @@
 
 # YaqutReaderSDK
+## Install reader locally:
+```bash
+./gradlew -p publishing publish
+```
 
 ## Installation
 1. Open `pubspec.yaml` file.
@@ -9,10 +13,20 @@
 yaqut_reader_plugin:
     git:
       url: https://github.com/Rufoof/Yaqut-Reader-Flutter.git
-      ref: 1.0.0
+      ref: 1.1.0
 ```
 
 
+3. open `android/build.gradle`
+4. access the local maven
+```build.gradle
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        mavenLocal() // Ensures the project can access the locally published AAR
+    }
+```
 ### Usage
 
 You need to create 'Book' object and call 'startReader' from 'UserBooks'
