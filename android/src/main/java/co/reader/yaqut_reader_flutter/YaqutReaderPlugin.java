@@ -474,12 +474,12 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
      * Convert Flutter note/mark data to native NotesAndMarks objects.
      * Returns empty list instead of null for null safety.
      */
-    private static @NonNull List<NotesAndMarks> getNotesAndMarks(List<Map<String, Object>> notesAndMarksData) {
+    private static @NonNull ArrayList<NotesAndMarks> getNotesAndMarks(List<Map<String, Object>> notesAndMarksData) {
         if (notesAndMarksData == null || notesAndMarksData.isEmpty()) {
-            return Collections.emptyList();
+            return new ArrayList<>();
         }
 
-        List<NotesAndMarks> notesAndMarks = new ArrayList<>(notesAndMarksData.size());
+        ArrayList<NotesAndMarks> notesAndMarks = new ArrayList<>(notesAndMarksData.size());
         for (Map<String, Object> item : notesAndMarksData) {
             if (item == null) continue;
 
