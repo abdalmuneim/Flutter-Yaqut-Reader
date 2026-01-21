@@ -154,11 +154,15 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
             return;
         }
 
+        // If a reader is marked as open, close it first before opening a new one
         if (isReaderOpen.get()) {
-            Log.w(TAG, "startReader: Reader is already open, ignoring duplicate request");
-            isReaderOpening.set(false);
-            result.error("READER_ALREADY_OPEN", "Reader is already open", null);
-            return;
+            Log.i(TAG, "startReader: Previous reader was marked as open, closing it first");
+            try {
+                ReaderBuilder.closeReader();
+            } catch (Exception e) {
+                Log.w(TAG, "startReader: Error closing previous reader: " + e.getMessage());
+            }
+            isReaderOpen.set(false);
         }
 
         try {
@@ -390,14 +394,23 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
         ReaderListenerImpl readerListener = new ReaderListenerImpl(bookId) {
             @Override
             public void onReaderClosed(int position) {
+                Log.d(TAG, "onReaderClosed: Resetting isReaderOpen flag");
                 isReaderOpen.set(false);
                 super.onReaderClosed(position);
             }
 
             @Override
             public void onBookForceEnd(int position) {
+                Log.d(TAG, "onBookForceEnd: Resetting isReaderOpen flag");
                 isReaderOpen.set(false);
                 super.onBookForceEnd(position);
+            }
+
+            @Override
+            public void onSampleEnded() {
+                Log.d(TAG, "onSampleEnded: Resetting isReaderOpen flag");
+                isReaderOpen.set(false);
+                super.onSampleEnded();
             }
         };
 
