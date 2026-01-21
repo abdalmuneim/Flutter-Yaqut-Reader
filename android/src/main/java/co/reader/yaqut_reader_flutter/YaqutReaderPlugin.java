@@ -8,9 +8,11 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import co.yaqut.reader.api.BookInfo;
 import co.yaqut.reader.api.FileSizeInfo;
@@ -27,6 +29,10 @@ import co.yaqut.reader.api.SaveBookManager;
 import co.yaqut.reader.api.ReaderManager;
 import co.yaqut.reader.api.NotesAndMarks;
 
+/**
+ * Flutter plugin for Yaqut Reader integration.
+ * Handles communication between Flutter and native Android reader library.
+ */
 public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware {
     private MethodChannel channel;
     private Context applicationContext;
@@ -34,6 +40,10 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
     private ReaderBuilder readerBuilder;
     private static final String TAG = "YaqutReaderPlugin";
     private int bookId;
+
+    // Flag to prevent double-open race condition
+    private final AtomicBoolean isReaderOpening = new AtomicBoolean(false);
+    private final AtomicBoolean isReaderOpen = new AtomicBoolean(false);
 
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
@@ -62,153 +72,351 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
 
     @Override
     public void onMethodCall(@NonNull MethodCall call, @NonNull MethodChannel.Result result) {
-        Log.d("YaqutReaderPlugin", "Method called: " + call.method);
+        Log.d(TAG, "Method called: " + call.method);
 
-        switch (call.method) {
-            case "getPlatformVersion":
-                result.success("Android " + android.os.Build.VERSION.RELEASE);
-                break;
-            case "startReader":
-                if (activity != null) {
-                    Map<String, Object> arguments = call.arguments();
-                    String header = (String) arguments.get("header");
-                    String path = (String) arguments.get("path");
-                    String token = (String) arguments.get("access_token");
-                    String saved = (String) arguments.get("saved");
-                    Map<String, Object> book = (Map<String, Object>) arguments.get("book");
-                    Map<String, Object> style = (Map<String, Object>) arguments.get("style");
-                    startReader(header, path, token, book, style, saved);
-                } else {
-                    Log.e(TAG, "onMethodCall: NO_ACTIVITY Activity context is not available");
-                }
-                break;
-            case "checkIfLocal":
-                Map<String, Object> checkArgs = call.arguments();
-                int bookId = (int) checkArgs.get("book_id");
-                boolean isLocal = BookStorage.isBookLocal(applicationContext, bookId);
-                result.success(isLocal);
-                break;
-            case "checkIfSample":
-                if (call.arguments instanceof Map) {
-                    Map<String, Object> arguments = (Map<String, Object>) call.arguments;
-                    if (arguments.containsKey("book_id") && arguments.get("book_id") instanceof Integer) {
-                        int bookId2 = (Integer) arguments.get("book_id");
-                        BookInfo bookInfo = BookStorage.getBookInfo(applicationContext, bookId2);
-                        result.success(bookInfo.isSample());
-                        return;
-                    }
-                    result.success("AppDelegate Failed response");
-                }
-                break;
+        try {
+            switch (call.method) {
+                case "getPlatformVersion":
+                    result.success("Android " + android.os.Build.VERSION.RELEASE);
+                    break;
 
-            case "getBookLength":
-                if (call.arguments instanceof Map) {
-                    Map<String, Object> arguments = (Map<String, Object>) call.arguments;
-                    if (arguments.containsKey("book_id") && arguments.get("book_id") instanceof Integer) {
-                        int bookId2 = (Integer) arguments.get("book_id");
-                        BookInfo bookInfo = BookStorage.getBookInfo(applicationContext, bookId2);
-                        result.success(bookInfo.getLength());
-                        return;
-                    }
-                }
-                result.success(0);
-                break;
+                case "startReader":
+                    handleStartReader(call, result);
+                    break;
 
-            case "deleteSampleBook":
-                if (call.arguments instanceof Map) {
-                    Map<String, Object> arguments = (Map<String, Object>) call.arguments;
-                    if (arguments.containsKey("book_id") && arguments.get("book_id") instanceof Integer) {
-                        int bookId3 = (Integer) arguments.get("book_id");
-                        BookStorage.deleteBook(applicationContext, bookId3);
-                        result.success(true);
-                        return;
-                    }
-                    result.success("AppDelegate Failed response");
-                }
-                break;
+                case "closeReader":
+                    handleCloseReader(result);
+                    break;
 
-            case "getLocalBooks":
-                int[] localBooks = BookStorage.getLocalBooks(applicationContext);
-                result.success(localBooks);
+                case "checkIfLocal":
+                    handleCheckIfLocal(call, result);
+                    break;
+
+                case "checkIfSample":
+                    handleCheckIfSample(call, result);
+                    break;
+
+                case "getBookLength":
+                    handleGetBookLength(call, result);
+                    break;
+
+                case "deleteSampleBook":
+                    handleDeleteSampleBook(call, result);
+                    break;
+
+                case "getLocalBooks":
+                    handleGetLocalBooks(result);
+                    break;
+
+                case "removeAllBooks":
+                    handleRemoveAllBooks(result);
+                    break;
+
+                case "getLocalBooksInfo":
+                    handleGetLocalBooksInfo(result);
+                    break;
+
+                case "hideReader":
+                    ReaderBuilder.hideReader();
+                    result.success(null);
+                    break;
+
+                case "showReader":
+                    ReaderBuilder.showReader();
+                    result.success(null);
+                    break;
+
+                case "updateMarks":
+                    handleUpdateMarks(call, result);
+                    break;
+
+                default:
+                    result.notImplemented();
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error handling method " + call.method + ": " + e.getMessage(), e);
+            result.error("PLUGIN_ERROR", "Error in " + call.method + ": " + e.getMessage(), null);
+        }
+    }
+
+    private void handleStartReader(MethodCall call, MethodChannel.Result result) {
+        // Check for activity
+        if (activity == null) {
+            Log.e(TAG, "startReader: Activity is null");
+            result.error("NO_ACTIVITY", "Activity context is not available. Reader cannot be started.", null);
+            return;
+        }
+
+        // Prevent double-open race condition
+        if (!isReaderOpening.compareAndSet(false, true)) {
+            Log.w(TAG, "startReader: Reader is already being opened, ignoring duplicate request");
+            result.error("READER_BUSY", "Reader is already being opened", null);
+            return;
+        }
+
+        if (isReaderOpen.get()) {
+            Log.w(TAG, "startReader: Reader is already open, ignoring duplicate request");
+            isReaderOpening.set(false);
+            result.error("READER_ALREADY_OPEN", "Reader is already open", null);
+            return;
+        }
+
+        try {
+            Map<String, Object> arguments = call.arguments();
+            if (arguments == null) {
+                result.error("INVALID_ARGUMENTS", "Arguments cannot be null", null);
+                isReaderOpening.set(false);
                 return;
+            }
 
-                
-            case "removeAllBooks":
+            String header = (String) arguments.get("header");
+            String path = (String) arguments.get("path");
+            String token = (String) arguments.get("access_token");
+            String saved = (String) arguments.get("saved");
+            Map<String, Object> book = (Map<String, Object>) arguments.get("book");
+            Map<String, Object> style = (Map<String, Object>) arguments.get("style");
+
+            if (book == null) {
+                result.error("INVALID_ARGUMENTS", "Book data cannot be null", null);
+                isReaderOpening.set(false);
                 return;
+            }
 
-            case "getLocalBooksInfo":
-                List<FileSizeInfo> filesInfo = BookStorage.getLocalBookFilesInfo(applicationContext);
-                List<Map<String, Object>> serializedFilesInfo = new ArrayList<>();
+            startReader(header, path, token, book, style, saved);
+            isReaderOpen.set(true);
+            result.success(null);
+        } catch (Exception e) {
+            Log.e(TAG, "Error starting reader: " + e.getMessage(), e);
+            result.error("START_READER_ERROR", e.getMessage(), null);
+        } finally {
+            isReaderOpening.set(false);
+        }
+    }
 
+    private void handleCloseReader(MethodChannel.Result result) {
+        try {
+            ReaderBuilder.hideReader();
+            isReaderOpen.set(false);
+            result.success(null);
+        } catch (Exception e) {
+            Log.e(TAG, "Error closing reader: " + e.getMessage(), e);
+            result.error("CLOSE_READER_ERROR", e.getMessage(), null);
+        }
+    }
+
+    private void handleCheckIfLocal(MethodCall call, MethodChannel.Result result) {
+        Map<String, Object> checkArgs = call.arguments();
+        if (checkArgs == null || !checkArgs.containsKey("book_id")) {
+            result.error("INVALID_ARGUMENTS", "book_id is required", null);
+            return;
+        }
+        Object bookIdObj = checkArgs.get("book_id");
+        if (!(bookIdObj instanceof Integer)) {
+            result.error("INVALID_ARGUMENTS", "book_id must be an integer", null);
+            return;
+        }
+        int bookId = (Integer) bookIdObj;
+        boolean isLocal = BookStorage.isBookLocal(applicationContext, bookId);
+        result.success(isLocal);
+    }
+
+    private void handleCheckIfSample(MethodCall call, MethodChannel.Result result) {
+        if (!(call.arguments instanceof Map)) {
+            result.error("INVALID_ARGUMENTS", "Arguments must be a map", null);
+            return;
+        }
+        Map<String, Object> arguments = (Map<String, Object>) call.arguments;
+        if (!arguments.containsKey("book_id") || !(arguments.get("book_id") instanceof Integer)) {
+            result.error("INVALID_ARGUMENTS", "book_id must be an integer", null);
+            return;
+        }
+        int bookId = (Integer) arguments.get("book_id");
+        BookInfo bookInfo = BookStorage.getBookInfo(applicationContext, bookId);
+        if (bookInfo == null) {
+            result.success(false); // Book not found, treat as not sample
+            return;
+        }
+        result.success(bookInfo.isSample());
+    }
+
+    private void handleGetBookLength(MethodCall call, MethodChannel.Result result) {
+        if (!(call.arguments instanceof Map)) {
+            result.success(0);
+            return;
+        }
+        Map<String, Object> arguments = (Map<String, Object>) call.arguments;
+        if (!arguments.containsKey("book_id") || !(arguments.get("book_id") instanceof Integer)) {
+            result.success(0);
+            return;
+        }
+        int bookId = (Integer) arguments.get("book_id");
+        BookInfo bookInfo = BookStorage.getBookInfo(applicationContext, bookId);
+        if (bookInfo == null) {
+            result.success(0);
+            return;
+        }
+        result.success(bookInfo.getLength());
+    }
+
+    private void handleDeleteSampleBook(MethodCall call, MethodChannel.Result result) {
+        if (!(call.arguments instanceof Map)) {
+            result.error("INVALID_ARGUMENTS", "Arguments must be a map", null);
+            return;
+        }
+        Map<String, Object> arguments = (Map<String, Object>) call.arguments;
+        if (!arguments.containsKey("book_id") || !(arguments.get("book_id") instanceof Integer)) {
+            result.error("INVALID_ARGUMENTS", "book_id must be an integer", null);
+            return;
+        }
+        int bookId = (Integer) arguments.get("book_id");
+        try {
+            BookStorage.deleteBook(applicationContext, bookId);
+            result.success(true);
+        } catch (Exception e) {
+            Log.e(TAG, "Error deleting book: " + e.getMessage(), e);
+            result.error("DELETE_ERROR", e.getMessage(), null);
+        }
+    }
+
+    private void handleGetLocalBooks(MethodChannel.Result result) {
+        try {
+            int[] localBooks = BookStorage.getLocalBooks(applicationContext);
+            result.success(localBooks);
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting local books: " + e.getMessage(), e);
+            result.success(new int[0]); // Return empty array on error
+        }
+    }
+
+    private void handleRemoveAllBooks(MethodChannel.Result result) {
+        try {
+            int[] localBooks = BookStorage.getLocalBooks(applicationContext);
+            if (localBooks != null) {
+                for (int bookId : localBooks) {
+                    BookStorage.deleteBook(applicationContext, bookId);
+                }
+            }
+            result.success(true);
+        } catch (Exception e) {
+            Log.e(TAG, "Error removing all books: " + e.getMessage(), e);
+            result.error("REMOVE_ALL_ERROR", e.getMessage(), null);
+        }
+    }
+
+    private void handleGetLocalBooksInfo(MethodChannel.Result result) {
+        try {
+            List<FileSizeInfo> filesInfo = BookStorage.getLocalBookFilesInfo(applicationContext);
+            List<Map<String, Object>> serializedFilesInfo = new ArrayList<>();
+
+            if (filesInfo != null) {
                 for (FileSizeInfo fileInfo : filesInfo) {
-                    Map<String, Object> fileData = new HashMap<>();
-                    fileData.put("id", fileInfo.getId());
-
-                    fileData.put("size", fileInfo.getFileSize());
-                    serializedFilesInfo.add(fileData);
-                }
-                result.success(serializedFilesInfo); // Returning a JSON-serializable array
-                return;
-            case "hideReader":
-                ReaderBuilder.hideReader();
-                result.success(null);
-                return;
-            case "showReader":
-                ReaderBuilder.showReader();
-                result.success(null);
-            case "updateMarks":
-                if (call.arguments instanceof Map) {
-                    Map<String, Object> arguments = (Map<String, Object>) call.arguments;
-                    if (arguments.containsKey("marks")) {
-                        List<Map<String, Object>> notesAndMarksData = (List<Map<String, Object>>) arguments.get("marks");
-                        List<NotesAndMarks> notesAndMarks = getNotesAndMarks(notesAndMarksData);
-                        readerBuilder.updateNotesAndMarks(notesAndMarks);
-                        result.success(null);
-                        return;
+                    if (fileInfo != null) {
+                        Map<String, Object> fileData = new HashMap<>();
+                        fileData.put("id", fileInfo.getId());
+                        fileData.put("size", fileInfo.getFileSize());
+                        serializedFilesInfo.add(fileData);
                     }
                 }
-                return;
-            default:
-                result.notImplemented();
+            }
+            result.success(serializedFilesInfo);
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting local books info: " + e.getMessage(), e);
+            result.success(new ArrayList<>()); // Return empty list on error
+        }
+    }
+
+    private void handleUpdateMarks(MethodCall call, MethodChannel.Result result) {
+        if (readerBuilder == null) {
+            result.error("READER_NOT_INITIALIZED", "Reader has not been initialized", null);
+            return;
+        }
+        if (!(call.arguments instanceof Map)) {
+            result.error("INVALID_ARGUMENTS", "Arguments must be a map", null);
+            return;
+        }
+        Map<String, Object> arguments = (Map<String, Object>) call.arguments;
+        if (!arguments.containsKey("marks")) {
+            result.error("INVALID_ARGUMENTS", "marks field is required", null);
+            return;
+        }
+        try {
+            List<Map<String, Object>> notesAndMarksData = (List<Map<String, Object>>) arguments.get("marks");
+            List<NotesAndMarks> notesAndMarks = getNotesAndMarks(notesAndMarksData);
+            readerBuilder.updateNotesAndMarks(notesAndMarks);
+            result.success(null);
+        } catch (Exception e) {
+            Log.e(TAG, "Error updating marks: " + e.getMessage(), e);
+            result.error("UPDATE_MARKS_ERROR", e.getMessage(), null);
         }
     }
 
     private void startReader(String header, String path, String token, Map<String, Object> bookData, Map<String, Object> styleData, String saved) {
         if (activity == null || channel == null) {
-            Log.e("YaqutReaderPlugin", "Cannot start reader: Activity or Channel is null");
+            Log.e(TAG, "Cannot start reader: Activity or Channel is null");
+            ChannelManager.getInstance().sendError("READER_ERROR", "Activity or Channel is null", null);
             return;
         }
-        bookId = (int) bookData.get("bookId");
+
+        // Extract book data with null safety
+        bookId = getIntValue(bookData, "bookId", 0);
         String title = (String) bookData.get("title");
-        int bookFileId = (int) bookData.get("bookFileId");
-        double previewPercentage = (Double) bookData.getOrDefault("previewPercentage", 0.15);
-        int position = (int) bookData.getOrDefault("position", 0);
+        int bookFileId = getIntValue(bookData, "bookFileId", 0);
+        double previewPercentage = getDoubleValue(bookData, "previewPercentage", 0.15);
+        int position = getIntValue(bookData, "position", 0);
         String cover = (String) bookData.get("coverThumbUrl");
-        List<Map<String, Object>> notesAndMarksData = (List<Map<String, Object>>) bookData.getOrDefault("notesAndMarks", new ArrayList<>());
+
+        // Get notes and marks with null safety
+        List<Map<String, Object>> notesAndMarksData = (List<Map<String, Object>>) bookData.get("notesAndMarks");
         List<NotesAndMarks> notesAndMarks = getNotesAndMarks(notesAndMarksData);
-        // Handle Reader Style
-        int readerColor = (int) styleData.getOrDefault("readerColor", 0);
-        int textSize = (int) styleData.getOrDefault("textSize", 22);
-        boolean isJustified = (Boolean) styleData.getOrDefault("isJustified", true);
-        int lineSpacing = (int) styleData.getOrDefault("lineSpacing", 1);
-        int font = (int) styleData.getOrDefault("font", 0);
+
+        // Handle Reader Style with null safety
+        int readerColor = 0;
+        int textSize = 22;
+        boolean isJustified = true;
+        int lineSpacing = 1;
+        int font = 0;
+
+        if (styleData != null) {
+            readerColor = getIntValue(styleData, "readerColor", 0);
+            textSize = getIntValue(styleData, "textSize", 22);
+            isJustified = getBooleanValue(styleData, "isJustified", true);
+            lineSpacing = getIntValue(styleData, "lineSpacing", 1);
+            font = getIntValue(styleData, "font", 0);
+        }
 
         ReaderStyle readerStyle = new ReaderStyle(textSize, readerColor, isJustified ? 1 : 0, lineSpacing, font);
-        readerBuilder = new ReaderBuilder(activity, bookId); // Use Activity context here
+
+        // Create reader listener that will mark reader as closed when closed callback is received
+        ReaderListenerImpl readerListener = new ReaderListenerImpl(bookId) {
+            @Override
+            public void onReaderClosed(int position) {
+                isReaderOpen.set(false);
+                super.onReaderClosed(position);
+            }
+
+            @Override
+            public void onBookForceEnd(int position) {
+                isReaderOpen.set(false);
+                super.onBookForceEnd(position);
+            }
+        };
+
+        readerBuilder = new ReaderBuilder(activity, bookId);
         readerBuilder.setReaderStyle(readerStyle)
-                .setTitle(title)
-                .setCover(cover)
+                .setTitle(title != null ? title : "")
+                .setCover(cover != null ? cover : "")
                 .setPosition(position)
                 .setPercentageView((float) previewPercentage)
-                .setReaderListener(new ReaderListenerImpl(bookId))
+                .setReaderListener(readerListener)
                 .setNotesAndMarks(notesAndMarks)
-                .setReadingStatsListener(new StatsSessionListenerImpl());
-        readerBuilder.setFileId(bookFileId);
-        readerBuilder.setNotesAndMarks(notesAndMarks);
-        if (saved.equals("true")) {
+                .setReadingStatsListener(new StatsSessionListenerImpl())
+                .setFileId(bookFileId);
+
+        // Set save state
+        if ("true".equals(saved)) {
             readerBuilder.setSaveState(ReaderBuilder.SAVE_STATE_SAVED);
             readerBuilder.setDownloadEnabled(true);
-        } else if (saved.equals("false")) {
+        } else if ("false".equals(saved)) {
             readerBuilder.setSaveState(ReaderBuilder.SAVE_STATE_NOT_SAVED);
             readerBuilder.setDownloadEnabled(true);
         } else {
@@ -216,35 +424,88 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
             readerBuilder.setDownloadEnabled(false);
         }
 
-        if (path.isEmpty()) {
+        // Build reader
+        if (path == null || path.isEmpty()) {
             readerBuilder.build();
         } else {
             boolean isSaved = saveBook(bookId, path, header, token);
             if (isSaved) {
                 readerBuilder.build();
+            } else {
+                isReaderOpen.set(false);
+                ChannelManager.getInstance().sendError("SAVE_BOOK_ERROR", "Failed to save book before opening", null);
             }
         }
     }
 
-    private static @NonNull List<NotesAndMarks> getNotesAndMarks(List<Map<String, Object>> notesAndMarksData) {
-        if (notesAndMarksData == null)
-            return null;
-        List<NotesAndMarks> notesAndMarks = new ArrayList<>();
-        for (Map<String, Object> item : notesAndMarksData) {
-            Map<String, Object> newItem = new HashMap<>();
-            int markId = (int) item.getOrDefault("id", 0);
-            int fromOffset = (int) item.getOrDefault("location", 0);
-            int toOffset = (int) item.getOrDefault("length", 0);
-            int markColor = (int) item.getOrDefault("color", 0);
-            String displayText = (String) item.getOrDefault("note", "");
-            int type = (int) item.getOrDefault("type", 0);
-            int deleted = (int) item.getOrDefault("deleted", 0);
-            int local = 1;
+    /**
+     * Safely get int value from map with default fallback
+     */
+    private int getIntValue(Map<String, Object> map, String key, int defaultValue) {
+        if (map == null || !map.containsKey(key)) return defaultValue;
+        Object value = map.get(key);
+        if (value instanceof Integer) return (Integer) value;
+        if (value instanceof Number) return ((Number) value).intValue();
+        return defaultValue;
+    }
 
-            NotesAndMarks noteAndMark = new NotesAndMarks(fromOffset, toOffset, type, displayText, markColor, deleted);
+    /**
+     * Safely get double value from map with default fallback
+     */
+    private double getDoubleValue(Map<String, Object> map, String key, double defaultValue) {
+        if (map == null || !map.containsKey(key)) return defaultValue;
+        Object value = map.get(key);
+        if (value instanceof Double) return (Double) value;
+        if (value instanceof Number) return ((Number) value).doubleValue();
+        return defaultValue;
+    }
+
+    /**
+     * Safely get boolean value from map with default fallback
+     */
+    private boolean getBooleanValue(Map<String, Object> map, String key, boolean defaultValue) {
+        if (map == null || !map.containsKey(key)) return defaultValue;
+        Object value = map.get(key);
+        if (value instanceof Boolean) return (Boolean) value;
+        return defaultValue;
+    }
+
+    /**
+     * Convert Flutter note/mark data to native NotesAndMarks objects.
+     * Returns empty list instead of null for null safety.
+     */
+    private static @NonNull List<NotesAndMarks> getNotesAndMarks(List<Map<String, Object>> notesAndMarksData) {
+        if (notesAndMarksData == null || notesAndMarksData.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<NotesAndMarks> notesAndMarks = new ArrayList<>(notesAndMarksData.size());
+        for (Map<String, Object> item : notesAndMarksData) {
+            if (item == null) continue;
+
+            int fromOffset = getIntValueStatic(item, "location", 0);
+            int toOffset = getIntValueStatic(item, "length", 0);
+            int markColor = getIntValueStatic(item, "color", 0);
+            String displayText = (String) item.getOrDefault("note", "");
+            int type = getIntValueStatic(item, "type", 0);
+            int deleted = getIntValueStatic(item, "deleted", 0);
+
+            NotesAndMarks noteAndMark = new NotesAndMarks(fromOffset, toOffset, type,
+                    displayText != null ? displayText : "", markColor, deleted);
             notesAndMarks.add(noteAndMark);
         }
         return notesAndMarks;
+    }
+
+    /**
+     * Static version for use in static context
+     */
+    private static int getIntValueStatic(Map<String, Object> map, String key, int defaultValue) {
+        if (map == null || !map.containsKey(key)) return defaultValue;
+        Object value = map.get(key);
+        if (value instanceof Integer) return (Integer) value;
+        if (value instanceof Number) return ((Number) value).intValue();
+        return defaultValue;
     }
 
 

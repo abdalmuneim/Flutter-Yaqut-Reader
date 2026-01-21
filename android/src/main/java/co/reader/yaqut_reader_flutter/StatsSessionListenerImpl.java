@@ -56,7 +56,13 @@ public class StatsSessionListenerImpl implements StatsSessionListener, Parcelabl
     // Implement the StatsSessionListener methods here
     @Override
     public void onReadingSessionEnd(ReadingSession session) {
-        Log.d(TAG, "onReadingSessionEnd 123");
+        if (session == null) {
+            Log.w(TAG, "onReadingSessionEnd: session is null");
+            return;
+        }
+
+        Log.d(TAG, "onReadingSessionEnd: bookId=" + session.getBookId() + ", pagesRead=" + session.getPagesRead());
+
         Map<String, Object> data = new HashMap<>();
         data.put("book_id", session.getBookId());
         data.put("book_file_id", session.getBookFileId());
@@ -68,14 +74,11 @@ public class StatsSessionListenerImpl implements StatsSessionListener, Parcelabl
         data.put("covered_length", toIntegerList(session.getCoveredLength()));
         data.put("start_time", session.getStartTime());
         data.put("end_time", session.getEndTime());
-        data.put("md5", session.getMd5());
-        data.put("uuid", session.getUuid());
+        data.put("md5", session.getMd5() != null ? session.getMd5() : "");
+        data.put("uuid", session.getUuid() != null ? session.getUuid() : "");
 
-        MethodChannel channel = ChannelManager.getInstance().getChannel();
-        if (channel != null) {
-            channel.invokeMethod("onReadingSessionEnd", data);
-        }
-
+        // Use ChannelManager's thread-safe invokeMethod
+        ChannelManager.getInstance().invokeMethod("onReadingSessionEnd", data);
     }
 
     private static List<Integer> toIntegerList(Object source) {

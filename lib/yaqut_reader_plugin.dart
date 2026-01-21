@@ -46,6 +46,13 @@ class YaqutReaderPlugin {
   final StreamController<String> onOrientationChangedStreamController =
   StreamController<String>.broadcast();
 
+  /// Stream controller for error callbacks from native side
+  final StreamController<Map<String, dynamic>> onErrorStreamController =
+  StreamController<Map<String, dynamic>>.broadcast();
+
+  /// Stream for receiving error events from native code
+  Stream<Map<String, dynamic>> get onError => onErrorStreamController.stream;
+
   Stream<YaqutReaderStyle> get onStyleChanged =>
       onStyleChangedStreamController.stream;
 
@@ -250,6 +257,18 @@ class YaqutReaderPlugin {
         var data = call.arguments as Map;
         int position = data[constPosition];
         onBookForceEndCallback(position);
+      case 'onError':
+        // Handle error callback from native side
+        if (call.arguments is Map) {
+          final Map<Object?, Object?> rawData = call.arguments as Map<Object?, Object?>;
+          final Map<String, dynamic> errorData = rawData.map(
+            (key, value) => MapEntry(key.toString(), value),
+          );
+          if (kDebugMode) {
+            debugPrint('$constYaqutReaderPluginTag onError: $errorData');
+          }
+          onErrorStreamController.add(errorData);
+        }
       default:
     }
   }
