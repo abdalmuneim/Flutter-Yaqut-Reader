@@ -279,6 +279,27 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
             } else {
                 print("DOWNLOAD TASK: WARNING - downloadProgressEventSink is nil, cannot send event to Flutter!")
             }
+
+            // Update native iOS reader's progress UI
+            print("DOWNLOAD TASK: Updating native iOS reader UI")
+            switch state {
+            case "started":
+                print("DOWNLOAD TASK: Calling readerBuilder.onStartDownloadLoading()")
+                self?.readerBuilder?.onStartDownloadLoading()
+            case "downloading":
+                print("DOWNLOAD TASK: Calling readerBuilder.onUpdateDownloadProgress(progress: \(Float(progress)))")
+                self?.readerBuilder?.onUpdateDownloadProgress(bookId: bookId, progress: Float(progress))
+            case "completed":
+                print("DOWNLOAD TASK: Calling readerBuilder.onHideDownloadProgress()")
+                self?.readerBuilder?.onHideDownloadProgress()
+                self?.readerBuilder?.onStopDownloadLoading()
+            case "failed", "cancelled":
+                print("DOWNLOAD TASK: Calling readerBuilder.onHideDownloadProgress() (failed/cancelled)")
+                self?.readerBuilder?.onHideDownloadProgress()
+                self?.readerBuilder?.onStopDownloadLoading()
+            default:
+                break
+            }
         }
     }
 
