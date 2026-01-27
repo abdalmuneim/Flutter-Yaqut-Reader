@@ -265,23 +265,8 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
             }
             self?.downloadProgressEventSink?(eventDict)
 
-            // Also update the native reader's progress UI
-            if let builder = self?.readerBuilder {
-                switch state {
-                case "started":
-                    builder.startDownloadLoading()
-                case "downloading":
-                    builder.updateDownloadProgress(bookId: bookId, progress: Float(progress))
-                case "completed":
-                    builder.stopDownloadLoading()
-                    builder.hideDownloadProgress()
-                case "failed", "cancelled":
-                    builder.stopDownloadLoading()
-                    builder.hideDownloadProgress()
-                default:
-                    break
-                }
-            }
+            // Note: Native reader progress UI updates are handled via the EventChannel
+            // The Flutter app's DownloadController listens to these events
         }
     }
 
