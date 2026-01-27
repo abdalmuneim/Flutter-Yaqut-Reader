@@ -3,15 +3,24 @@ package co.reader.yaqut_reader_flutter;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import co.yaqut.reader.api.BookInfo;
@@ -19,6 +28,7 @@ import co.yaqut.reader.api.FileSizeInfo;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.embedding.engine.plugins.activity.ActivityAware;
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
+import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 
@@ -28,6 +38,12 @@ import co.yaqut.reader.api.ReaderStyle;
 import co.yaqut.reader.api.SaveBookManager;
 import co.yaqut.reader.api.ReaderManager;
 import co.yaqut.reader.api.NotesAndMarks;
+
+import okhttp3.Call;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 /**
  * Flutter plugin for Yaqut Reader integration.
@@ -45,6 +61,42 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
     private final AtomicBoolean isReaderOpening = new AtomicBoolean(false);
     private final AtomicBoolean isReaderOpen = new AtomicBoolean(false);
 
+    // Download progress EventChannel
+    private EventChannel downloadProgressEventChannel;
+    private EventChannel.EventSink downloadProgressEventSink;
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
+
+    // Download management
+    private final ExecutorService downloadExecutor = Executors.newFixedThreadPool(2);
+    private final OkHttpClient downloadClient = new OkHttpClient.Builder()
+            .connectTimeout(60, java.util.concurrent.TimeUnit.SECONDS)
+            .readTimeout(60, java.util.concurrent.TimeUnit.SECONDS)
+            .writeTimeout(60, java.util.concurrent.TimeUnit.SECONDS)
+            .build();
+    private final ConcurrentHashMap<Integer, Call> activeDownloads = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Integer, DownloadProgressInfo> downloadProgress = new ConcurrentHashMap<>();
+
+    // Download progress info class
+    private static class DownloadProgressInfo {
+        int bookId;
+        double progress;
+        String state;
+        long bytesDownloaded;
+        long totalBytes;
+        String error;
+        String destinationPath;
+
+        DownloadProgressInfo(int bookId, double progress, String state, long bytesDownloaded, long totalBytes, String error, String destinationPath) {
+            this.bookId = bookId;
+            this.progress = progress;
+            this.state = state;
+            this.bytesDownloaded = bytesDownloaded;
+            this.totalBytes = totalBytes;
+            this.error = error;
+            this.destinationPath = destinationPath;
+        }
+    }
+
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
         Log.i(TAG, "onAttachedToEngine: ");
@@ -53,6 +105,22 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
         channel.setMethodCallHandler(this);
         ChannelManager.getInstance().setChannel(channel);
 
+        // Setup EventChannel for download progress
+        downloadProgressEventChannel = new EventChannel(
+                flutterPluginBinding.getBinaryMessenger(),
+                "yaqut_reader_plugin/download_progress"
+        );
+        downloadProgressEventChannel.setStreamHandler(new EventChannel.StreamHandler() {
+            @Override
+            public void onListen(Object arguments, EventChannel.EventSink events) {
+                downloadProgressEventSink = events;
+            }
+
+            @Override
+            public void onCancel(Object arguments) {
+                downloadProgressEventSink = null;
+            }
+        });
 
         if (applicationContext instanceof Application) {
             // Initialize ReaderManager with Application context
@@ -68,6 +136,23 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
         channel.setMethodCallHandler(null);
         channel = null;
         ChannelManager.getInstance().setChannel(channel);
+
+        // Cleanup download resources
+        if (downloadProgressEventChannel != null) {
+            downloadProgressEventChannel.setStreamHandler(null);
+            downloadProgressEventChannel = null;
+        }
+        downloadProgressEventSink = null;
+
+        // Cancel all active downloads
+        for (Call call : activeDownloads.values()) {
+            call.cancel();
+        }
+        activeDownloads.clear();
+        downloadProgress.clear();
+
+        // Shutdown executor (don't await termination to avoid blocking)
+        downloadExecutor.shutdown();
     }
 
     @Override
@@ -128,6 +213,18 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
 
                 case "updateMarks":
                     handleUpdateMarks(call, result);
+                    break;
+
+                case "startDownload":
+                    handleStartDownload(call, result);
+                    break;
+
+                case "cancelDownload":
+                    handleCancelDownload(call, result);
+                    break;
+
+                case "getDownloadStatus":
+                    handleGetDownloadStatus(call, result);
                     break;
 
                 default:
@@ -524,6 +621,224 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
 
     private boolean saveBook(int bookId, String bodyPath, String header, String accessToken) {
         return SaveBookManager.save(applicationContext, bookId, bodyPath, header, accessToken);
+    }
+
+    // MARK: - Download Methods
+
+    private void handleStartDownload(MethodCall call, MethodChannel.Result result) {
+        Map<String, Object> arguments = call.arguments();
+        if (arguments == null) {
+            result.error("INVALID_ARGUMENTS", "Arguments cannot be null", null);
+            return;
+        }
+
+        Object bookIdObj = arguments.get("book_id");
+        Object urlObj = arguments.get("url");
+
+        if (!(bookIdObj instanceof Integer) || !(urlObj instanceof String)) {
+            result.error("INVALID_ARGUMENTS", "book_id and url are required", null);
+            return;
+        }
+
+        int bookId = (Integer) bookIdObj;
+        String url = (String) urlObj;
+
+        @SuppressWarnings("unchecked")
+        Map<String, String> headers = (Map<String, String>) arguments.get("headers");
+        String destinationPath = (String) arguments.get("destination_path");
+
+        // Cancel any existing download for this book
+        Call existingCall = activeDownloads.get(bookId);
+        if (existingCall != null) {
+            existingCall.cancel();
+            activeDownloads.remove(bookId);
+        }
+
+        // Initialize progress tracking
+        downloadProgress.put(bookId, new DownloadProgressInfo(
+                bookId, 0.0, "started", 0, 0, null, destinationPath
+        ));
+
+        // Send started event
+        sendProgressEvent(bookId, 0.0, "started", 0, 0, null);
+
+        // Start download on background thread
+        downloadExecutor.execute(() -> performDownload(bookId, url, headers, destinationPath));
+
+        result.success(true);
+    }
+
+    private void performDownload(int bookId, String url, Map<String, String> headers, String destinationPath) {
+        Request.Builder requestBuilder = new Request.Builder().url(url);
+
+        if (headers != null) {
+            for (Map.Entry<String, String> entry : headers.entrySet()) {
+                requestBuilder.addHeader(entry.getKey(), entry.getValue());
+            }
+        }
+
+        Request request = requestBuilder.build();
+        Call call = downloadClient.newCall(request);
+        activeDownloads.put(bookId, call);
+
+        try {
+            Response response = call.execute();
+            if (!response.isSuccessful()) {
+                sendProgressEvent(bookId, 0.0, "failed", 0, 0, "HTTP " + response.code());
+                activeDownloads.remove(bookId);
+                downloadProgress.remove(bookId);
+                return;
+            }
+
+            ResponseBody body = response.body();
+            if (body == null) {
+                sendProgressEvent(bookId, 0.0, "failed", 0, 0, "Empty response body");
+                activeDownloads.remove(bookId);
+                downloadProgress.remove(bookId);
+                return;
+            }
+
+            long totalBytes = body.contentLength();
+            long downloadedBytes = 0;
+
+            // Determine destination file
+            File destFile;
+            if (destinationPath != null && !destinationPath.isEmpty()) {
+                destFile = new File(destinationPath);
+            } else {
+                File documentsDir = applicationContext.getFilesDir();
+                destFile = new File(documentsDir, "book_" + bookId + ".epub");
+            }
+
+            // Ensure parent directory exists
+            File parentDir = destFile.getParentFile();
+            if (parentDir != null && !parentDir.exists()) {
+                parentDir.mkdirs();
+            }
+
+            // Stream download to file
+            try (InputStream inputStream = body.byteStream();
+                 FileOutputStream outputStream = new FileOutputStream(destFile)) {
+
+                byte[] buffer = new byte[8192];
+                int bytesRead;
+                long lastProgressUpdate = System.currentTimeMillis();
+
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                    // Check if cancelled
+                    if (call.isCanceled()) {
+                        outputStream.close();
+                        destFile.delete();
+                        return;
+                    }
+
+                    outputStream.write(buffer, 0, bytesRead);
+                    downloadedBytes += bytesRead;
+
+                    // Update progress (throttle to every 100ms)
+                    long now = System.currentTimeMillis();
+                    if (now - lastProgressUpdate >= 100) {
+                        double progress = totalBytes > 0 ? (double) downloadedBytes / totalBytes : 0.0;
+                        downloadProgress.put(bookId, new DownloadProgressInfo(
+                                bookId, progress, "downloading", downloadedBytes, totalBytes, null, destFile.getAbsolutePath()
+                        ));
+                        sendProgressEvent(bookId, progress, "downloading", downloadedBytes, totalBytes, null);
+                        lastProgressUpdate = now;
+                    }
+                }
+            }
+
+            // Download completed successfully
+            downloadProgress.put(bookId, new DownloadProgressInfo(
+                    bookId, 1.0, "completed", totalBytes, totalBytes, null, destFile.getAbsolutePath()
+            ));
+            sendProgressEvent(bookId, 1.0, "completed", totalBytes, totalBytes, null);
+
+        } catch (IOException e) {
+            if (!call.isCanceled()) {
+                Log.e(TAG, "Download failed: " + e.getMessage(), e);
+                sendProgressEvent(bookId, 0.0, "failed", 0, 0, e.getMessage());
+            }
+        } finally {
+            activeDownloads.remove(bookId);
+            downloadProgress.remove(bookId);
+        }
+    }
+
+    private void handleCancelDownload(MethodCall call, MethodChannel.Result result) {
+        Map<String, Object> arguments = call.arguments();
+        if (arguments == null) {
+            result.error("INVALID_ARGUMENTS", "Arguments cannot be null", null);
+            return;
+        }
+
+        Object bookIdObj = arguments.get("book_id");
+        if (!(bookIdObj instanceof Integer)) {
+            result.error("INVALID_ARGUMENTS", "book_id is required", null);
+            return;
+        }
+
+        int bookId = (Integer) bookIdObj;
+        Call call1 = activeDownloads.get(bookId);
+
+        if (call1 != null) {
+            call1.cancel();
+            activeDownloads.remove(bookId);
+            downloadProgress.remove(bookId);
+            sendProgressEvent(bookId, 0.0, "cancelled", 0, 0, null);
+            result.success(true);
+        } else {
+            result.success(false);
+        }
+    }
+
+    private void handleGetDownloadStatus(MethodCall call, MethodChannel.Result result) {
+        Map<String, Object> arguments = call.arguments();
+        if (arguments == null) {
+            result.error("INVALID_ARGUMENTS", "Arguments cannot be null", null);
+            return;
+        }
+
+        Object bookIdObj = arguments.get("book_id");
+        if (!(bookIdObj instanceof Integer)) {
+            result.error("INVALID_ARGUMENTS", "book_id is required", null);
+            return;
+        }
+
+        int bookId = (Integer) bookIdObj;
+        DownloadProgressInfo progressInfo = downloadProgress.get(bookId);
+
+        if (progressInfo != null) {
+            Map<String, Object> statusMap = new HashMap<>();
+            statusMap.put("book_id", progressInfo.bookId);
+            statusMap.put("progress", progressInfo.progress);
+            statusMap.put("state", progressInfo.state);
+            statusMap.put("bytes_downloaded", progressInfo.bytesDownloaded);
+            statusMap.put("total_bytes", progressInfo.totalBytes);
+            if (progressInfo.error != null) {
+                statusMap.put("error", progressInfo.error);
+            }
+            result.success(statusMap);
+        } else {
+            result.success(null);
+        }
+    }
+
+    private void sendProgressEvent(int bookId, double progress, String state, long bytesDownloaded, long totalBytes, @Nullable String error) {
+        mainHandler.post(() -> {
+            if (downloadProgressEventSink != null) {
+                Map<String, Object> eventMap = new HashMap<>();
+                eventMap.put("book_id", bookId);
+                eventMap.put("progress", progress);
+                eventMap.put("state", state);
+                eventMap.put("bytes_downloaded", bytesDownloaded);
+                eventMap.put("total_bytes", totalBytes);
+                if (error != null) {
+                    eventMap.put("error", error);
+                }
+                downloadProgressEventSink.success(eventMap);
+            }
+        });
     }
 
     @Override
