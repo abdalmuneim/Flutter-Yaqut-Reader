@@ -125,6 +125,8 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
         if (applicationContext instanceof Application) {
             // Initialize ReaderManager with Application context
             ReaderManager.initialize((Application) applicationContext);
+            // Initialize ReaderBuilder context for download progress broadcasts
+            ReaderBuilder.initContext(applicationContext);
         } else {
             throw new IllegalStateException("Unable to obtain Application instance from context");
         }
@@ -826,6 +828,7 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
 
     private void sendProgressEvent(int bookId, double progress, String state, long bytesDownloaded, long totalBytes, @Nullable String error) {
         mainHandler.post(() -> {
+            // Send event to Flutter via EventChannel
             if (downloadProgressEventSink != null) {
                 Map<String, Object> eventMap = new HashMap<>();
                 eventMap.put("book_id", bookId);
@@ -838,6 +841,9 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
                 }
                 downloadProgressEventSink.success(eventMap);
             }
+
+            // Also update the native reader's progress UI via broadcast
+            ReaderBuilder.updateDownloadProgress(bookId, (float) progress, state, bytesDownloaded, totalBytes, error);
         });
     }
 

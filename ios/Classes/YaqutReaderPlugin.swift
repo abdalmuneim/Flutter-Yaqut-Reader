@@ -252,6 +252,7 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
 
     private func sendProgressEvent(bookId: Int, progress: Double, state: String, bytesDownloaded: Int64, totalBytes: Int64, error: String?) {
         DispatchQueue.main.async { [weak self] in
+            // Send event to Flutter via EventChannel
             var eventDict: [String: Any] = [
                 "book_id": bookId,
                 "progress": progress,
@@ -263,6 +264,24 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
                 eventDict["error"] = error
             }
             self?.downloadProgressEventSink?(eventDict)
+
+            // Also update the native reader's progress UI
+            if let builder = self?.readerBuilder {
+                switch state {
+                case "started":
+                    builder.startDownloadLoading()
+                case "downloading":
+                    builder.updateDownloadProgress(bookId: bookId, progress: Float(progress))
+                case "completed":
+                    builder.stopDownloadLoading()
+                    builder.hideDownloadProgress()
+                case "failed", "cancelled":
+                    builder.stopDownloadLoading()
+                    builder.hideDownloadProgress()
+                default:
+                    break
+                }
+            }
         }
     }
 
