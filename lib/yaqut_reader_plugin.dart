@@ -161,8 +161,11 @@ class YaqutReaderPlugin {
   Stream<DownloadProgressEvent> get downloadProgress {
     _downloadProgressStream ??= _downloadProgressChannel
         .receiveBroadcastStream()
-        .map((event) => DownloadProgressEvent.fromMap(
-            Map<String, dynamic>.from(event as Map)));
+        .map((event) {
+          debugPrint('DOWNLOAD TASK: Plugin received raw event from native: $event');
+          return DownloadProgressEvent.fromMap(
+              Map<String, dynamic>.from(event as Map));
+        });
     return _downloadProgressStream!;
   }
 
@@ -177,18 +180,20 @@ class YaqutReaderPlugin {
     Map<String, String>? headers,
     String? destinationPath,
   }) async {
+    debugPrint('DOWNLOAD TASK: Plugin.startDownload() called for bookId=$bookId');
+    debugPrint('DOWNLOAD TASK: URL=${url.substring(0, url.length > 80 ? 80 : url.length)}...');
     try {
+      debugPrint('DOWNLOAD TASK: Invoking native method startDownload...');
       final result = await methodChannel.invokeMethod<bool>('startDownload', {
         'book_id': bookId,
         'url': url,
         'headers': headers ?? {},
         'destination_path': destinationPath,
       });
+      debugPrint('DOWNLOAD TASK: Native startDownload returned: $result');
       return result ?? false;
     } on PlatformException catch (e) {
-      if (kDebugMode) {
-        debugPrint("Failed to start download: '${e.message}'.");
-      }
+      debugPrint("DOWNLOAD TASK: ERROR - Failed to start download: '${e.message}'");
       return false;
     }
   }

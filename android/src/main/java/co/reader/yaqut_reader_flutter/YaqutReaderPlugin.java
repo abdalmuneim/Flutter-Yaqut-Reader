@@ -628,8 +628,10 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
     // MARK: - Download Methods
 
     private void handleStartDownload(MethodCall call, MethodChannel.Result result) {
+        Log.d(TAG, "DOWNLOAD TASK: handleStartDownload() called");
         Map<String, Object> arguments = call.arguments();
         if (arguments == null) {
+            Log.e(TAG, "DOWNLOAD TASK: ERROR - Arguments are null");
             result.error("INVALID_ARGUMENTS", "Arguments cannot be null", null);
             return;
         }
@@ -638,20 +640,24 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
         Object urlObj = arguments.get("url");
 
         if (!(bookIdObj instanceof Integer) || !(urlObj instanceof String)) {
+            Log.e(TAG, "DOWNLOAD TASK: ERROR - book_id or url missing/invalid");
             result.error("INVALID_ARGUMENTS", "book_id and url are required", null);
             return;
         }
 
         int bookId = (Integer) bookIdObj;
         String url = (String) urlObj;
+        Log.d(TAG, "DOWNLOAD TASK: bookId=" + bookId + ", url length=" + url.length());
 
         @SuppressWarnings("unchecked")
         Map<String, String> headers = (Map<String, String>) arguments.get("headers");
         String destinationPath = (String) arguments.get("destination_path");
+        Log.d(TAG, "DOWNLOAD TASK: headers count=" + (headers != null ? headers.size() : 0));
 
         // Cancel any existing download for this book
         Call existingCall = activeDownloads.get(bookId);
         if (existingCall != null) {
+            Log.d(TAG, "DOWNLOAD TASK: Cancelling existing download for bookId=" + bookId);
             existingCall.cancel();
             activeDownloads.remove(bookId);
         }
@@ -662,21 +668,28 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
         ));
 
         // Send started event
+        Log.d(TAG, "DOWNLOAD TASK: Sending 'started' event");
         sendProgressEvent(bookId, 0.0, "started", 0, 0, null);
 
         // Start download on background thread
+        Log.d(TAG, "DOWNLOAD TASK: Starting download on background thread");
         downloadExecutor.execute(() -> performDownload(bookId, url, headers, destinationPath));
 
         result.success(true);
     }
 
     private void performDownload(int bookId, String url, Map<String, String> headers, String destinationPath) {
+        Log.d(TAG, "DOWNLOAD TASK: performDownload() started for bookId=" + bookId);
         Request.Builder requestBuilder = new Request.Builder().url(url);
 
-        if (headers != null) {
+        if (headers != null && !headers.isEmpty()) {
+            Log.d(TAG, "DOWNLOAD TASK: Adding " + headers.size() + " headers to request");
             for (Map.Entry<String, String> entry : headers.entrySet()) {
+                Log.d(TAG, "DOWNLOAD TASK: Header: " + entry.getKey() + "=" + entry.getValue().substring(0, Math.min(20, entry.getValue().length())) + "...");
                 requestBuilder.addHeader(entry.getKey(), entry.getValue());
             }
+        } else {
+            Log.d(TAG, "DOWNLOAD TASK: No headers to add");
         }
 
         Request request = requestBuilder.build();
@@ -684,8 +697,11 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
         activeDownloads.put(bookId, call);
 
         try {
+            Log.d(TAG, "DOWNLOAD TASK: Executing HTTP request...");
             Response response = call.execute();
+            Log.d(TAG, "DOWNLOAD TASK: HTTP response code=" + response.code());
             if (!response.isSuccessful()) {
+                Log.e(TAG, "DOWNLOAD TASK: ERROR - HTTP request failed with code " + response.code());
                 sendProgressEvent(bookId, 0.0, "failed", 0, 0, "HTTP " + response.code());
                 activeDownloads.remove(bookId);
                 downloadProgress.remove(bookId);
@@ -711,6 +727,8 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
                 File documentsDir = applicationContext.getFilesDir();
                 destFile = new File(documentsDir, "book_" + bookId + ".epub");
             }
+            Log.d(TAG, "DOWNLOAD TASK: Destination file: " + destFile.getAbsolutePath());
+            Log.d(TAG, "DOWNLOAD TASK: Total bytes to download: " + totalBytes);
 
             // Ensure parent directory exists
             File parentDir = destFile.getParentFile();
@@ -719,16 +737,19 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
             }
 
             // Stream download to file
+            Log.d(TAG, "DOWNLOAD TASK: Starting to write to file...");
             try (InputStream inputStream = body.byteStream();
                  FileOutputStream outputStream = new FileOutputStream(destFile)) {
 
                 byte[] buffer = new byte[8192];
                 int bytesRead;
                 long lastProgressUpdate = System.currentTimeMillis();
+                long lastLogUpdate = System.currentTimeMillis();
 
                 while ((bytesRead = inputStream.read(buffer)) != -1) {
                     // Check if cancelled
                     if (call.isCanceled()) {
+                        Log.d(TAG, "DOWNLOAD TASK: Download cancelled by user");
                         outputStream.close();
                         destFile.delete();
                         return;
@@ -747,10 +768,18 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
                         sendProgressEvent(bookId, progress, "downloading", downloadedBytes, totalBytes, null);
                         lastProgressUpdate = now;
                     }
+
+                    // Log progress every 2 seconds
+                    if (now - lastLogUpdate >= 2000) {
+                        double progress = totalBytes > 0 ? (double) downloadedBytes / totalBytes : 0.0;
+                        Log.d(TAG, "DOWNLOAD TASK: Progress " + String.format("%.1f", progress * 100) + "% (" + downloadedBytes + "/" + totalBytes + " bytes)");
+                        lastLogUpdate = now;
+                    }
                 }
             }
 
             // Download completed successfully
+            Log.d(TAG, "DOWNLOAD TASK: Download completed successfully! Total bytes: " + totalBytes);
             downloadProgress.put(bookId, new DownloadProgressInfo(
                     bookId, 1.0, "completed", totalBytes, totalBytes, null, destFile.getAbsolutePath()
             ));
@@ -758,10 +787,11 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
 
         } catch (IOException e) {
             if (!call.isCanceled()) {
-                Log.e(TAG, "Download failed: " + e.getMessage(), e);
+                Log.e(TAG, "DOWNLOAD TASK: ERROR - Download failed: " + e.getMessage(), e);
                 sendProgressEvent(bookId, 0.0, "failed", 0, 0, e.getMessage());
             }
         } finally {
+            Log.d(TAG, "DOWNLOAD TASK: Cleaning up download for bookId=" + bookId);
             activeDownloads.remove(bookId);
             downloadProgress.remove(bookId);
         }
@@ -827,9 +857,11 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
     }
 
     private void sendProgressEvent(int bookId, double progress, String state, long bytesDownloaded, long totalBytes, @Nullable String error) {
+        Log.d(TAG, "DOWNLOAD TASK: sendProgressEvent() - bookId=" + bookId + ", state=" + state + ", progress=" + String.format("%.1f", progress * 100) + "%");
         mainHandler.post(() -> {
             // Send event to Flutter via EventChannel
             if (downloadProgressEventSink != null) {
+                Log.d(TAG, "DOWNLOAD TASK: Sending event to Flutter EventChannel");
                 Map<String, Object> eventMap = new HashMap<>();
                 eventMap.put("book_id", bookId);
                 eventMap.put("progress", progress);
@@ -840,9 +872,12 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
                     eventMap.put("error", error);
                 }
                 downloadProgressEventSink.success(eventMap);
+            } else {
+                Log.w(TAG, "DOWNLOAD TASK: WARNING - downloadProgressEventSink is null, cannot send event to Flutter!");
             }
 
             // Also update the native reader's progress UI via broadcast
+            Log.d(TAG, "DOWNLOAD TASK: Sending broadcast to native reader UI");
             ReaderBuilder.updateDownloadProgress(bookId, (float) progress, state, bytesDownloaded, totalBytes, error);
         });
     }
