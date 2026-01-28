@@ -7,49 +7,13 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
     var channel: FlutterMethodChannel?
     var bookId: Int?
 
-    // Download progress EventChannel
-    private var downloadProgressEventChannel: FlutterEventChannel?
-    private var downloadProgressEventSink: FlutterEventSink?
-
-    // Download management
-    private var downloadSession: URLSession?
-    private var activeDownloads: [Int: URLSessionDownloadTask] = [:]
-    private var downloadProgress: [Int: DownloadProgressInfo] = [:]
-
-    private struct DownloadProgressInfo {
-        var bookId: Int
-        var progress: Double
-        var state: String
-        var bytesDownloaded: Int64
-        var totalBytes: Int64
-        var error: String?
-        var destinationPath: String?
-    }
-
     public static func register(with registrar: FlutterPluginRegistrar) {
         let instance = YaqutReaderPlugin()
         instance.setAppearnce()
         instance.channel = FlutterMethodChannel(name: "yaqut_reader_plugin", binaryMessenger: registrar.messenger())
         registrar.addMethodCallDelegate(instance, channel: instance.channel!)
-
-        // Setup EventChannel for download progress
-        instance.downloadProgressEventChannel = FlutterEventChannel(
-            name: "yaqut_reader_plugin/download_progress",
-            binaryMessenger: registrar.messenger()
-        )
-        instance.downloadProgressEventChannel?.setStreamHandler(instance)
-
-        // Setup URLSession for background downloads
-        instance.setupDownloadSession()
     }
 
-    private func setupDownloadSession() {
-        let config = URLSessionConfiguration.default
-        config.timeoutIntervalForRequest = 60
-        config.timeoutIntervalForResource = 3600 // 1 hour for large files
-        downloadSession = URLSession(configuration: config, delegate: self, delegateQueue: nil)
-    }
-    
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method {
         case "getPlatformVersion":
@@ -70,11 +34,6 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
                 if let bookId = arguments["book_id"] as? Int, let bookFileId = arguments["book_file_id"] as? Int {
                     let bookStorage = BookStorage()
                     let isLocal = bookStorage.isBookLocal(bookId: bookId)
-//                     let data: [String: Any] = [
-//                         "is_local": isLocal,
-//                         "book_id": bookId,
-//                         "book_file_id": bookFileId,
-//                     ]
                     result(isLocal)
                     return
                 }
@@ -99,7 +58,7 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
                        result(bookInfo.length)
                        return
                    }
-                   result(0) // or result(FlutterError(code: "INVALID_ARGUMENT", message: "Missing book_id", details: nil))
+                   result(0)
                } else {
                    result(0)
                }
@@ -131,7 +90,7 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
                     "size": fileInfo.size
                 ] as [String: Any]
             }
-            result(serializedFilesInfo) // Returning a JSON-serializable array
+            result(serializedFilesInfo)
             return
         case "hideReader":
             self.readerBuilder?.hideReaderView()
@@ -147,142 +106,32 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
                 self.updateMarks(notesAndMarksData: marks)
             }
             return
-        case "startDownload":
-            print("DOWNLOAD TASK: *** 'startDownload' method call received in iOS plugin ***")
-            handleStartDownload(call: call, result: result)
-            return
-        case "cancelDownload":
-            handleCancelDownload(call: call, result: result)
-            return
-        case "getDownloadStatus":
-            handleGetDownloadStatus(call: call, result: result)
+        case "updateDownloadProgress":
+            handleUpdateDownloadProgress(call: call, result: result)
             return
         default:
             result(FlutterMethodNotImplemented)
         }
     }
 
-    // MARK: - Download Methods
+    // MARK: - Download Progress Bridge (Flutter -> Native UI)
 
-    private func handleStartDownload(call: FlutterMethodCall, result: @escaping FlutterResult) {
-        print("DOWNLOAD TASK: handleStartDownload() called")
+    private func handleUpdateDownloadProgress(call: FlutterMethodCall, result: @escaping FlutterResult) {
         guard let arguments = call.arguments as? [String: Any],
               let bookId = arguments["book_id"] as? Int,
-              let urlString = arguments["url"] as? String,
-              let url = URL(string: urlString) else {
-            print("DOWNLOAD TASK: ERROR - Invalid arguments")
-            result(FlutterError(code: "INVALID_ARGUMENTS", message: "book_id and url are required", details: nil))
-            return
-        }
-        print("DOWNLOAD TASK: bookId=\(bookId), url length=\(urlString.count)")
-
-        // Cancel any existing download for this book
-        if let existingTask = activeDownloads[bookId] {
-            print("DOWNLOAD TASK: Cancelling existing download for bookId=\(bookId)")
-            existingTask.cancel()
-            activeDownloads.removeValue(forKey: bookId)
-        }
-
-        let headers = arguments["headers"] as? [String: String] ?? [:]
-        let destinationPath = arguments["destination_path"] as? String
-        print("DOWNLOAD TASK: headers count=\(headers.count)")
-
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        for (key, value) in headers {
-            print("DOWNLOAD TASK: Adding header \(key)")
-            request.setValue(value, forHTTPHeaderField: key)
-        }
-
-        // Initialize progress tracking
-        downloadProgress[bookId] = DownloadProgressInfo(
-            bookId: bookId,
-            progress: 0.0,
-            state: "started",
-            bytesDownloaded: 0,
-            totalBytes: 0,
-            error: nil,
-            destinationPath: destinationPath
-        )
-
-        // Send started event
-        print("DOWNLOAD TASK: Sending 'started' event")
-        sendProgressEvent(bookId: bookId, progress: 0.0, state: "started", bytesDownloaded: 0, totalBytes: 0, error: nil)
-
-        // Create download task
-        print("DOWNLOAD TASK: Creating URLSession download task")
-        let downloadTask = downloadSession?.downloadTask(with: request)
-        downloadTask?.taskDescription = "\(bookId)"
-        activeDownloads[bookId] = downloadTask
-        downloadTask?.resume()
-        print("DOWNLOAD TASK: Download task started")
-
-        result(true)
-    }
-
-    private func handleCancelDownload(call: FlutterMethodCall, result: @escaping FlutterResult) {
-        guard let arguments = call.arguments as? [String: Any],
-              let bookId = arguments["book_id"] as? Int else {
-            result(FlutterError(code: "INVALID_ARGUMENTS", message: "book_id is required", details: nil))
+              let progress = arguments["progress"] as? Double,
+              let state = arguments["state"] as? String else {
+            print("DOWNLOAD TASK: ERROR - Invalid arguments for updateDownloadProgress")
+            result(FlutterError(code: "INVALID_ARGUMENTS", message: "book_id, progress, and state are required", details: nil))
             return
         }
 
-        if let task = activeDownloads[bookId] {
-            task.cancel()
-            activeDownloads.removeValue(forKey: bookId)
-            downloadProgress.removeValue(forKey: bookId)
-            sendProgressEvent(bookId: bookId, progress: 0.0, state: "cancelled", bytesDownloaded: 0, totalBytes: 0, error: nil)
-            result(true)
-        } else {
-            result(false)
-        }
-    }
+        let error = arguments["error"] as? String
 
-    private func handleGetDownloadStatus(call: FlutterMethodCall, result: @escaping FlutterResult) {
-        guard let arguments = call.arguments as? [String: Any],
-              let bookId = arguments["book_id"] as? Int else {
-            result(FlutterError(code: "INVALID_ARGUMENTS", message: "book_id is required", details: nil))
-            return
-        }
+        print("DOWNLOAD TASK: updateDownloadProgress() - bookId=\(bookId), state=\(state), progress=\(String(format: "%.1f", progress * 100))%")
 
-        if let progressInfo = downloadProgress[bookId] {
-            let statusDict: [String: Any] = [
-                "book_id": progressInfo.bookId,
-                "progress": progressInfo.progress,
-                "state": progressInfo.state,
-                "bytes_downloaded": progressInfo.bytesDownloaded,
-                "total_bytes": progressInfo.totalBytes,
-                "error": progressInfo.error ?? NSNull()
-            ]
-            result(statusDict)
-        } else {
-            result(nil)
-        }
-    }
-
-    private func sendProgressEvent(bookId: Int, progress: Double, state: String, bytesDownloaded: Int64, totalBytes: Int64, error: String?) {
-        print("DOWNLOAD TASK: sendProgressEvent() - bookId=\(bookId), state=\(state), progress=\(String(format: "%.1f", progress * 100))%")
         DispatchQueue.main.async { [weak self] in
-            // Send event to Flutter via EventChannel
-            var eventDict: [String: Any] = [
-                "book_id": bookId,
-                "progress": progress,
-                "state": state,
-                "bytes_downloaded": bytesDownloaded,
-                "total_bytes": totalBytes
-            ]
-            if let error = error {
-                eventDict["error"] = error
-            }
-            if self?.downloadProgressEventSink != nil {
-                print("DOWNLOAD TASK: Sending event to Flutter EventChannel")
-                self?.downloadProgressEventSink?(eventDict)
-            } else {
-                print("DOWNLOAD TASK: WARNING - downloadProgressEventSink is nil, cannot send event to Flutter!")
-            }
-
             // Update native iOS reader's progress UI
-            print("DOWNLOAD TASK: Updating native iOS reader UI")
             switch state {
             case "started":
                 print("DOWNLOAD TASK: Calling readerBuilder.onStartDownloadLoading()")
@@ -302,6 +151,8 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
                 break
             }
         }
+
+        result(nil)
     }
 
     private func updateMarks(notesAndMarksData: [[String: Any]]) {
@@ -350,7 +201,7 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
             notesAndMarks.append(noteAndMark)
         }
         self.readerBuilder?.setMarks(allMarks: notesAndMarks)
-        
+
         let readerColor = style["readerColor"] as? Int ?? 0
         let textSize = style["textSize"] as? Int ?? 22
         let isJustified = style["isJustified"] as? Bool ?? true
@@ -369,24 +220,24 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
             self.readerBuilder?.build()
         }
     }
-    
+
     private func setAppearnce() {
-        
+
         UITableViewHeaderFooterView.appearance().backgroundColor = .blue
-        
+
         UITabBar.appearance().tintColor = UIColor(red: 0.843, green: 0, blue: 0.212, alpha: 1)
         UITabBar.appearance().unselectedItemTintColor = UIColor.darkGray
         UITabBar.appearance().barTintColor = UIColor.white
         UITabBar.appearance().backgroundColor = UIColor.white
-        
+
         let coconDescriptor = UIFontDescriptor(fontAttributes: [UIFontDescriptor.AttributeName.family: "Tajawal", UIFontDescriptor.AttributeName.face: "Regular"])
         let tajaDescriptor = UIFontDescriptor(fontAttributes: [UIFontDescriptor.AttributeName.family: "CoconÆ Next Arabic", UIFontDescriptor.AttributeName.face: "Regular"])
-        
+
         UITabBarItem.appearance().setTitleTextAttributes([NSAttributedString.Key.font: UIFont(descriptor: tajaDescriptor, size: 14.0)], for: .normal)
-        
+
         UIBarButtonItem.appearance(whenContainedInInstancesOf: [UISearchBar.self]).setTitleTextAttributes([NSAttributedString.Key.foregroundColor: UIColor(red: 0.071, green: 0.071, blue: 0.071, alpha: 1), NSAttributedString.Key.font: UIFont(descriptor: coconDescriptor, size: 15)], for: .normal)
         UIBarButtonItem.appearance(whenContainedInInstancesOf: [UISearchBar.self]).title = "إلغاء"
-        
+
         UINavigationBar.appearance().tintColor = UIColor(red: 0.071, green: 0.071, blue: 0.071, alpha: 1)
         UINavigationBar.appearance().barTintColor = UIColor.white
         UINavigationBar.appearance().backgroundColor = UIColor.white
@@ -402,13 +253,13 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
             UINavigationBar.appearance().scrollEdgeAppearance = app
             UINavigationBar.appearance().compactAppearance = app
         }
-        
+
         UISearchBar.appearance().semanticContentAttribute = .forceRightToLeft
         UISearchBar.appearance().barTintColor = UIColor.white
         UISearchBar.appearance().backgroundColor = UIColor.white
         UISearchBar.appearance().searchBarStyle = .minimal
         UISearchBar.appearance().showsCancelButton = true
-        
+
         UIView.appearance().semanticContentAttribute = .forceRightToLeft
     }
 }
@@ -507,180 +358,5 @@ extension YaqutReaderPlugin: StatsSessionDelegate {
             "uuid": session.getUuid()
             ]
         channel?.invokeMethod("onReadingSessionEnd", arguments: data)
-    }
-}
-
-// MARK: - FlutterStreamHandler for Download Progress EventChannel
-extension YaqutReaderPlugin: FlutterStreamHandler {
-    public func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
-        print("DOWNLOAD TASK: FlutterStreamHandler.onListen() - EventSink connected")
-        downloadProgressEventSink = events
-        return nil
-    }
-
-    public func onCancel(withArguments arguments: Any?) -> FlutterError? {
-        print("DOWNLOAD TASK: FlutterStreamHandler.onCancel() - EventSink disconnected")
-        downloadProgressEventSink = nil
-        return nil
-    }
-}
-
-// MARK: - URLSessionDownloadDelegate for Background Downloads
-extension YaqutReaderPlugin: URLSessionDownloadDelegate {
-    public func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
-        guard let bookIdStr = downloadTask.taskDescription,
-              let bookId = Int(bookIdStr) else {
-            print("DOWNLOAD TASK: didWriteData - ERROR: Could not get bookId from task")
-            return
-        }
-
-        let progress: Double
-        if totalBytesExpectedToWrite > 0 {
-            progress = Double(totalBytesWritten) / Double(totalBytesExpectedToWrite)
-        } else {
-            progress = 0.0
-        }
-
-        // Log every ~10% progress
-        let progressPercent = Int(progress * 100)
-        if progressPercent % 10 == 0 || progressPercent == 1 {
-            print("DOWNLOAD TASK: didWriteData - bookId=\(bookId), progress=\(String(format: "%.1f", progress * 100))% (\(totalBytesWritten)/\(totalBytesExpectedToWrite) bytes)")
-        }
-
-        // Update progress tracking
-        downloadProgress[bookId] = DownloadProgressInfo(
-            bookId: bookId,
-            progress: progress,
-            state: "downloading",
-            bytesDownloaded: totalBytesWritten,
-            totalBytes: totalBytesExpectedToWrite,
-            error: nil,
-            destinationPath: downloadProgress[bookId]?.destinationPath
-        )
-
-        // Send progress event
-        sendProgressEvent(
-            bookId: bookId,
-            progress: progress,
-            state: "downloading",
-            bytesDownloaded: totalBytesWritten,
-            totalBytes: totalBytesExpectedToWrite,
-            error: nil
-        )
-    }
-
-    public func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
-        print("DOWNLOAD TASK: didFinishDownloadingTo - Download completed to temp location: \(location)")
-        guard let bookIdStr = downloadTask.taskDescription,
-              let bookId = Int(bookIdStr) else {
-            print("DOWNLOAD TASK: didFinishDownloadingTo - ERROR: Could not get bookId from task")
-            return
-        }
-        print("DOWNLOAD TASK: didFinishDownloadingTo - bookId=\(bookId)")
-
-        // Move downloaded file to permanent location
-        let fileManager = FileManager.default
-        let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
-
-        var destinationURL: URL
-        if let customPath = downloadProgress[bookId]?.destinationPath {
-            destinationURL = URL(fileURLWithPath: customPath)
-        } else {
-            // Default: save to documents with book ID
-            destinationURL = documentsURL.appendingPathComponent("book_\(bookId).epub")
-        }
-        print("DOWNLOAD TASK: Moving file to destination: \(destinationURL.path)")
-
-        // Remove existing file if present
-        try? fileManager.removeItem(at: destinationURL)
-
-        do {
-            try fileManager.moveItem(at: location, to: destinationURL)
-            print("DOWNLOAD TASK: File moved successfully!")
-
-            // Update progress tracking
-            let totalBytes = downloadProgress[bookId]?.totalBytes ?? 0
-            downloadProgress[bookId] = DownloadProgressInfo(
-                bookId: bookId,
-                progress: 1.0,
-                state: "completed",
-                bytesDownloaded: totalBytes,
-                totalBytes: totalBytes,
-                error: nil,
-                destinationPath: destinationURL.path
-            )
-
-            // Send completed event
-            print("DOWNLOAD TASK: Sending 'completed' event")
-            sendProgressEvent(
-                bookId: bookId,
-                progress: 1.0,
-                state: "completed",
-                bytesDownloaded: totalBytes,
-                totalBytes: totalBytes,
-                error: nil
-            )
-        } catch {
-            print("DOWNLOAD TASK: ERROR - Failed to move file: \(error.localizedDescription)")
-            // Send failed event
-            sendProgressEvent(
-                bookId: bookId,
-                progress: 0.0,
-                state: "failed",
-                bytesDownloaded: 0,
-                totalBytes: 0,
-                error: error.localizedDescription
-            )
-        }
-
-        // Cleanup
-        print("DOWNLOAD TASK: Cleanup - removing from active downloads")
-        activeDownloads.removeValue(forKey: bookId)
-        downloadProgress.removeValue(forKey: bookId)
-    }
-
-    public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
-        print("DOWNLOAD TASK: didCompleteWithError called")
-        guard let downloadTask = task as? URLSessionDownloadTask,
-              let bookIdStr = downloadTask.taskDescription,
-              let bookId = Int(bookIdStr),
-              let error = error else {
-            print("DOWNLOAD TASK: didCompleteWithError - No error or not a download task")
-            return
-        }
-
-        // Only handle errors (successful completion is handled in didFinishDownloadingTo)
-        let nsError = error as NSError
-        print("DOWNLOAD TASK: ERROR - bookId=\(bookId), error code=\(nsError.code), message=\(error.localizedDescription)")
-        if nsError.code == NSURLErrorCancelled {
-            print("DOWNLOAD TASK: Download was cancelled by user")
-            // User cancelled - already handled in cancelDownload
-            return
-        }
-
-        // Update progress tracking
-        downloadProgress[bookId] = DownloadProgressInfo(
-            bookId: bookId,
-            progress: 0.0,
-            state: "failed",
-            bytesDownloaded: 0,
-            totalBytes: 0,
-            error: error.localizedDescription,
-            destinationPath: nil
-        )
-
-        // Send failed event
-        sendProgressEvent(
-            bookId: bookId,
-            progress: 0.0,
-            state: "failed",
-            bytesDownloaded: 0,
-            totalBytes: 0,
-            error: error.localizedDescription
-        )
-
-        // Cleanup
-        activeDownloads.removeValue(forKey: bookId)
-        downloadProgress.removeValue(forKey: bookId)
     }
 }

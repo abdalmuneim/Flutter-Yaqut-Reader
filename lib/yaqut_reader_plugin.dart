@@ -6,71 +6,6 @@ import 'package:yaqut_reader_plugin/models/yaqut_reader_book.dart';
 import 'package:yaqut_reader_plugin/models/yaqut_reader_reading_session.dart';
 import 'package:yaqut_reader_plugin/models/yaqut_reader_style.dart';
 
-/// Download state enum for tracking download progress
-enum DownloadState {
-  idle,
-  started,
-  downloading,
-  completed,
-  failed,
-  cancelled,
-}
-
-/// Download progress event model
-class DownloadProgressEvent {
-  final int bookId;
-  final double progress; // 0.0 to 1.0
-  final DownloadState state;
-  final int bytesDownloaded;
-  final int totalBytes;
-  final String? error;
-
-  DownloadProgressEvent({
-    required this.bookId,
-    required this.progress,
-    required this.state,
-    required this.bytesDownloaded,
-    required this.totalBytes,
-    this.error,
-  });
-
-  factory DownloadProgressEvent.fromMap(Map<String, dynamic> map) {
-    return DownloadProgressEvent(
-      bookId: map['book_id'] as int? ?? 0,
-      progress: (map['progress'] as num?)?.toDouble() ?? 0.0,
-      state: _parseState(map['state'] as String?),
-      bytesDownloaded: map['bytes_downloaded'] as int? ?? 0,
-      totalBytes: map['total_bytes'] as int? ?? 0,
-      error: map['error'] as String?,
-    );
-  }
-
-  static DownloadState _parseState(String? state) {
-    switch (state) {
-      case 'idle':
-        return DownloadState.idle;
-      case 'started':
-        return DownloadState.started;
-      case 'downloading':
-        return DownloadState.downloading;
-      case 'completed':
-        return DownloadState.completed;
-      case 'failed':
-        return DownloadState.failed;
-      case 'cancelled':
-        return DownloadState.cancelled;
-      default:
-        return DownloadState.idle;
-    }
-  }
-
-  @override
-  String toString() {
-    return 'DownloadProgressEvent(bookId: $bookId, progress: $progress, state: $state, '
-        'bytesDownloaded: $bytesDownloaded, totalBytes: $totalBytes, error: $error)';
-  }
-}
-
 class YaqutReaderPlugin {
 
   YaqutReaderPlugin._internal();
@@ -79,13 +14,6 @@ class YaqutReaderPlugin {
 
 
   final methodChannel = const MethodChannel('yaqut_reader_plugin');
-
-  /// EventChannel for receiving download progress updates from native side
-  static const EventChannel _downloadProgressChannel =
-      EventChannel('yaqut_reader_plugin/download_progress');
-
-  /// Cached download progress stream
-  Stream<DownloadProgressEvent>? _downloadProgressStream;
 
   final StreamController<YaqutReaderStyle> onStyleChangedStreamController =
   StreamController<YaqutReaderStyle>.broadcast();
@@ -156,80 +84,27 @@ class YaqutReaderPlugin {
   Stream<String> get onOrientationChanged =>
       onOrientationChangedStreamController.stream;
 
-  /// Stream for receiving download progress events from native code
-  /// Uses EventChannel for efficient continuous progress updates
-  Stream<DownloadProgressEvent> get downloadProgress {
-    _downloadProgressStream ??= _downloadProgressChannel
-        .receiveBroadcastStream()
-        .map((event) {
-          debugPrint('DOWNLOAD TASK: Plugin received raw event from native: $event');
-          return DownloadProgressEvent.fromMap(
-              Map<String, dynamic>.from(event as Map));
-        });
-    return _downloadProgressStream!;
-  }
-
-  /// Start downloading a book for offline use
-  /// [bookId] - The ID of the book to download
-  /// [url] - The URL to download the book from
-  /// [headers] - Optional HTTP headers for authentication
-  /// [destinationPath] - Optional custom destination path
-  Future<bool> startDownload({
+  /// Update native reader's download progress UI
+  /// This forwards progress events from Flutter app to native reader
+  /// [bookId] - The ID of the book being downloaded
+  /// [progress] - Download progress (0.0 to 1.0)
+  /// [state] - Download state: "started", "downloading", "completed", "failed", "cancelled"
+  Future<void> updateDownloadProgress({
     required int bookId,
-    required String url,
-    Map<String, String>? headers,
-    String? destinationPath,
+    required double progress,
+    required String state,
+    String? error,
   }) async {
-    debugPrint('DOWNLOAD TASK: Plugin.startDownload() called for bookId=$bookId');
-    debugPrint('DOWNLOAD TASK: URL=${url.substring(0, url.length > 80 ? 80 : url.length)}...');
+    debugPrint('DOWNLOAD TASK: Plugin.updateDownloadProgress() - bookId=$bookId, progress=${(progress * 100).toStringAsFixed(1)}%, state=$state');
     try {
-      debugPrint('DOWNLOAD TASK: Invoking native method startDownload...');
-      final result = await methodChannel.invokeMethod<bool>('startDownload', {
+      await methodChannel.invokeMethod('updateDownloadProgress', {
         'book_id': bookId,
-        'url': url,
-        'headers': headers ?? {},
-        'destination_path': destinationPath,
+        'progress': progress,
+        'state': state,
+        if (error != null) 'error': error,
       });
-      debugPrint('DOWNLOAD TASK: Native startDownload returned: $result');
-      return result ?? false;
     } on PlatformException catch (e) {
-      debugPrint("DOWNLOAD TASK: ERROR - Failed to start download: '${e.message}'");
-      return false;
-    }
-  }
-
-  /// Cancel an ongoing download
-  /// [bookId] - The ID of the book download to cancel
-  Future<bool> cancelDownload({required int bookId}) async {
-    try {
-      final result = await methodChannel.invokeMethod<bool>('cancelDownload', {
-        'book_id': bookId,
-      });
-      return result ?? false;
-    } on PlatformException catch (e) {
-      if (kDebugMode) {
-        debugPrint("Failed to cancel download: '${e.message}'.");
-      }
-      return false;
-    }
-  }
-
-  /// Get current download status for a book
-  /// Returns null if no download is in progress
-  Future<DownloadProgressEvent?> getDownloadStatus({required int bookId}) async {
-    try {
-      final result = await methodChannel.invokeMethod<Map<dynamic, dynamic>>('getDownloadStatus', {
-        'book_id': bookId,
-      });
-      if (result != null) {
-        return DownloadProgressEvent.fromMap(Map<String, dynamic>.from(result));
-      }
-      return null;
-    } on PlatformException catch (e) {
-      if (kDebugMode) {
-        debugPrint("Failed to get download status: '${e.message}'.");
-      }
-      return null;
+      debugPrint("DOWNLOAD TASK: ERROR - Failed to update download progress: '${e.message}'");
     }
   }
 
