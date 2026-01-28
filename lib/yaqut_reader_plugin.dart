@@ -262,6 +262,7 @@ class YaqutReaderPlugin {
   }
 
   void onDownloadBookCallback() {
+    debugPrint('DOWNLOAD TASK: *** Plugin received onDownloadBook callback from native ***');
     onDownloadBookStreamController.add('onDownloadBook');
   }
 
@@ -376,6 +377,7 @@ class YaqutReaderPlugin {
           onShareQuotesCallback(arguments);
         }
       case 'onDownloadBook':
+        debugPrint('DOWNLOAD TASK: *** Method channel received onDownloadBook from native iOS ***');
         onDownloadBookCallback();
       case 'onSyncNotes':
         List<dynamic> notes = call.arguments;

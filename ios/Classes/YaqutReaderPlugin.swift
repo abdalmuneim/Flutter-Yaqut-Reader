@@ -148,6 +148,7 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
             }
             return
         case "startDownload":
+            print("DOWNLOAD TASK: *** 'startDownload' method call received in iOS plugin ***")
             handleStartDownload(call: call, result: result)
             return
         case "cancelDownload":
@@ -453,6 +454,7 @@ extension YaqutReaderPlugin: ReaderDelegate {
     }
 
     public func onDownloadBook() {
+        print("DOWNLOAD TASK: *** YaqutReaderPlugin.onDownloadBook() - sending callback to Flutter ***")
         channel?.invokeMethod("onDownloadBook", arguments: [:])
     }
 
