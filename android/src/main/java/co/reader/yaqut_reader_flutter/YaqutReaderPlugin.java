@@ -29,6 +29,7 @@ import co.yaqut.reader.api.ReaderStyle;
 import co.yaqut.reader.api.SaveBookManager;
 import co.yaqut.reader.api.ReaderManager;
 import co.yaqut.reader.api.NotesAndMarks;
+import co.yaqut.reader.database.stats.DatabaseManager;
 
 /**
  * Flutter plugin for Yaqut Reader integration.
@@ -138,6 +139,10 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
                     handleUpdateDownloadProgress(call, result);
                     break;
 
+                case "offlineDownloadComplete":
+                    handleOfflineDownloadComplete(call, result);
+                    break;
+
                 default:
                     result.notImplemented();
             }
@@ -180,6 +185,37 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
         });
 
         result.success(null);
+    }
+
+    // MARK: - Offline Download Complete (Delete key from database)
+
+    private void handleOfflineDownloadComplete(MethodCall call, MethodChannel.Result result) {
+        Map<String, Object> arguments = call.arguments();
+        if (arguments == null) {
+            Log.e(TAG, "DOWNLOAD TASK: ERROR - Arguments are null for offlineDownloadComplete");
+            result.error("INVALID_ARGUMENTS", "Arguments cannot be null", null);
+            return;
+        }
+
+        Object bookIdObj = arguments.get("book_id");
+        if (!(bookIdObj instanceof Integer)) {
+            Log.e(TAG, "DOWNLOAD TASK: ERROR - Invalid book_id for offlineDownloadComplete");
+            result.error("INVALID_ARGUMENTS", "book_id must be an integer", null);
+            return;
+        }
+
+        int bookId = (Integer) bookIdObj;
+        Log.d(TAG, "DOWNLOAD TASK: offlineDownloadComplete() - Deleting key for bookId=" + bookId);
+
+        try {
+            // Delete the key from KEYS_TABLE since the book is now stored offline
+            int rowsDeleted = DatabaseManager.getInstance(applicationContext).deleteKeyById(bookId);
+            Log.d(TAG, "DOWNLOAD TASK: offlineDownloadComplete() - Deleted " + rowsDeleted + " key(s) for bookId=" + bookId);
+            result.success(rowsDeleted > 0);
+        } catch (Exception e) {
+            Log.e(TAG, "DOWNLOAD TASK: ERROR - Failed to delete key for bookId=" + bookId + ": " + e.getMessage(), e);
+            result.error("DELETE_KEY_ERROR", e.getMessage(), null);
+        }
     }
 
     private void handleStartReader(MethodCall call, MethodChannel.Result result) {
