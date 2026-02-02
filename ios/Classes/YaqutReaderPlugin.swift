@@ -111,7 +111,7 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
             return
         case "offlineDownloadComplete":
             if let arguments = call.arguments as? [String: Any], let bookId = arguments["book_id"] as? Int {
-                self.offlineDownloadComplete(bookId)
+                self.offlineDownloadComplete(bookId: bookId)
             }
             return
         default:
