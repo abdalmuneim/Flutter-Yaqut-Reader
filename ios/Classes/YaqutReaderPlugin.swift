@@ -171,7 +171,7 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
     }
 
     private func offlineDownloadComplete(bookId: Int) {
-            let saveBookManager = SaveBookManager(bookId: bookId, bodyPath: "", header: nil : header, token: nil)
+            let saveBookManager = SaveBookManager(bookId: bookId, bodyPath: "", header: nil, token: nil)
             saveBookManager.save()
         }
 
