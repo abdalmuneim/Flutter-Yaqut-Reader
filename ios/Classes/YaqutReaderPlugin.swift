@@ -109,6 +109,11 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
         case "updateDownloadProgress":
             handleUpdateDownloadProgress(call: call, result: result)
             return
+        case "offlineDownloadComplete":
+            if let arguments = call.arguments as? [String: Any], let bookId = arguments["book_id"] as? Int {
+                self.offlineDownloadComplete(bookId)
+            }
+            return
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -164,6 +169,11 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
         }
         self.readerBuilder?.updateMarks(allMarks: notesAndMarks)
     }
+
+    private func offlineDownloadComplete(bookId: Int) {
+            let saveBookManager = SaveBookManager(bookId: bookId, bodyPath: "", header: nil : header, token: nil)
+            saveBookManager.save()
+        }
 
     private func startReader(header: String?, path: String?, accessToken: String?, bookData: [String: Any], style: [String: Any], saved: String) {
         print("startReader function saved: \(saved)")

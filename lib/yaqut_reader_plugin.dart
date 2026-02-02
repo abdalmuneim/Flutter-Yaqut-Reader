@@ -202,6 +202,20 @@ class YaqutReaderPlugin {
     }
   }
 
+  void offlineDownloadComplete(
+      int bookId,
+      ) async {
+    try {
+      await methodChannel.invokeMethod('offlineDownloadComplete', {
+        'book_id': bookId,
+      });
+    } on PlatformException catch (e) {
+      if (kDebugMode) {
+        debugPrint("Failed to call native method: '${e.message}'.");
+      }
+    }
+  }
+
   Future<void> readerListener(MethodCall call) async {
     if (kDebugMode) {
       debugPrint(
