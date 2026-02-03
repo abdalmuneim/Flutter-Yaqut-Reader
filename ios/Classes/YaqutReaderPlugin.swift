@@ -96,7 +96,10 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
             self.readerBuilder?.hideReaderView()
             return
         case "showReader":
+            let showStart = CFAbsoluteTimeGetCurrent()
+            print("READER_TIMING_IOS: showReader started")
             self.readerBuilder?.showReaderView()
+            print("READER_TIMING_IOS: showReader completed at \(Int((CFAbsoluteTimeGetCurrent() - showStart) * 1000))ms")
             return
         case "closeReader":
              self.readerBuilder?.closeBook()
