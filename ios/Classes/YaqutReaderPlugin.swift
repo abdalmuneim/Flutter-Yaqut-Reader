@@ -26,7 +26,6 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
                 let path = arguments["path"] as? String
                 let token = arguments["access_token"] as? String
                 let saved = arguments["saved"] as? String
-                print("startReader invoked iOS saved: \(saved)")
                 self.startReader(header: header, path: path, accessToken: token, bookData: book, style: style, saved: saved == nil ? "disabled" : saved!)
             }
         case "checkIfLocal":
@@ -97,9 +96,7 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
             return
         case "showReader":
             let showStart = CFAbsoluteTimeGetCurrent()
-            print("READER_TIMING_IOS: showReader started")
             self.readerBuilder?.showReaderView()
-            print("READER_TIMING_IOS: showReader completed at \(Int((CFAbsoluteTimeGetCurrent() - showStart) * 1000))ms")
             return
         case "closeReader":
              self.readerBuilder?.closeBook()
@@ -129,30 +126,24 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
               let bookId = arguments["book_id"] as? Int,
               let progress = arguments["progress"] as? Double,
               let state = arguments["state"] as? String else {
-            print("DOWNLOAD TASK: ERROR - Invalid arguments for updateDownloadProgress")
             result(FlutterError(code: "INVALID_ARGUMENTS", message: "book_id, progress, and state are required", details: nil))
             return
         }
 
         let error = arguments["error"] as? String
 
-        print("DOWNLOAD TASK: updateDownloadProgress() - bookId=\(bookId), state=\(state), progress=\(String(format: "%.1f", progress * 100))%")
 
         DispatchQueue.main.async { [weak self] in
             // Update native iOS reader's progress UI
             switch state {
             case "started":
-                print("DOWNLOAD TASK: Calling readerBuilder.onStartDownloadLoading()")
                 self?.readerBuilder?.onStartDownloadLoading()
             case "downloading":
-                print("DOWNLOAD TASK: Calling readerBuilder.onUpdateDownloadProgress(progress: \(Float(progress)))")
                 self?.readerBuilder?.onUpdateDownloadProgress(bookId: bookId, progress: Float(progress))
             case "completed":
-                print("DOWNLOAD TASK: Calling readerBuilder.onHideDownloadProgress()")
                 self?.readerBuilder?.onHideDownloadProgress()
                 self?.readerBuilder?.onStopDownloadLoading()
             case "failed", "cancelled":
-                print("DOWNLOAD TASK: Calling readerBuilder.onHideDownloadProgress() (failed/cancelled)")
                 self?.readerBuilder?.onHideDownloadProgress()
                 self?.readerBuilder?.onStopDownloadLoading()
             default:
@@ -180,7 +171,6 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
 
     private func startReader(header: String?, path: String?, accessToken: String?, bookData: [String: Any], style: [String: Any], saved: String) {
         let startTime = CFAbsoluteTimeGetCurrent()
-        print("READER_TIMING_IOS: startReader started")
 
         let bookId = bookData["bookId"] as? Int ?? 0
         let bookFileId = bookData["bookFileId"] as? Int ?? 0
@@ -189,9 +179,7 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
         let position = bookData["position"] as? Int ?? 0
         self.bookId = bookId
 
-        print("READER_TIMING_IOS: creating ReaderBuilder at \(Int((CFAbsoluteTimeGetCurrent() - startTime) * 1000))ms")
         self.readerBuilder = ReaderBuilder(bookId: bookId, language: Language.arabic)
-        print("READER_TIMING_IOS: ReaderBuilder created at \(Int((CFAbsoluteTimeGetCurrent() - startTime) * 1000))ms")
 
         self.readerBuilder?.setReaderDelegate(withReaderDelegate: self)
         self.readerBuilder?.setReadingStatsDelegate(withStatsSessionDelegate: self)
@@ -204,7 +192,6 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
         self.readerBuilder?.setPosition(startPosition: position)
         self.readerBuilder?.setPercentageView(previewPercentage: previewPercentage)
         self.readerBuilder?.setDownloadEnabled(downloadEnabled: true)
-        print("READER_TIMING_IOS: properties set at \(Int((CFAbsoluteTimeGetCurrent() - startTime) * 1000))ms")
 
         if saved == "true" {
             self.readerBuilder?.setSaveState(saveState: .SAVED)
@@ -221,7 +208,6 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
             notesAndMarks.append(noteAndMark)
         }
         self.readerBuilder?.setMarks(allMarks: notesAndMarks)
-        print("READER_TIMING_IOS: marks set at \(Int((CFAbsoluteTimeGetCurrent() - startTime) * 1000))ms")
 
         let readerColor = style["readerColor"] as? Int ?? 0
         let textSize = style["textSize"] as? Int ?? 22
@@ -231,24 +217,17 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
         let font = style["font"] as? Int ?? 0
         let readerStyle = ReaderStyle(readerColor: readerColor, readerTextSize: textSize, isJustified: isJustified, lineSpacing: lineSpacing, font: font)
         self.readerBuilder?.setReaderStyle(readerStyle: readerStyle)
-        print("READER_TIMING_IOS: style set at \(Int((CFAbsoluteTimeGetCurrent() - startTime) * 1000))ms")
 
         if (path ?? "") == "" {
-            print("READER_TIMING_IOS: path is empty, calling build() at \(Int((CFAbsoluteTimeGetCurrent() - startTime) * 1000))ms")
             self.readerBuilder?.build()
-            print("READER_TIMING_IOS: build() completed at \(Int((CFAbsoluteTimeGetCurrent() - startTime) * 1000))ms")
             return
         }
 
-        print("READER_TIMING_IOS: path is NOT empty, calling SaveBookManager.save() at \(Int((CFAbsoluteTimeGetCurrent() - startTime) * 1000))ms")
         let saveBookManager = SaveBookManager(bookId: bookId, bodyPath: path ?? "", header: header == "" ? nil : header, token: accessToken == "" ? nil : accessToken)
         let saveBook = saveBookManager.save()
-        print("READER_TIMING_IOS: SaveBookManager.save() completed at \(Int((CFAbsoluteTimeGetCurrent() - startTime) * 1000))ms, success=\(saveBook)")
 
         if saveBook {
-            print("READER_TIMING_IOS: calling build() at \(Int((CFAbsoluteTimeGetCurrent() - startTime) * 1000))ms")
             self.readerBuilder?.build()
-            print("READER_TIMING_IOS: build() completed at \(Int((CFAbsoluteTimeGetCurrent() - startTime) * 1000))ms")
         }
     }
 
@@ -336,7 +315,6 @@ extension YaqutReaderPlugin: ReaderDelegate {
     }
 
     public func onDownloadBook() {
-        print("DOWNLOAD TASK: *** YaqutReaderPlugin.onDownloadBook() - sending callback to Flutter ***")
         channel?.invokeMethod("onDownloadBook", arguments: [:])
     }
 
@@ -368,7 +346,6 @@ extension YaqutReaderPlugin: ReaderDelegate {
     }
 
     public func onOrientationChanged() {
-    print("**> onOrientationChanged")
         channel?.invokeMethod("onOrientationChanged", arguments: [:])
     }
 }
