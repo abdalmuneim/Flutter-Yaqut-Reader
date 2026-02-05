@@ -169,7 +169,8 @@ class YaqutReaderPlugin {
     required String? accessToken,
     required YaqutReaderBook book,
     required YaqutReaderStyle style,
-    required String saved}) async {
+    required String saved,
+    bool isDarkMode = false}) async {
     methodChannel.setMethodCallHandler(readerListener);
     try {
       await methodChannel.invokeMethod('startReader', {
@@ -179,6 +180,7 @@ class YaqutReaderPlugin {
         constBook: book.toJson(),
         constStyle: style.toJson(),
         constSaved: saved,
+        'is_dark_mode': isDarkMode,
       });
     } on PlatformException catch (e) {
       if (kDebugMode) {

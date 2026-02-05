@@ -26,7 +26,8 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
                 let path = arguments["path"] as? String
                 let token = arguments["access_token"] as? String
                 let saved = arguments["saved"] as? String
-                self.startReader(header: header, path: path, accessToken: token, bookData: book, style: style, saved: saved == nil ? "disabled" : saved!)
+                let isDarkMode = arguments["is_dark_mode"] as? Bool ?? false
+                self.startReader(header: header, path: path, accessToken: token, bookData: book, style: style, saved: saved == nil ? "disabled" : saved!, isDarkMode: isDarkMode)
             }
         case "checkIfLocal":
             if let arguments = call.arguments as? [String: Any] {
@@ -169,7 +170,7 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
             saveBookManager.save()
         }
 
-    private func startReader(header: String?, path: String?, accessToken: String?, bookData: [String: Any], style: [String: Any], saved: String) {
+    private func startReader(header: String?, path: String?, accessToken: String?, bookData: [String: Any], style: [String: Any], saved: String, isDarkMode: Bool) {
         let startTime = CFAbsoluteTimeGetCurrent()
 
         let bookId = bookData["bookId"] as? Int ?? 0
@@ -180,6 +181,7 @@ public class YaqutReaderPlugin: NSObject, FlutterPlugin {
         self.bookId = bookId
 
         self.readerBuilder = ReaderBuilder(bookId: bookId, language: Language.arabic)
+        self.readerBuilder?.setDarkMode(isDark: isDarkMode)
 
         self.readerBuilder?.setReaderDelegate(withReaderDelegate: self)
         self.readerBuilder?.setReadingStatsDelegate(withStatsSessionDelegate: self)
