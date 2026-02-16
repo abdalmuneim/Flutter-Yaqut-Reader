@@ -258,6 +258,7 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
             String saved = (String) arguments.get("saved");
             Map<String, Object> book = (Map<String, Object>) arguments.get("book");
             Map<String, Object> style = (Map<String, Object>) arguments.get("style");
+            boolean isDarkMode = getBooleanValue(arguments, "is_dark_mode", false);
 
             if (book == null) {
                 result.error("INVALID_ARGUMENTS", "Book data cannot be null", null);
@@ -265,7 +266,7 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
                 return;
             }
 
-            startReader(header, path, token, book, style, saved);
+            startReader(header, path, token, book, style, saved, isDarkMode);
             isReaderOpen.set(true);
             result.success(null);
         } catch (Exception e) {
@@ -433,7 +434,7 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
         }
     }
 
-    private void startReader(String header, String path, String token, Map<String, Object> bookData, Map<String, Object> styleData, String saved) {
+    private void startReader(String header, String path, String token, Map<String, Object> bookData, Map<String, Object> styleData, String saved, boolean isDarkMode) {
         if (activity == null || channel == null) {
             Log.e(TAG, "Cannot start reader: Activity or Channel is null");
             ChannelManager.getInstance().sendError("READER_ERROR", "Activity or Channel is null", null);
@@ -502,7 +503,8 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
                 .setReaderListener(readerListener)
                 .setNotesAndMarks(notesAndMarks)
                 .setReadingStatsListener(new StatsSessionListenerImpl())
-                .setFileId(bookFileId);
+                .setFileId(bookFileId)
+                .setDarkMode(isDarkMode);
 
         // Set save state
         if ("true".equals(saved)) {
