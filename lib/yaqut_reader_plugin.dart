@@ -224,95 +224,100 @@ class YaqutReaderPlugin {
   Future<void> readerListener(MethodCall call) async {
     if (kDebugMode) {
       debugPrint(
-          "$constYaqutReaderPluginTag readerListener Called method: ${call
-              .method}");
+          "$constYaqutReaderPluginTag readerListener Called method: ${call.method}");
     }
-    switch (call.method) {
-      case 'onStyleChanged':
-        var data = call.arguments as Map;
-        var lineSpace = data[constLineSpace];
-        var layout = data[constLayout];
-        var fontSize = data[constFontSize];
-        var font = data[constFont];
-        var readerColor = data[constReaderColor];
-        YaqutReaderStyle style = YaqutReaderStyle(
-            readerColor: readerColor,
-            textSize: fontSize,
-            isJustified: layout == 1 ? true : false,
-            lineSpacing: lineSpace,
-            font: font);
-        onStyleChangedCallback(style);
-        if (kDebugMode) {
-          debugPrint("...onStyleChangedCallback...");
-        }
-      case 'onPositionChanged':
-        var data = call.arguments as Map;
-        int position = data[constPosition];
-        onPositionChangedCallback(position);
-      case 'onBookDetailsClicked':
-        onBookDetailsClickedCallback();
-      case 'onSaveBookClicked':
-        var data = call.arguments as Map;
-        int position = data[constPosition];
-        onSaveBookClickedCallback(position);
-      case 'onShareBook':
-        onShareBookCallback();
-      case 'onShareQuotes':
-        // var data = call.arguments as Map;
-        // String text = data[constText];
-        // onShareQuotesCallback(text);
-        final arguments = call.arguments;
-        if (arguments is Map) {
-          final String? text = arguments[constText];
-          if (text != null) {
-            onShareQuotesCallback(text);
-          }
-        } else {
-          onShareQuotesCallback(arguments);
-        }
-      case 'onDownloadBook':
-        debugPrint('DOWNLOAD TASK: *** Method channel received onDownloadBook from native iOS ***');
-        onDownloadBookCallback();
-      case 'onSyncNotes':
-        List<dynamic> notes = call.arguments;
-        onSyncNotesCallback(notes);
-      case 'onReaderClosed':
-        var data = call.arguments as Map;
-        int position = data[constPosition];
-        onReaderClosedCallback(position);
-      case 'onSampleEnded':
-        onSampleEndedCallback();
-      case 'onReadingSessionEnd':
-        if (kDebugMode) {
-          debugPrint('onReadingSessionEnd');
-        }
-        final Map<Object?, Object?> rawData =
-        call.arguments as Map<Object?, Object?>;
-        final Map<String, dynamic> data = rawData.map(
-              (key, value) => MapEntry(key as String, value),
-        );
-        YaqutReaderReadingSession session =
-        YaqutReaderReadingSession.fromJson(data);
-        onSyncReadingSessionCallback(session);
-      case 'onOrientationChanged':
-        onOrientationChangedCallback();
-      case 'onBookForceEnd':
-        var data = call.arguments as Map;
-        int position = data[constPosition];
-        onBookForceEndCallback(position);
-      case 'onError':
-        // Handle error callback from native side
-        if (call.arguments is Map) {
-          final Map<Object?, Object?> rawData = call.arguments as Map<Object?, Object?>;
-          final Map<String, dynamic> errorData = rawData.map(
-            (key, value) => MapEntry(key.toString(), value),
-          );
+    try {
+      switch (call.method) {
+        case 'onStyleChanged':
+          final data = call.arguments as Map? ?? {};
+          final lineSpace = data[constLineSpace] as int? ?? 1;
+          final layout = data[constLayout] as int? ?? 1;
+          final fontSize = data[constFontSize] as int? ?? 22;
+          final font = data[constFont] as int? ?? 0;
+          final readerColor = data[constReaderColor] as int? ?? 0;
+          YaqutReaderStyle style = YaqutReaderStyle(
+              readerColor: readerColor,
+              textSize: fontSize,
+              isJustified: layout == 1,
+              lineSpacing: lineSpace,
+              font: font);
+          onStyleChangedCallback(style);
           if (kDebugMode) {
-            debugPrint('$constYaqutReaderPluginTag onError: $errorData');
+            debugPrint("...onStyleChangedCallback...");
           }
-          onErrorStreamController.add(errorData);
-        }
-      default:
+        case 'onPositionChanged':
+          final data = call.arguments as Map? ?? {};
+          final position = data[constPosition] as int? ?? 0;
+          onPositionChangedCallback(position);
+        case 'onBookDetailsClicked':
+          onBookDetailsClickedCallback();
+        case 'onSaveBookClicked':
+          final data = call.arguments as Map? ?? {};
+          final position = data[constPosition] as int? ?? 0;
+          onSaveBookClickedCallback(position);
+        case 'onShareBook':
+          onShareBookCallback();
+        case 'onShareQuotes':
+          final arguments = call.arguments;
+          if (arguments is Map) {
+            final String? text = arguments[constText];
+            if (text != null) {
+              onShareQuotesCallback(text);
+            }
+          } else if (arguments is String) {
+            onShareQuotesCallback(arguments);
+          }
+        case 'onDownloadBook':
+          if (kDebugMode) {
+            debugPrint('DOWNLOAD TASK: *** Method channel received onDownloadBook from native ***');
+          }
+          onDownloadBookCallback();
+        case 'onSyncNotes':
+          final List<dynamic> notes = call.arguments ?? [];
+          onSyncNotesCallback(notes);
+        case 'onReaderClosed':
+          final data = call.arguments as Map? ?? {};
+          final position = data[constPosition] as int? ?? 0;
+          onReaderClosedCallback(position);
+        case 'onSampleEnded':
+          onSampleEndedCallback();
+        case 'onReadingSessionEnd':
+          if (kDebugMode) {
+            debugPrint('onReadingSessionEnd');
+          }
+          final Map<Object?, Object?> rawData =
+              call.arguments as Map<Object?, Object?>;
+          final Map<String, dynamic> data = rawData.map(
+            (key, value) => MapEntry(key as String, value),
+          );
+          YaqutReaderReadingSession session =
+              YaqutReaderReadingSession.fromJson(data);
+          onSyncReadingSessionCallback(session);
+        case 'onOrientationChanged':
+          onOrientationChangedCallback();
+        case 'onBookForceEnd':
+          final data = call.arguments as Map? ?? {};
+          final position = data[constPosition] as int? ?? 0;
+          onBookForceEndCallback(position);
+        case 'onError':
+          if (call.arguments is Map) {
+            final Map<Object?, Object?> rawData =
+                call.arguments as Map<Object?, Object?>;
+            final Map<String, dynamic> errorData = rawData.map(
+              (key, value) => MapEntry(key.toString(), value),
+            );
+            if (kDebugMode) {
+              debugPrint('$constYaqutReaderPluginTag onError: $errorData');
+            }
+            onErrorStreamController.add(errorData);
+          }
+        default:
+      }
+    } catch (e, stackTrace) {
+      if (kDebugMode) {
+        debugPrint('$constYaqutReaderPluginTag readerListener error: $e');
+        debugPrint('$constYaqutReaderPluginTag stackTrace: $stackTrace');
+      }
     }
   }
 
