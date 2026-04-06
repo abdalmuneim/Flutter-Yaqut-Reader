@@ -256,8 +256,10 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
             String path = (String) arguments.get("path");
             String token = (String) arguments.get("access_token");
             String saved = (String) arguments.get("saved");
-            Map<String, Object> book = (Map<String, Object>) arguments.get("book");
-            Map<String, Object> style = (Map<String, Object>) arguments.get("style");
+            @SuppressWarnings("unchecked")
+            Map<String, Object> book = arguments.get("book") instanceof Map ? (Map<String, Object>) arguments.get("book") : null;
+            @SuppressWarnings("unchecked")
+            Map<String, Object> style = arguments.get("style") instanceof Map ? (Map<String, Object>) arguments.get("style") : null;
             boolean isDarkMode = getBooleanValue(arguments, "is_dark_mode", false);
 
             if (book == null) {
@@ -309,6 +311,7 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
             result.error("INVALID_ARGUMENTS", "Arguments must be a map", null);
             return;
         }
+        @SuppressWarnings("unchecked")
         Map<String, Object> arguments = (Map<String, Object>) call.arguments;
         if (!arguments.containsKey("book_id") || !(arguments.get("book_id") instanceof Integer)) {
             result.error("INVALID_ARGUMENTS", "book_id must be an integer", null);
@@ -328,6 +331,7 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
             result.success(0);
             return;
         }
+        @SuppressWarnings("unchecked")
         Map<String, Object> arguments = (Map<String, Object>) call.arguments;
         if (!arguments.containsKey("book_id") || !(arguments.get("book_id") instanceof Integer)) {
             result.success(0);
@@ -347,6 +351,7 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
             result.error("INVALID_ARGUMENTS", "Arguments must be a map", null);
             return;
         }
+        @SuppressWarnings("unchecked")
         Map<String, Object> arguments = (Map<String, Object>) call.arguments;
         if (!arguments.containsKey("book_id") || !(arguments.get("book_id") instanceof Integer)) {
             result.error("INVALID_ARGUMENTS", "book_id must be an integer", null);
@@ -418,12 +423,14 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
             result.error("INVALID_ARGUMENTS", "Arguments must be a map", null);
             return;
         }
+        @SuppressWarnings("unchecked")
         Map<String, Object> arguments = (Map<String, Object>) call.arguments;
         if (!arguments.containsKey("marks")) {
             result.error("INVALID_ARGUMENTS", "marks field is required", null);
             return;
         }
         try {
+            @SuppressWarnings("unchecked")
             List<Map<String, Object>> notesAndMarksData = (List<Map<String, Object>>) arguments.get("marks");
             List<NotesAndMarks> notesAndMarks = getNotesAndMarks(notesAndMarksData);
             readerBuilder.updateNotesAndMarks(notesAndMarks);
@@ -450,6 +457,7 @@ public class YaqutReaderPlugin implements FlutterPlugin, MethodChannel.MethodCal
         String cover = (String) bookData.get("coverThumbUrl");
 
         // Get notes and marks with null safety
+        @SuppressWarnings("unchecked")
         List<Map<String, Object>> notesAndMarksData = (List<Map<String, Object>>) bookData.get("notesAndMarks");
         List<NotesAndMarks> notesAndMarks = getNotesAndMarks(notesAndMarksData);
 
