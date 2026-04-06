@@ -154,19 +154,22 @@ class YaqutReaderPlugin {
   }
 
   void onSyncReadingSessionCallback(YaqutReaderReadingSession session) {
-    print('onSyncReadingSessionCallback session: $session');
-    if (kDebugMode) {}
+    if (kDebugMode) {
+      debugPrint('onSyncReadingSessionCallback session: $session');
+    }
     onSyncReadingSessionStreamController.add(session);
   }
 
   void onOrientationChangedCallback() {
-    print('==> onOrientationChangedCallback');
+    if (kDebugMode) {
+      debugPrint('==> onOrientationChangedCallback');
+    }
     onOrientationChangedStreamController.add('onOrientationChanged');
   }
 
-  Future<void> startReader({required String? header,
-    required String? path,
-    required String? accessToken,
+  Future<void> startReader({String? header,
+    String? path,
+    String? accessToken,
     required YaqutReaderBook book,
     required YaqutReaderStyle style,
     required String saved,
@@ -280,20 +283,18 @@ class YaqutReaderPlugin {
       case 'onSampleEnded':
         onSampleEndedCallback();
       case 'onReadingSessionEnd':
-        print('onReadingSessionEnd');
+        if (kDebugMode) {
+          debugPrint('onReadingSessionEnd');
+        }
         final Map<Object?, Object?> rawData =
         call.arguments as Map<Object?, Object?>;
-        print('onReadingSessionEnd rawData: $rawData');
         final Map<String, dynamic> data = rawData.map(
               (key, value) => MapEntry(key as String, value),
         );
-        print('onReadingSessionEnd data: $data');
         YaqutReaderReadingSession session =
         YaqutReaderReadingSession.fromJson(data);
-        print('onReadingSessionEnd session: $session');
         onSyncReadingSessionCallback(session);
       case 'onOrientationChanged':
-        print('==> onOrientationChanged');
         onOrientationChangedCallback();
       case 'onBookForceEnd':
         var data = call.arguments as Map;
@@ -327,7 +328,7 @@ class YaqutReaderPlugin {
         debugPrint("Failed to call native method: '${e.message}'.");
       }
     }
-    return isLocal!;
+    return isLocal ?? false;
   }
 
   Future<bool> checkIfSample(int bookId) async {
@@ -341,7 +342,7 @@ class YaqutReaderPlugin {
         debugPrint("Failed to call native method: '${e.message}'.");
       }
     }
-    return isSample!;
+    return isSample ?? true;
   }
 
   Future<int> getBookLength(int bookId) async {
@@ -359,7 +360,7 @@ class YaqutReaderPlugin {
         debugPrint("Failed to call native method: '${e.message}'.");
       }
     }
-    return length!;
+    return length ?? 0;
   }
 
   Future<bool> deleteSampleBook(int bookId) async {
@@ -373,7 +374,7 @@ class YaqutReaderPlugin {
         debugPrint("Failed to call native method: '${e.message}'.");
       }
     }
-    return success!;
+    return success ?? false;
   }
 
   Future<List<int>?> getLocalBooks() async {
@@ -422,5 +423,20 @@ class YaqutReaderPlugin {
     methodChannel.invokeMethod('closeReader');
   }
 
-  getPlatformVersion() {}
+  void dispose() {
+    onStyleChangedStreamController.close();
+    onPositionChangedStreamController.close();
+    onSyncNotesStreamController.close();
+    onBookDetailsClickedStreamController.close();
+    onSaveBookClickedStreamController.close();
+    onDownloadBookStreamController.close();
+    onShareBookStreamController.close();
+    onShareQuotesStreamController.close();
+    onReaderClosedStreamController.close();
+    onBookForceEndStreamController.close();
+    onSampleEndedStreamController.close();
+    onSyncReadingSessionStreamController.close();
+    onOrientationChangedStreamController.close();
+    onErrorStreamController.close();
+  }
 }
