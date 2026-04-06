@@ -16,8 +16,8 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String _platformVersion = 'Unknown';
-  final _yaqutReaderPlugin = YaqutReaderPlugin();
+  final String _platformVersion = 'Unknown';
+  final yaqutReaderPlugin = YaqutReaderPlugin();
 
   @override
   void initState() {
@@ -27,17 +27,13 @@ class _MyAppState extends State<MyApp> {
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
-    String platformVersion;
     // Platform messages may fail, so we use a try/catch PlatformException.
     // We also handle the message potentially returning null.
     try {
-      platformVersion = await _yaqutReaderPlugin.getPlatformVersion() ??
-          'Unknown platform version';
-
       // final result = await _yaqutReaderPlugin.startReader(
       //     header: '', path: '', accessToken: '', book: null, style: null);
     } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
+      // result = 'Failed to get platform version.';
     }
 
     // If the widget was removed from the tree while the asynchronous platform
@@ -45,9 +41,7 @@ class _MyAppState extends State<MyApp> {
     // setState to update our non-existent appearance.
     if (!mounted) return;
 
-    setState(() {
-      _platformVersion = platformVersion;
-    });
+    setState(() {});
   }
 
   @override
