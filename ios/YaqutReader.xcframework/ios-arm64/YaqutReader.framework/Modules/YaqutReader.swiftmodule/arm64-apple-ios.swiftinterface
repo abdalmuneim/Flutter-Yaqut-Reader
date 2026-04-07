@@ -1,7 +1,7 @@
 // swift-interface-format-version: 1.0
-// swift-compiler-version: Apple Swift version 6.2.3 effective-5.10 (swiftlang-6.2.3.3.21 clang-1700.6.3.2)
+// swift-compiler-version: Apple Swift version 6.0.3 effective-5.10 (swiftlang-6.0.3.1.10 clang-1600.0.30.1)
 // swift-module-flags: -target arm64-apple-ios15.0 -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -Onone -enable-experimental-feature DebugDescriptionMacro -enable-bare-slash-regex -module-name YaqutReader
-// swift-module-flags-ignorable: -no-verify-emitted-module-interface -formal-cxx-interoperability-mode=off -interface-compiler-version 6.2.3
+// swift-module-flags-ignorable: -no-verify-emitted-module-interface -formal-cxx-interoperability-mode=off -interface-compiler-version 6.0.3
 import AVFoundation
 import Accelerate
 import CommonCrypto
@@ -363,7 +363,7 @@ extension YaqutReader.Blowfish : YaqutReader.Cipher {
   final public func encrypt<C>(_ bytes: C) throws -> Swift.Array<Swift.UInt8> where C : Swift.Collection, C.Element == Swift.UInt8, C.Index == Swift.Int
   final public func decrypt<C>(_ bytes: C) throws -> Swift.Array<Swift.UInt8> where C : Swift.Collection, C.Element == Swift.UInt8, C.Index == Swift.Int
 }
-public typealias FILEPointer = Swift.UnsafeMutablePointer<_DarwinFoundation2.FILE>
+public typealias FILEPointer = Swift.UnsafeMutablePointer<Darwin.FILE>
 extension UIKit.UIViewController {
   @_Concurrency.MainActor @preconcurrency public var isPanModalPresented: Swift.Bool {
     get
@@ -1247,7 +1247,7 @@ public struct AsyncGroup {
   public func wait(seconds: Swift.Double? = nil) -> Dispatch.DispatchTimeoutResult
   #endif
 }
-extension _DarwinFoundation1.qos_class_t {
+extension Darwin.qos_class_t {
   public var description: Swift.String {
     get
   }
