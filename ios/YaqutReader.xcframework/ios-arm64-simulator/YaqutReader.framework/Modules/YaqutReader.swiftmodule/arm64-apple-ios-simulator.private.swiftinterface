@@ -155,16 +155,12 @@ public struct PCBC : YaqutReader.BlockMode {
 }
 public protocol PaddingProtocol {
   func add(to: Swift.Array<Swift.UInt8>, blockSize: Swift.Int) -> Swift.Array<Swift.UInt8>
-  #if compiler(>=5.3) && $NonescapableTypes
   func remove(from: Swift.Array<Swift.UInt8>, blockSize: Swift.Int?) -> Swift.Array<Swift.UInt8>
-  #endif
 }
 public enum Padding : YaqutReader.PaddingProtocol {
   case noPadding, zeroPadding, pkcs7, pkcs5, eme_pkcs1v15, emsa_pkcs1v15, iso78164, iso10126
   public func add(to: Swift.Array<Swift.UInt8>, blockSize: Swift.Int) -> Swift.Array<Swift.UInt8>
-  #if compiler(>=5.3) && $NonescapableTypes
   public func remove(from: Swift.Array<Swift.UInt8>, blockSize: Swift.Int?) -> Swift.Array<Swift.UInt8>
-  #endif
   public static func == (a: YaqutReader.Padding, b: YaqutReader.Padding) -> Swift.Bool
   public func hash(into hasher: inout Swift.Hasher)
   public var hashValue: Swift.Int {
@@ -1955,9 +1951,7 @@ public typealias CipherOperationOnBlock = (_ block: Swift.ArraySlice<Swift.UInt8
 public protocol BlockMode {
   var options: YaqutReader.BlockModeOption { get }
   @inlinable func worker(blockSize: Swift.Int, cipherOperation: @escaping YaqutReader.CipherOperationOnBlock, encryptionOperation: @escaping YaqutReader.CipherOperationOnBlock) throws -> any YaqutReader.CipherModeWorker
-  #if compiler(>=5.3) && $NonescapableTypes
   var customBlockSize: Swift.Int? { get }
-  #endif
 }
 extension YaqutReader.Archive {
   #if compiler(>=5.3) && $NonescapableTypes
@@ -2626,7 +2620,8 @@ public class RRReaderBookData {
 extension YaqutReader.AES : YaqutReader.Cryptors {
   @inlinable final public func makeEncryptor() throws -> any YaqutReader.Cryptor & YaqutReader.Updatable {
     let blockSize = blockMode.customBlockSize ?? AES.blockSize
-    let worker = try blockMode.worker(blockSize: blockSize, cipherOperation: encrypt, encryptionOperation: encrypt)
+    let encOp: CipherOperationOnBlock = { try? self.encrypt($0) }
+    let worker = try blockMode.worker(blockSize: blockSize, cipherOperation: encOp, encryptionOperation: encOp)
     if worker is StreamModeWorker {
       return try StreamEncryptor(blockSize: blockSize, padding: padding, worker)
     }
@@ -2634,8 +2629,10 @@ extension YaqutReader.AES : YaqutReader.Cryptors {
   }
   @inlinable final public func makeDecryptor() throws -> any YaqutReader.Cryptor & YaqutReader.Updatable {
     let blockSize = blockMode.customBlockSize ?? AES.blockSize
-    let cipherOperation: CipherOperationOnBlock = blockMode.options.contains(.useEncryptToDecrypt) == true ? encrypt : decrypt
-    let worker = try blockMode.worker(blockSize: blockSize, cipherOperation: cipherOperation, encryptionOperation: encrypt)
+    let encOp: CipherOperationOnBlock = { try? self.encrypt($0) }
+    let decOp: CipherOperationOnBlock = { try? self.decrypt($0) }
+    let cipherOperation: CipherOperationOnBlock = blockMode.options.contains(.useEncryptToDecrypt) == true ? encOp : decOp
+    let worker = try blockMode.worker(blockSize: blockSize, cipherOperation: cipherOperation, encryptionOperation: encOp)
     if worker is StreamModeWorker {
       return try StreamDecryptor(blockSize: blockSize, padding: padding, worker)
     }
